@@ -8,14 +8,14 @@
 
 (def test-dir "test")
 
-(def compiler-config {:main          'pluto.test
+(def compiler-config {:main          'pluto.demo
                       :asset-path    "js/out"
                       :output-to     "resources/public/js/pluto.js"
                       :output-dir    "resources/public/js/out"
                       :optimizations :none
                       :static-fns true
                       :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
-                      :preloads        ['day8.re-frame.trace.preload]
+                      :preloads        ['day8.re-frame-10x.preload]
                       :source-map    true})
 
 (def test-config {:main          'my-app.test-runner
@@ -104,7 +104,7 @@
                           port (merge {:http-server-root "public"
                                        :server-ip   "localhost"
                                        :nrepl-port       (some-> port Long/parseLong)
-                                       :on-jsload "pluto.test/run"
+                                       :on-jsload "pluto.demo/run"
                                        :nrepl-middleware ["cemerick.piggieback/wrap-cljs-repl"]}))
       :all-builds       [{:id           "dev"
                           :figwheel     true

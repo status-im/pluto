@@ -1,0 +1,7 @@
+{:main
+ [view {}
+  [text "Hello"]
+  (let [cond? #query [:random-boolean]]
+    (when cond?
+       [text {}
+        "World"]))]}
