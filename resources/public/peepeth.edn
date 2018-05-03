@@ -1,5 +1,5 @@
 {:extension/meta
- {:name          "Light Peepeth client"
+ {:name          "Piplette"
   :description   "A light client for Peepeth using extensions"
   :documentation "..."}
 

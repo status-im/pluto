@@ -1,7 +1,10 @@
 pom.xml
+pluto.iml
 target/
 /npm-debug.log
 node_modules/
+resources/public/js/
+cljs-test-runner-out/
 .rebel_readline_history
 .idea/
 .cpcache/

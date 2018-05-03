@@ -14,14 +14,16 @@
                       :output-dir    "resources/public/js/out"
                       :optimizations :none
                       :static-fns true
+                      :elide-asserts false
                       :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
                       :preloads        ['day8.re-frame-10x.preload]
                       :source-map    true})
 
-(def test-config {:main          'my-app.test-runner
+(def test-config {:main          'pluto.runner
                   :output-to     "target/test.js"
                   :output-dir    "target/test"
                   :optimizations :none
+                  :target        :nodejs
                   :source-map    true})
 
 (def test-environment {:SOME_ENV_VAR "some-env-value"})

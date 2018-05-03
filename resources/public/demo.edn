@@ -1,7 +1,12 @@
-{:main
+{:hooks/main
+ #view [:main]
+ 
+ :views/main
  [view {}
-  [text "Hello"]
-  (let [cond? #query [:random-boolean]]
-    (when cond?
-       [text {}
-        "World"]))]}
+  [text "Hello"]]}
+
+
+;    (let [cond? #query [:random-boolean]]
+ ;     (when cond?
+  ;        [text {}]
+   ;        "World"))
