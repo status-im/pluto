@@ -1,42 +1,33 @@
 (ns pluto.demo
-  (:require [pluto.reader :as reader]
+  (:require [pluto.components.html :as html]
+            [pluto.reader :as reader]
+            [pluto.storage :as storage]
+            [pluto.storage.http :as http]
             [reagent.core :as reagent]
-            [re-frame.core :as rf]
-            [re-frame.loggers :as rf.loggers]
+            [re-frame.core :as re-frame]
+            [re-frame.loggers :as re-frame.loggers]
             [devtools.core :as devtools]))
 
 (enable-console-print!)
 (devtools/install!)
 
 (def warn (js/console.warn.bind js/console))
-(rf.loggers/set-loggers!
+(re-frame.loggers/set-loggers!
   {:warn (fn [& args]
            (cond
              (= "re-frame: overwriting" (first args)) nil
              :else (apply warn args)))})
 
-(defn dispatch-event
-  []
-  (rf/dispatch [:random (zero? (rand-int 2))]))
+(defonce do-timer (js/setInterval #(re-frame/dispatch [:random (zero? (rand-int 2))]) 1000))
 
-(defonce do-timer (js/setInterval dispatch-event 1000))
-
-(rf/reg-event-db
+(re-frame/reg-event-db
   :random
   (fn [db [_ b]]
     (assoc db :random b)))
 
-(rf/reg-sub
+(re-frame/reg-sub
   :random-boolean
   :random)
-
-(defn load-http [s f]
-  (let [xhr (js/XMLHttpRequest.)]
-    (.open xhr "GET" s true)
-    (.send xhr nil)
-    (set! (.-onreadystatechange xhr)
-          #(when (= (.-readyState xhr) 4)
-             (f (.-response xhr))))))
 
 (defn render [h]
   (let [frame (js/document.getElementById "frame")]
@@ -45,12 +36,12 @@
 (defn header []
   [:div
    "Random boolean: "
-   (let [b @(rf/subscribe [:random-boolean])]
+   (let [b @(re-frame/subscribe [:random-boolean])]
      [:span {:style {:color (if b :green :red)}}
       (str b)])])
 
-
 (defn wrap-with-cartouche [o]
+  (println ">>>>" o)
   (fn []
     [:div
      ^{:key 1} [header]
@@ -58,13 +49,15 @@
 
 (defn ^:export run
   []
-  (rf/clear-subscription-cache!)
+  (re-frame/clear-subscription-cache!)
 
-  (load-http "/demo.edn"
+  (storage/fetch (http/HTTPStorage.)
+    {:URL "/demo.edn"}
     #(-> %
          reader/read
-         :main
-         reader/walk-conditionals
-         reader/translate-components
+         :data
+         ((fn [m] (println "<<<" m) (reader/parse {:components html/components :valid-hooks #{:hooks/main}} m)))
+         :data
+         :views/main
          wrap-with-cartouche
          render)))
