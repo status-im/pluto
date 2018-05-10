@@ -9,7 +9,7 @@
 (def test-dir "test")
 
 (def compiler-config {:main          'pluto.demo
-                      :asset-path    "js/out"
+                      :asset-path    "assets/pluto"
                       :output-to     "resources/public/assets/pluto.js"
                       :output-dir    "resources/public/assets/pluto"
                       :optimizations :none

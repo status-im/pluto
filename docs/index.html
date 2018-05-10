@@ -1,14 +1,23 @@
 <html>
-<script type="text/javascript" src="assets/instascan.min.js"></script>
-<script type="text/javascript" src="assets/qrcode.min.js"></script>
+<head>
+    <style>
+        main {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%
+        }
+
+        #selection {
+          padding: 10px;
+        }
+    </style>
+</head>
 <body>
   <main>
       <div id="selection">
-          <span>Scan this QR code to load from IPFS</span>
-          <div id="ipfs"></div>
-          <div>
-              Or load from HTTP <button onclick="pluto.demo.load_and_render('ipfs:QmSKP6f2uUsFq4mk1Afe4ZktxwQifrLb4xRQYNE1LxidKz')">Demo</button>
-          </div>
+          Load demo extension from IPFS <button onclick="pluto.demo.load_and_render('ipfs:QmSKP6f2uUsFq4mk1Afe4ZktxwQifrLb4xRQYNE1LxidKz')">LOAD</button>
       </div>
       <div id="extension">
           <iframe id="frame" srcdoc="<body><main></main></body>"></iframe>
@@ -20,25 +29,3 @@
 </html>
 
 <script src="assets/pluto.js"></script>
-<script>
-var qrcode = new QRCode("ethereum:status-extension:ipfs:QmSKP6f2uUsFq4mk1Afe4ZktxwQifrLb4xRQYNE1LxidKz");
-var svg = qrcode.svg();
-document.getElementById("ipfs").innerHTML = svg;
-</script>
-<script type="text/javascript">
-  let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-  scanner.addListener('scan', function (content) {
-    console.log(content);
-    pluto.demo.load_and_render(content.replace("ethereum:status-extension:", ""));
-  });
-  Instascan.Camera.getCameras().then(function (cameras) {
-    if (cameras.length > 0) {
-      scanner.start(cameras[0]);
-    } else {
-      console.error('No cameras found.');
-
-    }
-  }).catch(function (e) {
-    console.error(e);
-  });
-</script>

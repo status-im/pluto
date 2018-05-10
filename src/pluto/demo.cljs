@@ -42,6 +42,7 @@
     [:div
      (let [{:views/keys [main]} data]
        main)
+     #_
      (when (seq errors)
        (into [:ul]
          (for [{:keys [type] :as m} errors]
@@ -59,7 +60,7 @@
 (defn storage-for [type]
   (condp = type
     "url"  (http/HTTPStorage.)
-    "ipfs" (ipfs/IPFSStorage. "https://gateway.ipfs.io")))
+    "ipfs" (ipfs/IPFSStorage. "https://cors.io/?https://gateway.ipfs.io")))
 
 (defn fetch [uri cb]
   (let [[type id] (string/split uri ":")]
