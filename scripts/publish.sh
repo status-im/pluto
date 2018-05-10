@@ -1,4 +1,4 @@
-mkdir -p demo/assets
+mkdir -p docs/assets
 clj -R:repl build.clj compile once
-cp resources/public/assets/*.js demo/assets
-cp resources/public/index.html demo/
+cp resources/public/assets/*.js docs/assets
+cp resources/public/index.html docs/
