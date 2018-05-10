@@ -1,12 +1,18 @@
 (ns pluto.storage.http
   (:require [pluto.storage :as storage]))
 
+(defn result [xhr]
+  (let [status (.-status xhr)]
+    (if (= 404 status)
+      {:type :error :value status}
+      {:type :success :value (.-responseText xhr)})))
+
 (deftype HTTPStorage []
   storage/Storage
-  (fetch [_ id callback]
+  (fetch [_ {:keys [value]} callback]
     (let [xhr (js/XMLHttpRequest.)]
-      (.open xhr "GET" (:URL id) true)
+      (.open xhr "GET" (str value "/extension.edn") true)
       (.send xhr nil)
       (set! (.-onreadystatechange xhr)
             #(when (= (.-readyState xhr) 4)
-               (callback (.-response xhr)))))))
+               (callback (result xhr)))))))

@@ -10,14 +10,20 @@
 
 (def compiler-config {:main          'pluto.demo
                       :asset-path    "js/out"
-                      :output-to     "resources/public/js/pluto.js"
-                      :output-dir    "resources/public/js/out"
+                      :output-to     "resources/public/assets/pluto.js"
+                      :output-dir    "resources/public/assets/pluto"
                       :optimizations :none
                       :static-fns true
                       :elide-asserts false
                       :closure-defines {"re_frame.trace.trace_enabled_QMARK_" true}
                       :preloads        ['day8.re-frame-10x.preload]
                       :source-map    true})
+
+(def compiler-release-config {:main          'pluto.demo
+                              :output-to     "resources/public/assets/pluto.js"
+                              :optimizations :advanced
+                              :static-fns    true
+                              :elide-asserts true})
 
 (def test-config {:main          'pluto.runner
                   :output-to     "target/test.js"
@@ -65,7 +71,7 @@
 ;;; Compiling task.
 
 (defn compile-once []
-  (api/build source-dir compiler-config))
+  (api/build source-dir compiler-release-config))
 
 (defn compile-refresh []
   (api/watch source-dir compiler-config))
@@ -118,4 +124,4 @@
 
 ;;; Build script entrypoint.
 
-(task *command-line-args*)
+(task (map string/trim *command-line-args*))

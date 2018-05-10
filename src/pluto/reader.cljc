@@ -49,10 +49,10 @@
       {:data
        (try
          (edn/read-string {:default #(do (accumulate-reader-error! errors {:type :unknown-tag :tag %1 :value %2}) %2)
-                           :readers {'query #(mark-reference :query %)
-                                     'event #(mark-reference :event %)
-                                     'view  #(mark-reference :view %)
-                                     'style #(mark-reference :style %)}}
+                           :readers {'status/query #(mark-reference :query %)
+                                     'status/event #(mark-reference :event %)
+                                     'status/view  #(mark-reference :view %)
+                                     'status/style #(mark-reference :style %)}}
                           s)
          (catch #?(:clj Exception :cljs :default) e
            (accumulate-reader-error! errors (assoc (ex-data e) :message (ex-message e)))
@@ -101,27 +101,26 @@
   (reduce #(let [{:keys [data errors]} (parse-view opts %2)]
              (cond-> (update %1 :data conj data)
                      (seq errors) (accumulate-errors errors)))
-          {} children))
+          {:data []} children))
 
 (defn parse-hiccup-element [{:keys [components] :as opts} o]
   ;; TODO permissions
-  ;; TODO replace elements
   (cond
-   (primitive? o) {:data o}
-   (vector? o)
-   (let [[element properties & children] o
-         component (element components)]
-     (cond-> (let [m (parse-hiccup-children opts children)]
-               ;; Reduce parsed children to a single map and wrap them in a hiccup element
-               ;; whose component has been translated to the local platform
-               (update m :data #(apply conj [(or component element) properties] %)))
-             (nil? component) (accumulate-errors [{:type :unknown-component :element element}])))))
+    (or (symbol? o) (primitive? o)) {:data o}
+    (vector? o)
+    (let [[element properties & children] o
+          component (if (fn? element) element (get components element))]
+      (cond-> (let [m (parse-hiccup-children opts children)]
+                ;; Reduce parsed children to a single map and wrap them in a hiccup element
+                ;; whose component has been translated to the local platform
+                (update m :data #(apply conj [(or component element) properties] %)))
+              (nil? component) (accumulate-errors [{:type :unknown-component :element element}])))
+    :else 3))
 
 (defn parse-view [opts o]
   (cond
-    (instance? Reference o) (resolve-reference (:tag o) (:value o))
-    (list? o)               (blocks/parse opts o)
-    :else                   (parse-hiccup-element opts o)))
+    (list? o) (parse-view opts (:data (blocks/parse opts o)))
+    :else     (parse-hiccup-element opts o)))
 
 (defmulti parse-value
   "Parse a definition element value.
@@ -131,9 +130,12 @@
     * :errors a collection of errors"
   (fn [_ k _] (namespace k)))
 
+(defmethod parse-value "extension" [opts _ v] v)
+
 (defmethod parse-value "views" [opts _ v] (parse-view opts v))
+
 ;; TODO extension, events, queries, i18n, styles
-(defmethod parse-value :default [_ k _] {:errors [{:type :unkown-element-type :value k}]})
+(defmethod parse-value :default [_ k _] {:errors [{:type :unknown-element-type :value k}]})
 
 (defn merge-parsed-value
   "Merge result of parse-value into a map.
@@ -157,10 +159,6 @@
    * :permissions a vector of required permissions
    * :errors a vector of errors map triggered during parse"
   [opts m]
-  ;; TODO
-  ; Replace lookup refs with values
-  ; Replace conditional blocks with reagent components
-  ; Errors; Permissions; env cascade (:outer)
   (let [errors (validate-keys opts (keys m))]
     (cond-> (reduce-kv #(merge-parsed-value opts %1 %2 %3) {} m)
-            (seq errors) (accumulate-errors errors))))
+            (seq errors) (accumulate-errors (map (fn [error] {:type (key error) :value (val error)}) errors)))))

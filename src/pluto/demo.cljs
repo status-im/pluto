@@ -1,5 +1,6 @@
 (ns pluto.demo
-  (:require [pluto.components.html :as html]
+  (:require [clojure.string :as string]
+            [pluto.components.html :as html]
             [pluto.reader :as reader]
             [pluto.storage :as storage]
             [pluto.storage.http :as http]
@@ -34,19 +35,18 @@
   (let [frame (js/document.getElementById "frame")]
    (reagent/render (h) (.. (aget frame "contentWindow" "document") -body -firstChild))))
 
-(defn header []
-  [:div
-   "Random boolean: "
-   (let [b @(re-frame/subscribe [:random-boolean])]
-     [:span {:style {:color (if b :green :red)}}
-      (str b)])])
-
-(defn wrap-with-cartouche [o]
-  (println ">>>>" o)
+(defn main-browser
+  "A simple hook for :hooks/main"
+  [{:keys [data errors]}]
   (fn []
     [:div
-     ^{:key 1} [header]
-     ^{:key 2} o]))
+     (let [{:views/keys [main]} data]
+       main)
+     (when (seq errors)
+       (into [:ul]
+         (for [{:keys [type] :as m} errors]
+           [:li
+            [:span [:b (str type)] (pr-str (dissoc m :type))]])))]))
 
 (defn wrap-extensions [os]
   (fn []
@@ -56,23 +56,28 @@
                   [:h2 (:name o)]
                   [:p (:content o)]])]))
 
-(defn ^:export run
-  []
+(defn storage-for [type]
+  (condp = type
+    "url"  (http/HTTPStorage.)
+    "ipfs" (ipfs/IPFSStorage. "https://gateway.ipfs.io")))
+
+(defn fetch [uri cb]
+  (let [[type id] (string/split uri ":")]
+    (storage/fetch
+      (storage-for type)
+      {:value id} cb)))
+
+(defn ^:export load-and-render
+  [s]
   (re-frame/clear-subscription-cache!)
-
-  (storage/fetch (ipfs/IPFSStorage. "http://localhost:8080")
-    {:id "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG" :URL "/demo.edn"}
-    #(->> %
-         wrap-extensions
-         render))
-
-  (storage/fetch (http/HTTPStorage.)
-    {:URL "/demo.edn"}
+  (fetch s
     #(-> %
+         ;; TODO merge all returned files in a map
+         :value
+         first
+         :content
          reader/read
          :data
-         ((fn [m] (println "<<<" m) (reader/parse {:components html/components :valid-hooks #{:hooks/main}} m)))
-         :data
-         :views/main
-         wrap-with-cartouche
+         ((fn [m] (reader/parse {:components html/components :valid-extensions #{:extension/meta} :valid-hooks #{:hooks/main}} m)))
+         main-browser
          render)))

@@ -1,16 +1,18 @@
 (ns pluto.storage.ipfs
-  (:require [pluto.storage :as storage]))
+  (:require [clojure.string :as string]
+            [pluto.storage :as storage]))
 
 (defn- ipfs->extension [ipfs-extension]
   {:extension-id (:Hash ipfs-extension)
    :name         (:Name ipfs-extension)})
 
 (defn parse-directory [response]
-  (->> (js->clj (js/JSON.parse response) :keywordize-keys true)
-       :Objects
-       first
-       :Links
-       (map ipfs->extension)))
+  (when-not (string/blank? response)
+    (->> (js->clj (js/JSON.parse response) :keywordize-keys true)
+         :Objects
+         first
+         :Links
+         (map ipfs->extension))))
 
 (defn fetch-promise [url]
   (new js/Promise (fn [resolve reject]
@@ -19,7 +21,8 @@
                       (.send xhr nil)
                       (set! (.-onreadystatechange xhr)
                             #(when (= (.-readyState xhr) 4)
-                               (resolve (.-response xhr))))))))
+                               ;; TODO handle error codes
+                               (resolve (.-responseText xhr))))))))
 
 (defn list-all [gateway-url directory]
   (fetch-promise (str gateway-url "/api/v0/ls?arg=" directory)))
@@ -34,14 +37,14 @@
 (defn fetch-all [gateway-url extensions]
   (let [promises (js/Promise.all (clj->js (mapv #(fetch gateway-url %) extensions)))]
 
-  (.then promises
-         #(js->clj % :keywordize-keys true))))
+   (.then promises
+          #(js->clj % :keywordize-keys true))))
 
 (defrecord IPFSStorage [gateway-url]
   storage/Storage
   (fetch [this extension callback]
     (..
-      (list-all gateway-url (:id extension))
+      (list-all gateway-url (:value extension))
       (then parse-directory)
       (then (partial fetch-all gateway-url))
-      (then callback))))
+      (then #(callback {:type :success :value %})))))

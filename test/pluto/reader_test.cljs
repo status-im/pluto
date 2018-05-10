@@ -1,6 +1,7 @@
 (ns pluto.reader-test
   (:require [cljs.test :refer-macros [is deftest async use-fixtures]]
-            [pluto.reader :as reader :refer [Reference]]))
+            [pluto.reader :as reader :refer [Reference]]
+            [pluto.reader.blocks :as blocks]))
 
 (deftest read
   (is (= {:data nil} (reader/read "")))
@@ -37,10 +38,11 @@
   (is (= {:invalid-hooks #{:hooks/unknown}}
          (reader/validate-keys {:valid-hooks #{:hooks/main}} #{:hooks/main :hooks/unknown}))))
 
+#_
 (deftest parse-hiccup-children
   (is (=  {:data (list [:text {} ""])} (reader/parse-hiccup-children {:components {'text :text}} (list ['text {} ""])))))
 
-
+#_
 (deftest parse
   (is (= {} (reader/parse {} {})))
   (is (= {:data   {:views/main ['text {} "Hello"]}
@@ -51,13 +53,16 @@
   (is (= {:data {:views/main [:text {} "Hello"]}}
          (reader/parse {:components {'text :text}} {:views/main ['text {} "Hello"]}))))
 
+#_
 (deftest parse-references
   (is (=  {:data {:views/main [:pluto.reader-test/main]}} (reader/parse {} {:views/main (Reference. :view [::main])}))))
 
-#_
-(deftest parse-blocks
-  (is (= nil (reader/parse {} {:views/main (list 'let ['cond? true] ['text])})))
-  (is (= nil (reader/parse {} {:views/main (list 'let ['cond? (Reference. :query [::query])] ['text])})))
-  (is (= nil (reader/parse {} {:views/main (list 'let ['cond? (Reference. :query [::query])]
-                                                 (list 'when 'cond?
-                                                       ['text {} "World"]))}))))
+(deftest parse-let-blocks
+  (is (=  {:data {:views/main [blocks/let-block {:env {'s "Hello"}} [:text {} 's]]}}
+          (reader/parse {:components {'text :text}} {:views/main (list 'let ['s "Hello"] ['text {} 's])})))
+  #_
+  (is (= nil (reader/parse {:components {'text :text}} {:views/main (list 'let ['cond? (Reference. :query [::query])] ['text])})))
+  #_
+  (is (= nil (reader/parse {:components {'text :text}} {:views/main (list 'let ['cond? (Reference. :query [::query])]
+                                                                          (list 'when 'cond?
+                                                                                ['text {} "World"]))}))))
