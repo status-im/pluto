@@ -5,7 +5,9 @@
   (let [status (.-status xhr)]
     (if (= 404 status)
       {:type :error :value status}
-      {:type :success :value (.-responseText xhr)})))
+      {:type :success :value [{:content (.-responseText xhr)}]})))
+
+;; TODO Handle all edn files types, not only extension.edn
 
 (deftype HTTPStorage []
   storage/Storage

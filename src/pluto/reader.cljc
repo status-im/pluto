@@ -16,22 +16,18 @@
   (:refer-clojure :exclude [read])
   (:require [clojure.set              :as set]
             [clojure.tools.reader.edn :as edn]
-            [pluto.reader.blocks      :as blocks]))
+            [pluto.reader.blocks      :as blocks]
+            [pluto.reader.reference   :as reference]
+            [pluto.utils              :as utils]))
 
 (defn- accumulate-reader-error! [a m]
   (swap! a conj m))
 
-;; Record used to track references identified by a set of predefined tag literal
-
-(defrecord Reference [tag value])
-
-(defn mark-reference [type value] (Reference. type value))
-
-#?(:clj
-    (defn ex-message
-      [ex]
-      (when (instance? Throwable ex)
-        (.getMessage ^Throwable ex))))
+(defn- accumulate-reader-exception! [a ex]
+  (accumulate-reader-error! a (merge (ex-data ex)
+                                     {:message (utils/ex-message ex)}
+                                     (when-let [c (utils/ex-cause ex)]
+                                       {:cause c}))))
 
 (defn read
   "Reads an extension definition as an EDN string. Valid tags are replaced by associated records.
@@ -49,13 +45,13 @@
       {:data
        (try
          (edn/read-string {:default #(do (accumulate-reader-error! errors {:type :unknown-tag :tag %1 :value %2}) %2)
-                           :readers {'status/query #(mark-reference :query %)
-                                     'status/event #(mark-reference :event %)
-                                     'status/view  #(mark-reference :view %)
-                                     'status/style #(mark-reference :style %)}}
+                           :readers {'status/query #(reference/create :query %)
+                                     'status/event #(reference/create :event %)
+                                     'status/view  #(reference/create :view %)
+                                     'status/style #(reference/create :style %)}}
                           s)
          (catch #?(:clj Exception :cljs :default) e
-           (accumulate-reader-error! errors (assoc (ex-data e) :message (ex-message e)))
+           (accumulate-reader-exception! errors e)
            nil))}
       (when-let [v @errors]
         {:errors v}))))
@@ -75,23 +71,6 @@
             (seq hooks-keys)       (assoc :invalid-hooks hooks-keys)
             (seq extension-keys)   (assoc :invalid-extensions extension-keys))))
 
-(defmulti resolve-reference
-  ""
-  (fn [tag _] tag))
-
-(defmethod resolve-reference :view [_ value] {:data value}) ;; TODO properly handle local refs and globally whitelisted refs
-;; TODO prevent infinite loops due to self refs ?
-
-;; TODO other reference types
-
-(defmethod resolve-reference :default [tag value] {:errors [{:type :unknown-reference-tag :tag tag :value value}]})
-
-(defn primitive? [o]
-  (or (boolean? o)
-      (int? o)
-      (float? o)
-      (string? o)))
-
 (defn accumulate-errors [m s]
   (update m :errors concat s))
 
@@ -106,7 +85,7 @@
 (defn parse-hiccup-element [{:keys [components] :as opts} o]
   ;; TODO permissions
   (cond
-    (or (symbol? o) (primitive? o)) {:data o}
+    (or (symbol? o) (utils/primitive? o)) {:data o}
     (vector? o)
     (let [[element properties & children] o
           component (if (fn? element) element (get components element))]
@@ -119,7 +98,11 @@
 
 (defn parse-view [opts o]
   (cond
-    (list? o) (parse-view opts (:data (blocks/parse opts o)))
+    (list? o)
+    (let [{:keys [data errors]} (blocks/parse opts o)]
+      (if errors
+        {:errors errors}
+        (parse-view opts data))) ;; TODO ?
     :else     (parse-hiccup-element opts o)))
 
 (defmulti parse-value
@@ -130,7 +113,7 @@
     * :errors a collection of errors"
   (fn [_ k _] (namespace k)))
 
-(defmethod parse-value "extension" [opts _ v] v)
+(defmethod parse-value "extension" [_ _ v] v)
 
 (defmethod parse-value "views" [opts _ v] (parse-view opts v))
 

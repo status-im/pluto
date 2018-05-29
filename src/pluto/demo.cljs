@@ -6,6 +6,7 @@
             [pluto.storage.http :as http]
             [pluto.storage.ipfs :as ipfs]
             [reagent.core :as reagent]
+            [reagent.dom :as dom]
             [re-frame.core :as re-frame]
             [re-frame.loggers :as re-frame.loggers]
             [devtools.core :as devtools]))
@@ -31,31 +32,23 @@
   :random-boolean
   :random)
 
-(defn render [h]
-  (let [frame (js/document.getElementById "frame")]
-   (reagent/render (h) (.. (aget frame "contentWindow" "document") -body -firstChild))))
+(defn render [h el]
+  (reagent/render h el))
 
-(defn main-browser
+(defn main-hook
   "A simple hook for :hooks/main"
-  [{:keys [data errors]}]
-  (fn []
-    [:div
-     (let [{:views/keys [main]} data]
-       main)
-     #_
-     (when (seq errors)
-       (into [:ul]
-         (for [{:keys [type] :as m} errors]
-           [:li
-            [:span [:b (str type)] (pr-str (dissoc m :type))]])))]))
+  [m]
+  [:div
+   (let [{:views/keys [main]} m]
+     main)])
 
-(defn wrap-extensions [os]
-  (fn []
-    [:div
-     (for [o os]
-       ^{:key o} [:div
-                  [:h2 (:name o)]
-                  [:p (:content o)]])]))
+(defn errors-list [v]
+  [:div
+   [:div "Errors"]
+   (into [:ul]
+     (for [{:keys [type] :as m} v]
+       [:li
+        [:span [:b (str type)] (pr-str (dissoc m :type))]]))])
 
 (defn storage-for [type]
   (condp = type
@@ -68,17 +61,30 @@
       (storage-for type)
       {:value id} cb)))
 
+(defn parse [m]
+  (reader/parse {:components       html/components
+                 :valid-extensions #{:extension/meta}
+                 :valid-hooks      #{:hooks/main}}
+                m))
+
+(defn render-extension [m el el-errors]
+  (let [{:keys [data errors]} (parse m)]
+    (when errors
+      (render (errors-list errors) el-errors))
+    (render (main-hook data) el)))
+
+(defn read-extension [o el el-errors]
+  (let [{:keys [data errors]} (reader/read (:content (first o)))]
+    (render-extension data el el-errors)))
+
+(defn render-result [{:keys [type value]} el el-errors]
+  (case type
+    :error (set! (.-innerHTML el-errors) value)
+    (read-extension value el el-errors)))
+
 (defn ^:export load-and-render
-  [s]
+  [s el el-errors]
+  (dom/unmount-component-at-node el)
+  (dom/unmount-component-at-node el-errors)
   (re-frame/clear-subscription-cache!)
-  (fetch s
-    #(-> %
-         ;; TODO merge all returned files in a map
-         :value
-         first
-         :content
-         reader/read
-         :data
-         ((fn [m] (reader/parse {:components html/components :valid-extensions #{:extension/meta} :valid-hooks #{:hooks/main}} m)))
-         main-browser
-         render)))
+  (fetch s #(render-result % el el-errors)))

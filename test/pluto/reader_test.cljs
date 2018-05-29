@@ -1,6 +1,7 @@
 (ns pluto.reader-test
   (:require [cljs.test :refer-macros [is deftest async use-fixtures]]
-            [pluto.reader :as reader :refer [Reference]]
+            [pluto.reader :as reader]
+            [pluto.reader.reference :refer [Reference]]
             [pluto.reader.blocks :as blocks]))
 
 (deftest read
@@ -9,7 +10,7 @@
   (is (= {:data [] :errors [{:type :unknown-tag :tag 'unknown, :value []}]}
          (reader/read "#unknown []")))
   (is (= {:data (Reference. :query [])}
-         (reader/read "#query []")))
+         (reader/read "#status/query []")))
   (is (= {:data {:extension/main (Reference. :view [:main])
                  :views/main     ['view {}
                                   ['text "Hello"]
@@ -19,12 +20,12 @@
                                        "World"]))]}}
          (reader/read
            "{:extension/main
-              #view [:main]
+              #status/view [:main]
 
              :views/main
               [view {}
                 [text \"Hello\"]
-                  (let [cond? #query [:random-boolean]]
+                  (let [cond? #status/query [:random-boolean]]
                     (when cond?
                       [text {}
                         \"World\"]))]}"))))
@@ -38,11 +39,9 @@
   (is (= {:invalid-hooks #{:hooks/unknown}}
          (reader/validate-keys {:valid-hooks #{:hooks/main}} #{:hooks/main :hooks/unknown}))))
 
-#_
 (deftest parse-hiccup-children
   (is (=  {:data (list [:text {} ""])} (reader/parse-hiccup-children {:components {'text :text}} (list ['text {} ""])))))
 
-#_
 (deftest parse
   (is (= {} (reader/parse {} {})))
   (is (= {:data   {:views/main ['text {} "Hello"]}
@@ -57,9 +56,14 @@
 (deftest parse-references
   (is (=  {:data {:views/main [:pluto.reader-test/main]}} (reader/parse {} {:views/main (Reference. :view [::main])}))))
 
-(deftest parse-let-blocks
+(deftest parse-blocks
   (is (=  {:data {:views/main [blocks/let-block {:env {'s "Hello"}} [:text {} 's]]}}
           (reader/parse {:components {'text :text}} {:views/main (list 'let ['s "Hello"] ['text {} 's])})))
+  (is (=  {:data {:views/main [blocks/when-block {:test 'cond} [:text {} ""]]}}
+        (reader/parse {:components {'text :text}} {:views/main (list 'when 'cond ['text {} ""])})))
+  (is (=  {:data {:views/main [blocks/when-block {:test 'cond} [:text {} ""]]}}
+          (reader/parse {:components {'text :text}} {:views/main (list 'when "string" ['text {} ""])})))
+
   #_
   (is (= nil (reader/parse {:components {'text :text}} {:views/main (list 'let ['cond? (Reference. :query [::query])] ['text])})))
   #_

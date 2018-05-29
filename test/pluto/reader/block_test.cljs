@@ -3,5 +3,7 @@
             [pluto.reader.blocks :as blocks]))
 
 (deftest parse
-  (is (= nil (blocks/parse {} '(let [s "Hello"] s))))
-  (is (= nil (blocks/parse {} '(let [s "Hello"] ['test {} s])))))
+  (is (= {:data [blocks/let-block {:env {'s "Hello"}} 's]}
+         (blocks/parse {} '(let [s "Hello"] s))))
+  (is (= {:data [blocks/let-block {:env {'s "Hello"}} ['test {} 's]]}
+         (blocks/parse {} (list 'let ['s "Hello"] ['test {} 's])))))

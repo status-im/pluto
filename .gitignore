@@ -1,8 +1,12 @@
 pom.xml
 pluto.iml
+figwheel_server.log
 target/
+out/
 /npm-debug.log
 node_modules/
+nashorn_code_cache/
+.cljs_nashorn_repl/
 resources/public/js/
 cljs-test-runner-out/
 .rebel_readline_history

@@ -18,11 +18,11 @@
   (new js/Promise (fn [resolve reject]
                     (let [xhr (js/XMLHttpRequest.)]
                       (.open xhr "GET" url true)
+                      (set! (.-timeout xhr) 2000)
+                      (set! (.-ontimeout xhr) #(reject :timeout))
                       (.send xhr nil)
-                      (set! (.-onreadystatechange xhr)
-                            #(when (= (.-readyState xhr) 4)
-                               ;; TODO handle error codes
-                               (resolve (.-responseText xhr))))))))
+                      (set! (.-onload xhr)
+                            #(resolve (.-responseText xhr)))))))
 
 (defn list-all [gateway-url directory]
   (fetch-promise (str gateway-url "/api/v0/ls?arg=" directory)))
@@ -42,9 +42,10 @@
 
 (defrecord IPFSStorage [gateway-url]
   storage/Storage
-  (fetch [this extension callback]
+  (fetch [_ extension callback]
     (..
       (list-all gateway-url (:value extension))
       (then parse-directory)
       (then (partial fetch-all gateway-url))
-      (then #(callback {:type :success :value %})))))
+      (then #(callback {:type :success :value %})
+            #(callback {:type :error   :value %})))))

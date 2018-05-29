@@ -1,14 +1,19 @@
 (ns pluto.reader.blocks
-  (:require [clojure.walk :as walk]
-            [re-frame.core :as re-frame]))
+  (:require [clojure.walk           :as walk]
+            [pluto.reader.reference :as reference]
+            [re-frame.core          :as re-frame]))
 
 (defmulti parse
   ""
   (fn [_ [type]] type))
 
+(defn resolve-query [o]
+  (cond
+    (reference/reference? o)
+    @(re-frame/subscribe (:value o))))
+
 (defn resolve-queries [env]
-  ;; TODO only resolve encoded queries
-  (reduce-kv #(assoc %1 %2 (if (record? %3) @(re-frame/subscribe (:value %3))) %3)
+  (reduce-kv #(assoc %1 %2 (resolve-query %3))
              {}
              env))
 
@@ -24,6 +29,7 @@
 (defmethod parse 'let [_ [_ bindings & body]]
   {:data
    ;; TODO error if multiple body as let only considers last
+   ;; TODO resolve query references only once, error if unknown
    (let [m     (bindings->env bindings)
          child (last body)]
      [let-block {:env m} child])})
