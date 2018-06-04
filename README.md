@@ -1,4 +1,14 @@
-Launch figwheel with ./scripts/figwheel.sh then open http://127.0.0.1/index.html
+
+## Development
+
+Development requires [Deps and CLI](https://clojure.org/guides/getting_started) tooling installed.
+
+Run Clojure tests using `clojure -Atest-clj`
+Run ClojureScript tests using `clojure -Atest-cljs`
+
+Run figwheel using `clojure -Afigwheel`.
+
+
 
 ### IPFS
 

@@ -1,5 +1,5 @@
 (ns pluto.reader-test
-  (:require [cljs.test :refer-macros [is deftest async use-fixtures]]
+  (:require [clojure.test :refer [is deftest]]
             [pluto.reader :as reader]
             [pluto.reader.reference :refer [Reference]]
             [pluto.reader.blocks :as blocks]))
