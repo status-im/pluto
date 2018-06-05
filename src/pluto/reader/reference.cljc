@@ -3,7 +3,7 @@
 
 ;; Record used to track references identified by a set of predefined tag literal
 
-(defrecord Reference [tag value])
+(defrecord Reference [type value])
 
 (defn create [type value] (Reference. type value))
 
@@ -11,11 +11,14 @@
 
 (defmulti resolve
           ""
-          (fn [tag _] tag))
+          (fn [m {:keys [type]}] type))
 
-(defmethod resolve :view [_ value] {:data value}) ;; TODO properly handle local refs and globally whitelisted refs
+(defmethod resolve :view [m {:keys [value]}]
+  (if-let [view (get m value)]
+    {:data view}
+    {:errors [{:type :unknown-view :value value}]})) ;; TODO properly handle local refs and globally whitelisted refs
 ;; TODO prevent infinite loops due to self refs ?
 
 ;; TODO other reference types
 
-(defmethod resolve :default [tag value] {:errors [{:type :unknown-reference-tag :tag tag :value value}]})
+(defmethod resolve :default [m {:keys [type value]}] {:errors [{:type :unknown-reference-type :value value}]})

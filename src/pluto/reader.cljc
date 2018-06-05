@@ -56,34 +56,39 @@
       (when-let [v @errors]
         {:errors v}))))
 
-(def valid-namespaces #{"extension" "hooks" "views" "events" "queries" "styles" "i18n"})
+(def valid-extension-keys #{:meta})
+(def valid-namespaces #{"hooks" "views" "events" "queries" "styles" "i18n"})
 
-(defn validate-keys [{:keys [valid-hooks valid-extensions]} s]
-  (let [keys             (set (filter (comp empty? namespace) s))
-        keys-with-ns     (set/difference (set s) keys)
-        namespaces       (set (map namespace keys-with-ns))
-        extra-namespaces (set/difference namespaces valid-namespaces)
-        hooks-keys       (set/difference (set (filter #(= "hooks" (namespace %)) keys-with-ns)) valid-hooks)
-        extension-keys   (set/difference (set (filter #(= "extension" (namespace %)) keys-with-ns)) valid-extensions)]
+(defn validate-keys [{:keys [valid-hooks]} s]
+  (let [keys                 (set (filter (comp empty? namespace) s))
+        extra-extension-keys (set/difference keys valid-extension-keys)
+        keys-with-ns         (set/difference (set s) keys)
+        namespaces           (set (map namespace keys-with-ns))
+        extra-namespaces     (set/difference namespaces valid-namespaces)
+        hooks-keys           (set/difference (set (filter #(= "hooks" (namespace %)) keys-with-ns)) (map key valid-hooks))]
     (cond-> nil
-            (seq keys)             (assoc :no-namespace keys)
-            (seq extra-namespaces) (assoc :invalid-namespaces extra-namespaces)
-            (seq hooks-keys)       (assoc :invalid-hooks hooks-keys)
-            (seq extension-keys)   (assoc :invalid-extensions extension-keys))))
+            (seq extra-extension-keys) (assoc :type :invalid-extension-keys :value extra-extension-keys)
+            (seq extra-namespaces)     (assoc :type :invalid-namespaces :value extra-namespaces)
+            (seq hooks-keys)           (assoc :type :invalid-hooks :value hooks-keys))))
 
 (defn accumulate-errors [m s]
   (update m :errors concat s))
+
+(defn merge-errors [m errors]
+  (cond-> m
+          (seq errors) (accumulate-errors errors)))
 
 (declare parse-view)
 
 (defn parse-hiccup-children [opts children]
   (reduce #(let [{:keys [data errors]} (parse-view opts %2)]
-             (cond-> (update %1 :data conj data)
-                     (seq errors) (accumulate-errors errors)))
+             (merge-errors (update %1 :data conj data)
+                           errors))
           {:data []} children))
 
 (defn parse-hiccup-element [{:keys [components] :as opts} o]
   ;; TODO permissions
+  ;; TODO handle errors
   (cond
     (or (symbol? o) (utils/primitive? o)) {:data o}
     (vector? o)
@@ -93,8 +98,7 @@
                 ;; Reduce parsed children to a single map and wrap them in a hiccup element
                 ;; whose component has been translated to the local platform
                 (update m :data #(apply conj [(or component element) properties] %)))
-              (nil? component) (accumulate-errors [{:type :unknown-component :element element}])))
-    :else 3))
+              (nil? component) (accumulate-errors [{:type :unknown-component :value element}])))))
 
 (defn parse-view [opts o]
   (cond
@@ -113,35 +117,38 @@
     * :errors a collection of errors"
   (fn [_ k _] (namespace k)))
 
-(defmethod parse-value "extension" [_ _ v] v)
+(defmethod parse-value "hooks" [opts _ v] v)
 
 (defmethod parse-value "views" [opts _ v] (parse-view opts v))
 
-;; TODO extension, events, queries, i18n, styles
-(defmethod parse-value :default [_ k _] {:errors [{:type :unknown-element-type :value k}]})
+;; TODO events, queries, i18n, styles
+(defmethod parse-value :default [_ _ _] {:errors [{:type :unknown-key}]})
 
 (defn merge-parsed-value
   "Merge result of parse-value into a map.
    :data is updated to its parsed value
    :errors are accumulated"
   [opts m k v]
-  (let [{:keys [data errors]} (parse-value opts k v)]
-    (cond-> (assoc-in m [:data k] data)
-            (seq errors) (accumulate-errors (map #(assoc % :key k) errors)))))
+  (if (namespace k)
+    (let [{:keys [data errors]} (parse-value opts k v)] ;; TODO skip extension, hooks
+      (merge-errors (assoc-in m [:data k] data)
+                    (map #(assoc % :key k) errors)))
+    m))
 
 ;; TODO use specs for validation? Depends on opts, need to perform replacement during walk
-;; specs would allow to generate UIs and help with testing          
-          
+;; specs would allow to generate UIs and help with testing
+
 (defn parse
   "Parse an extension definition map as encapsulated in :data key of the map returned by read.
    `opts` is a map defining:
-   * `valid-hooks` a set of valid hooks
+   * `valid-hooks` a map of valid hook definitions
   
    Returns a map defining:
    * :data a map
    * :permissions a vector of required permissions
-   * :errors a vector of errors map triggered during parse"
+   * :errors a vector of errors maps triggered during parse"
   [opts m]
   (let [errors (validate-keys opts (keys m))]
-    (cond-> (reduce-kv #(merge-parsed-value opts %1 %2 %3) {} m)
-            (seq errors) (accumulate-errors (map (fn [error] {:type (key error) :value (val error)}) errors)))))
+    (merge-errors (reduce-kv #(merge-parsed-value opts %1 %2 %3) {} m)
+                  errors)))
+;; TODO replace all refs to query, event and view here

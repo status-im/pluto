@@ -4,11 +4,11 @@
         reagent                         {:mvn/version "0.8.0"}
         re-frame                        {:mvn/version "0.10.5"}}
  :paths ["src" "resources"]
- :aliases {:figwheel {:extra-paths ["target" "figwheel-resources" "examples/src" "examples/resources"]
+ :aliases {:figwheel {:extra-paths ["target" "figwheel/resources" "figwheel/src"]
                       :extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.1.0-SNAPSHOT"}
                                     com.bhauman/rebel-readline-cljs {:mvn/version "0.1.1"}
                                     binaryage/devtools              {:mvn/version "0.9.10"}}
-                      :main-opts   ["-m" "figwheel.main" "-c" "pluto.demo" "-r"]}
+                      :main-opts   ["-m" "figwheel.main" "-c" "pluto.figwheel.index" "-r"]}
            :test-clj {:extra-paths ["test"]
                       :extra-deps  {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
                                                                :sha      "5fb4fc46ad0bf2e0ce45eba5b9117a2e89166479"}}
