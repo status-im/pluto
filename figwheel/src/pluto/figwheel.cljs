@@ -1,4 +1,4 @@
-(ns pluto.figwheel.index
+(ns ^:figwheel-hooks pluto.figwheel
   (:require [clojure.string :as string]
             [pluto.components.html :as html]
             [pluto.reader :as reader]
@@ -90,5 +90,11 @@
   [s el el-errors]
   (dom/unmount-component-at-node el)
   (dom/unmount-component-at-node el-errors)
-  (re-frame/clear-subscription-cache!)
   (fetch s #(render-result % el el-errors)))
+
+(defn ^:before-load before-reload []
+  (re-frame/clear-subscription-cache!)
+  (println "Reloading ..."))
+
+(defn ^:after-load after-reload []
+  (println "Reloading done."))

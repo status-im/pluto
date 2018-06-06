@@ -1,0 +1,2 @@
+{:main     pluto.figwheel
+ :log-file "figwheel-main.log"}

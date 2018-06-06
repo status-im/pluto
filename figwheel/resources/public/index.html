@@ -33,7 +33,7 @@
 <body>
   <script>
       function load(urn) {
-        pluto.figwheel.index.load_and_render(urn, document.getElementById("frame").contentWindow.document.body.firstChild, document.getElementById("errors"));
+        pluto.figwheel.load_and_render(urn, document.getElementById("frame").contentWindow.document.body.firstChild, document.getElementById("errors"));
       }
   </script>
   <main>
@@ -50,4 +50,4 @@
 </body>
 </html>
 
-<script src="cljs-out/main.js"></script>
+<script src="cljs-out/figwheel/dev-main.js"></script>
