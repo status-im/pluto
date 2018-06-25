@@ -1,0 +1,46 @@
+/* your custom css */
+
+.mainContainer .wrapper .post ol {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px 20px 20px 40px;
+}
+
+.mainContainer .wrapper p, .blockElement p, .mainContainer .wrapper ul li, .mainContainer .wrapper ol li {
+    line-height: 1.3;
+}
+
+.darkBackground {
+    background-color: #4A5AB5;
+}
+
+.container .wrapper .imageAlignSide h2 {
+    font-weight: 500;
+}
+
+.container .wrapper .imageAlignSide p {
+    text-align: left;
+}
+
+.todo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font: 2em;
+  font-weight: bold;
+}
+
+@media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
+}
+
+@media only screen and (min-width: 1024px) {
+}
+
+@media only screen and (max-width: 1023px) {
+}
+
+@media only screen and (min-width: 1400px) {
+}
+
+@media only screen and (min-width: 1500px) {
+}

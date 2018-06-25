@@ -1,4 +1,6 @@
 
+[![CircleCI](https://img.shields.io/circleci/project/github/jeluard/pluto.svg)](https://circleci.com/gh/jeluard/pluto/tree/master)
+
 ## Development
 
 Development requires [Deps and CLI](https://clojure.org/guides/getting_started) tooling installed.

@@ -1,5 +1,5 @@
 {:deps {org.clojure/clojure             {:mvn/version "1.9.0"}
-        org.clojure/clojurescript       {:mvn/version "1.10.238"}
+        org.clojure/clojurescript       {:mvn/version "1.10.329"}
         org.clojure/tools.reader        {:mvn/version "1.2.1"}
         reagent                         {:mvn/version "0.8.0"}
         re-frame                        {:mvn/version "0.10.5"}}
