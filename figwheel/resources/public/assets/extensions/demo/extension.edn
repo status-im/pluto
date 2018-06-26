@@ -6,12 +6,12 @@
  :hooks/main
  {:name        ""
   :description ""
-  :view        #status/view [:views/main]}
+  :view        @views/main}
 
  :views/main
  [view {}
   [text {} "Hello"]
-  (let [cond? #status/query [:random-boolean]]
+  (let [cond? @queries/random-boolean]
     (if cond?
       [text {:style {:color "green"}}
        "World?"]

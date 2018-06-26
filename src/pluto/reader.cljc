@@ -15,7 +15,7 @@
     * based on hooks, inject views / trigger events"
   (:refer-clojure :exclude [read])
   (:require [clojure.set              :as set]
-            [clojure.tools.reader.edn :as edn]
+            [clojure.tools.reader     :as reader]
             [pluto.reader.blocks      :as blocks]
             [pluto.reader.reference   :as reference]
             [pluto.utils              :as utils]))
@@ -44,12 +44,10 @@
     (merge
       {:data
        (try
-         (edn/read-string {:default #(do (accumulate-reader-error! errors {:type :unknown-tag :tag %1 :value %2}) %2)
-                           :readers {'status/query #(reference/create :query %)
-                                     'status/event #(reference/create :event %)
-                                     'status/view  #(reference/create :view %)
-                                     'status/style #(reference/create :style %)}}
-                          s)
+         #?(:clj   (binding [reader/*read-eval* false]
+                     (reader/read-string {} s))
+             :cljs (reader/read-string {} s))
+
          (catch #?(:clj Exception :cljs :default) e
            (accumulate-reader-exception! errors e)
            nil))}
@@ -117,7 +115,7 @@
     * :errors a collection of errors"
   (fn [_ k _] (namespace k)))
 
-(defmethod parse-value "hooks" [opts _ v] v)
+(defmethod parse-value "hooks" [_ _ v] v)
 
 (defmethod parse-value "views" [opts _ v] (parse-view opts v))
 

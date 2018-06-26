@@ -10,7 +10,7 @@
 (defn resolve-query [o]
   (cond
     (reference/reference? o)
-    @(re-frame/subscribe (:value o))))
+    @(re-frame/subscribe [(keyword (name (second o)))])))
 
 (defn resolve-queries [env]
   (reduce-kv #(assoc %1 %2 (resolve-query %3))

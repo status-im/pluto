@@ -1,31 +1,28 @@
 (ns pluto.reader-test
+  (:refer-clojure :exclude [read])
   (:require [clojure.test :refer [is deftest]]
             [pluto.reader :as reader]
-            [pluto.reader.reference :refer [Reference]]
             [pluto.reader.blocks :as blocks]))
 
 (deftest read
   (is (= {:data nil} (reader/read "")))
   (is (= {:data nil :errors [{:type :reader-exception :ex-kind :eof :message "Unexpected EOF while reading item 0 of vector."}]} (reader/read "[")))
-  (is (= {:data [] :errors [{:type :unknown-tag :tag 'unknown, :value []}]}
+  (is (= {:data nil :errors [{:type :reader-exception :ex-kind :reader-error :message "No reader function for tag unknown."}]}
          (reader/read "#unknown []")))
-  (is (= {:data (Reference. :query [])}
-         (reader/read "#status/query []")))
-  (is (= {:data {:extension/main (Reference. :view [:main])
+  (is (= {:data {:extension/main '@view/main
                  :views/main     ['view {}
                                   ['text "Hello"]
-                                  (list 'let ['cond? (Reference. :query [:random-boolean])]
+                                  (list 'let ['cond? '@query/random-boolean]
                                     (list 'when 'cond?
                                       ['text {}
                                        "World"]))]}}
          (reader/read
-           "{:extension/main
-              #status/view [:main]
+           "{:extension/main @view/main
 
              :views/main
               [view {}
                 [text \"Hello\"]
-                  (let [cond? #status/query [:random-boolean]]
+                  (let [cond? @query/random-boolean]
                     (when cond?
                       [text {}
                         \"World\"]))]}"))))
@@ -48,8 +45,6 @@
          (reader/parse {:components {'text :text}} {:views/main ['text {} "Hello"]})))
   (is (= {:data {:views/main [:text {} "Hello"]}}
          (reader/parse {:components {'text :text}} {:views/main ['text {} "Hello"]}))))
-#_
-(not (= {:data {:views/main nil}} :errors ({:type :unsupported-type, :value "string", :key :views/main}) {:data {:views/main nil}, :errors ({:type :unsupported-type, :value "string", :key :views/main})}))
 
 (deftest parse-blocks
   (is (=  {:data {:views/main [blocks/let-block {:env {'s "Hello"}} [:text {} 's]]}}
