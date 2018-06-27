@@ -14,20 +14,16 @@
    # Activate
     * based on hooks, inject views / trigger events"
   (:refer-clojure :exclude [read])
-  (:require [clojure.set              :as set]
-            [clojure.tools.reader     :as reader]
+  (:require [clojure.tools.reader     :as reader]
             [pluto.reader.blocks      :as blocks]
-            [pluto.reader.reference   :as reference]
+            [pluto.reader.errors      :as errors]
             [pluto.utils              :as utils]))
 
-(defn- accumulate-reader-error! [a m]
-  (swap! a conj m))
-
-(defn- accumulate-reader-exception! [a ex]
-  (accumulate-reader-error! a (merge (ex-data ex)
-                                     {:message (utils/ex-message ex)}
-                                     (when-let [c (utils/ex-cause ex)]
-                                       {:cause c}))))
+(defn- reader-error [ex]
+  (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
+                (merge {::errors/message (utils/ex-message ex)}
+                       (when-let [c (utils/ex-cause ex)]
+                         {:cause c}))))
 
 (defn read
   "Reads an extension definition as an EDN string. Valid tags are replaced by associated records.
@@ -40,34 +36,36 @@
    * :data the extension definition as a map
    * :errors a vector of errors map triggered during read"
   [s]
-  (let [errors (atom nil)]
-    (merge
-      {:data
-       (try
-         #?(:clj   (binding [reader/*read-eval* false]
-                     (reader/read-string {} s))
-             :cljs (reader/read-string {} s))
+  (try
+    {:data
+     #?(:clj   (binding [reader/*read-eval* false]
+                 (reader/read-string {} s))
+        :cljs  (reader/read-string {} s))}
+    (catch #?(:clj Exception :cljs :default) ex
+      {:errors [(reader-error ex)]})))
 
-         (catch #?(:clj Exception :cljs :default) e
-           (accumulate-reader-exception! errors e)
-           nil))}
-      (when-let [v @errors]
-        {:errors v}))))
-
-(def valid-extension-keys #{:meta})
+(def valid-keys #{'meta})
 (def valid-namespaces #{"hooks" "views" "events" "queries" "styles" "i18n"})
 
-(defn validate-keys [{:keys [valid-hooks]} s]
-  (let [keys                 (set (filter (comp empty? namespace) s))
-        extra-extension-keys (set/difference keys valid-extension-keys)
-        keys-with-ns         (set/difference (set s) keys)
-        namespaces           (set (map namespace keys-with-ns))
-        extra-namespaces     (set/difference namespaces valid-namespaces)
-        hooks-keys           (set/difference (set (filter #(= "hooks" (namespace %)) keys-with-ns)) (map key valid-hooks))]
-    (cond-> nil
-            (seq extra-extension-keys) (assoc :type :invalid-extension-keys :value extra-extension-keys)
-            (seq extra-namespaces)     (assoc :type :invalid-namespaces :value extra-namespaces)
-            (seq hooks-keys)           (assoc :type :invalid-hooks :value hooks-keys))))
+(defmulti valid-namespaced-key? (fn [_ s] (namespace s)))
+
+(defmethod valid-namespaced-key? "hooks" [{:keys [valid-hooks]} s]
+  (let [valid-hook-keys (set (map name (keys valid-hooks)))]
+    (valid-hook-keys (name s))))
+
+(defmethod valid-namespaced-key? :default [_ _] true)
+
+(defn- valid-key? [m s]
+  (let [ns (namespace s)]
+    (cond
+      ns (and (valid-namespaces ns)
+              (valid-namespaced-key? m s))
+      :else (valid-keys s))))
+
+(defn validate-keys [m s]
+  (let [invalid-keys (set (filter (comp not #(valid-key? m %)) s))]
+    (when (seq invalid-keys)
+      (errors/error ::errors/invalid-keys invalid-keys))))
 
 (defn accumulate-errors [m s]
   (update m :errors concat s))
@@ -85,7 +83,6 @@
           {:data []} children))
 
 (defn parse-hiccup-element [{:keys [components] :as opts} o]
-  ;; TODO permissions
   ;; TODO handle errors
   (cond
     (or (symbol? o) (utils/primitive? o)) {:data o}
@@ -96,7 +93,7 @@
                 ;; Reduce parsed children to a single map and wrap them in a hiccup element
                 ;; whose component has been translated to the local platform
                 (update m :data #(apply conj [(or component element) properties] %)))
-              (nil? component) (accumulate-errors [{:type :unknown-component :value element}])))))
+              (nil? component) (accumulate-errors [(errors/error ::errors/unknown-component element)])))))
 
 (defn parse-view [opts o]
   (cond
@@ -119,7 +116,6 @@
 
 (defmethod parse-value "views" [opts _ v] (parse-view opts v))
 
-;; TODO events, queries, i18n, styles
 (defmethod parse-value :default [_ _ _] {:errors [{:type :unknown-key}]})
 
 (defn merge-parsed-value
@@ -132,9 +128,6 @@
       (merge-errors (assoc-in m [:data k] data)
                     (map #(assoc % :key k) errors)))
     m))
-
-;; TODO use specs for validation? Depends on opts, need to perform replacement during walk
-;; specs would allow to generate UIs and help with testing
 
 (defn parse
   "Parse an extension definition map as encapsulated in :data key of the map returned by read.
@@ -149,4 +142,3 @@
   (let [errors (validate-keys opts (keys m))]
     (merge-errors (reduce-kv #(merge-parsed-value opts %1 %2 %3) {} m)
                   errors)))
-;; TODO replace all refs to query, event and view here

@@ -1,5 +1,6 @@
 (ns pluto.reader.reference
-  (:refer-clojure :exclude [resolve]))
+  (:refer-clojure :exclude [resolve])
+  (:require [pluto.reader.errors :as errors]))
 
 (defn reference? [o]
   (and (list? o)
@@ -12,7 +13,7 @@
 (defmethod resolve :view [m {:keys [value]}]
   (if-let [view (get m value)]
     {:data view}
-    {:errors [{:type :unknown-view :value value}]})) ;; TODO properly handle local refs and globally whitelisted refs
+    {:errors [(errors/error ::errors/unknown-reference :value value)]})) ;; TODO properly handle local refs and globally whitelisted refs
 ;; TODO prevent infinite loops due to self refs ?
 
 ;; TODO other reference types

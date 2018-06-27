@@ -1,5 +1,6 @@
 (ns pluto.reader.blocks
   (:require [clojure.walk           :as walk]
+            [pluto.reader.errors :as errors]
             [pluto.reader.reference :as reference]
             [re-frame.core          :as re-frame]))
 
@@ -44,7 +45,7 @@
     (symbol? test)
     {:data (apply conj [when-block {:test test}] body)}
     :else
-    {:errors [{:type :unsupported-type :value test}]}))
+    {:errors [(errors/error ::errors/unsupported-test-type test)]}))
 
 (defn if-block [{:keys [test]} & body]
   ;; TODO warning if test is not of boolean type
@@ -57,6 +58,6 @@
     (symbol? test)
     {:data (apply conj [if-block {:test test}] (list then else))}
     :else
-    {:errors [{:type :unsupported-type :value test}]}))
+    {:errors [(errors/error ::errors/unsupported-test-type test)]}))
 
 (defmethod parse :default [opts block] {:errors [{:type :unknown-block-type :opts opts :block block}]})
