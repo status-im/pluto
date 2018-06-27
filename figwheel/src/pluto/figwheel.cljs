@@ -79,7 +79,6 @@
 
 (defn read-extension [o el el-errors]
   (let [{:keys [data errors]} (reader/read (:content (first o)))]
-    (println "data" data)
     (render-extension data el el-errors)))
 
 (defn render-result [{:keys [type value]} el el-errors]

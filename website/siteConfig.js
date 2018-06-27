@@ -11,12 +11,12 @@
 const siteConfig = {
   title: 'Pluto',
   tagline: 'A grammar for data manipulation',
-  url: 'https://jeluard.github.io',
+  url: 'https://status-im.github.io',
   baseUrl: '/pluto/',
 
   // Used for publishing and more
   projectName: 'pluto',
-  organizationName: 'jeluard',
+  organizationName: 'status-im',
 
   headerLinks: [
     {doc: 'Manifesto', label: 'Docs'},

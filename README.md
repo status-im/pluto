@@ -1,14 +1,14 @@
 
-[![CircleCI](https://img.shields.io/circleci/project/github/jeluard/pluto.svg)](https://circleci.com/gh/jeluard/pluto/tree/master)
+[![CircleCI](https://img.shields.io/circleci/project/github/status-im/pluto.svg)](https://circleci.com/gh/status-im/pluto/tree/master)
 
 ## Development
 
 Development requires [Deps and CLI](https://clojure.org/guides/getting_started) tooling installed.
 
-Run Clojure tests using `clojure -Atest-clj`
-Run ClojureScript tests using `clojure -Atest-cljs`
+Run Clojure tests using `clojure -A:test-clj`
+Run ClojureScript tests using `clojure -A:test-cljs`
 
-Run figwheel using `clojure -Afigwheel`.
+Run figwheel using `clojure -A:figwheel`.
 
 
 
