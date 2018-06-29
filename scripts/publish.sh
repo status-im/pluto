@@ -1,5 +1,8 @@
-mkdir -p docs/assets
-clj -m cljs.main -v -O advanced -d target/js -o target/js/pluto.js -c pluto.demo
-cp target/js/pluto.js docs/assets
-cp -R resources/public/assets/* docs/assets
-cp resources/public/index.html docs/
+clojure -A:examples -m cljs.main -O advanced -d website/static/js -o website/static/js/pluto.js -c pluto.examples
+cp -R examples/resources/extensions website/static
+cd website
+GIT_USER=jeluard\
+CURRENT_BRANCH=#2 \
+  USE_SSH=true \
+  yarn run publish-gh-pages
+cd ..

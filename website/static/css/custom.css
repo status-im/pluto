@@ -30,6 +30,34 @@
   font-weight: bold;
 }
 
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%
+}
+
+#selection {
+  padding: 10px;
+}
+
+#extension {
+   border: 40px solid #ddd;
+   border-width: 55px 7px;
+   border-radius: 40px;
+   margin: 50px auto;
+   width: 30vh;
+   height: 50vh;
+   overflow: hidden;
+}
+
+#extension iframe {
+  border: 0;
+  height: 100%;
+  width: 100%
+}
+
 @media only screen and (min-device-width: 360px) and (max-device-width: 736px) {
 }
 

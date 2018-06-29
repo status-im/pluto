@@ -1,7 +1,8 @@
 {
   "docs": {
-    "Why": ["format/Reference"],
-    "First Category": ["Manifesto"],
-    "Examples": ["Examples"]
+    "Concepts": ["Manifesto"],
+    "Format": ["format/Reference"],
+    "Examples": ["Examples"],
+    "Contributing": ["Development"]
   }
 }

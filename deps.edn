@@ -4,7 +4,8 @@
         reagent                         {:mvn/version "0.8.0"}
         re-frame                        {:mvn/version "0.10.5"}}
  :paths ["src"]
- :aliases {:figwheel {:extra-paths ["target" "figwheel/resources" "figwheel/src"]
+ :aliases {:examples {:extra-paths ["examples/src"]}
+           :figwheel {:extra-paths ["target" "examples/src" "figwheel/resources" "figwheel/src"]
                       :extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.1.2"}
                                     com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
                                     binaryage/devtools              {:mvn/version "0.9.10"}}

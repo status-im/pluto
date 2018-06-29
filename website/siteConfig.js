@@ -20,10 +20,8 @@ const siteConfig = {
 
   headerLinks: [
     {doc: 'Manifesto', label: 'Docs'},
-    {doc: 'Tutorial', label: 'Tutorial'},
-    {page: 'todo', label: 'Examples'},
+    {page: 'examples', label: 'Examples'},
     {page: 'todo', label: 'Try'},
-    {page: 'help', label: 'Help'},
   ],
 
   /* path to images for header/footer */
@@ -60,7 +58,8 @@ const siteConfig = {
     ' Status.im',
 
   // Add custom scripts here that would be placed in <script> tags
-  scripts: ['https://buttons.github.io/buttons.js'],
+  scripts: ['https://buttons.github.io/buttons.js',
+            '/pluto/js/pluto.js'],
 
   /* On page navigation for the current documentation page */
   onPageNav: 'separate',
@@ -68,6 +67,8 @@ const siteConfig = {
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
   //   repoUrl: 'https://github.com/facebook/test-site',
+
+  wrapPagesHTML: true,
 
   usePrism: true
 };

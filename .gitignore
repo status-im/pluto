@@ -13,3 +13,5 @@ cljs-test-runner-out/
 .idea/
 .cpcache/
 website/build/
+website/static/js/
+website/static/extensions/
