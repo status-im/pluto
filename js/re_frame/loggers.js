@@ -1,4 +1,4 @@
-// Compiled by ClojureScript 1.10.329 {:static-fns true, :optimize-constants true, :target :nodejs}
+// Compiled by ClojureScript 1.10.329 {:static-fns true, :optimize-constants true}
 goog.provide('re_frame.loggers');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
@@ -14,14 +14,14 @@ return cljs.core.List.EMPTY;
 }))], null));
 re_frame.loggers.console = (function re_frame$loggers$console(var_args){
 var args__4521__auto__ = [];
-var len__4518__auto___1190 = arguments.length;
-var i__4519__auto___1191 = (0);
+var len__4518__auto___3985 = arguments.length;
+var i__4519__auto___3986 = (0);
 while(true){
-if((i__4519__auto___1191 < len__4518__auto___1190)){
-args__4521__auto__.push((arguments[i__4519__auto___1191]));
+if((i__4519__auto___3986 < len__4518__auto___3985)){
+args__4521__auto__.push((arguments[i__4519__auto___3986]));
 
-var G__1192 = (i__4519__auto___1191 + (1));
-i__4519__auto___1191 = G__1192;
+var G__3987 = (i__4519__auto___3986 + (1));
+i__4519__auto___3986 = G__3987;
 continue;
 } else {
 }
@@ -38,19 +38,19 @@ if(cljs.core.contains_QMARK_(cljs.core.deref(re_frame.loggers.loggers),level)){
 throw (new Error(["Assert failed: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(["re-frame: log called with unknown level: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(level)].join('')),"\n","(contains? (clojure.core/deref loggers) level)"].join('')));
 }
 
-return cljs.core.apply.cljs$core$IFn$_invoke$arity$2((function (){var G__1189 = cljs.core.deref(re_frame.loggers.loggers);
-return (level.cljs$core$IFn$_invoke$arity$1 ? level.cljs$core$IFn$_invoke$arity$1(G__1189) : level.call(null,G__1189));
+return cljs.core.apply.cljs$core$IFn$_invoke$arity$2((function (){var G__3984 = cljs.core.deref(re_frame.loggers.loggers);
+return (level.cljs$core$IFn$_invoke$arity$1 ? level.cljs$core$IFn$_invoke$arity$1(G__3984) : level.call(null,G__3984));
 })(),args);
 });
 
 re_frame.loggers.console.cljs$lang$maxFixedArity = (1);
 
 /** @this {Function} */
-re_frame.loggers.console.cljs$lang$applyTo = (function (seq1187){
-var G__1188 = cljs.core.first(seq1187);
-var seq1187__$1 = cljs.core.next(seq1187);
+re_frame.loggers.console.cljs$lang$applyTo = (function (seq3982){
+var G__3983 = cljs.core.first(seq3982);
+var seq3982__$1 = cljs.core.next(seq3982);
 var self__4505__auto__ = this;
-return self__4505__auto__.cljs$core$IFn$_invoke$arity$variadic(G__1188,seq1187__$1);
+return self__4505__auto__.cljs$core$IFn$_invoke$arity$variadic(G__3983,seq3982__$1);
 });
 
 /**

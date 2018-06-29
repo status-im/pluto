@@ -1,4 +1,4 @@
-// Compiled by ClojureScript 1.10.329 {:static-fns true, :optimize-constants true, :target :nodejs}
+// Compiled by ClojureScript 1.10.329 {:static-fns true, :optimize-constants true}
 goog.provide('reagent.impl.batching');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
@@ -49,14 +49,14 @@ var n__4395__auto__ = a.length;
 var i = (0);
 while(true){
 if((i < n__4395__auto__)){
-var c_699 = (a[i]);
-if((c_699["cljsIsDirty"]) === true){
-(c_699["forceUpdate"])();
+var c_3494 = (a[i]);
+if((c_3494["cljsIsDirty"]) === true){
+(c_3494["forceUpdate"])();
 } else {
 }
 
-var G__700 = (i + (1));
-i = G__700;
+var G__3495 = (i + (1));
+i = G__3495;
 continue;
 } else {
 return null;
@@ -92,11 +92,11 @@ var n__4395__auto__ = fs.length;
 var i = (0);
 while(true){
 if((i < n__4395__auto__)){
-var fexpr__701_703 = (fs[i]);
-(fexpr__701_703.cljs$core$IFn$_invoke$arity$0 ? fexpr__701_703.cljs$core$IFn$_invoke$arity$0() : fexpr__701_703.call(null));
+var fexpr__3496_3498 = (fs[i]);
+(fexpr__3496_3498.cljs$core$IFn$_invoke$arity$0 ? fexpr__3496_3498.cljs$core$IFn$_invoke$arity$0() : fexpr__3496_3498.call(null));
 
-var G__704 = (i + (1));
-i = G__704;
+var G__3499 = (i + (1));
+i = G__3499;
 continue;
 } else {
 return null;
@@ -126,12 +126,12 @@ return null;
 } else {
 self__.scheduled_QMARK_ = true;
 
-var G__702 = ((function (this$){
+var G__3497 = ((function (this$){
 return (function (){
 return this$.run_queues();
 });})(this$))
 ;
-return (reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1 ? reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1(G__702) : reagent.impl.batching.next_tick.call(null,G__702));
+return (reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1 ? reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1(G__3497) : reagent.impl.batching.next_tick.call(null,G__3497));
 }
 });
 
@@ -142,13 +142,13 @@ this$.run_funs("beforeFlush");
 
 reagent.impl.batching.ratom_flush();
 
-var temp__5461__auto___705 = (this$["componentQueue"]);
-if((temp__5461__auto___705 == null)){
+var temp__5461__auto___3500 = (this$["componentQueue"]);
+if((temp__5461__auto___3500 == null)){
 } else {
-var cs_706 = temp__5461__auto___705;
+var cs_3501 = temp__5461__auto___3500;
 (this$["componentQueue"] = null);
 
-reagent.impl.batching.run_queue(cs_706);
+reagent.impl.batching.run_queue(cs_3501);
 }
 
 return this$.flush_after_render();
