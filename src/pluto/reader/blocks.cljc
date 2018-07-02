@@ -1,6 +1,6 @@
 (ns pluto.reader.blocks
   (:require [clojure.walk           :as walk]
-            [pluto.reader.errors :as errors]
+            [pluto.reader.errors    :as errors]
             [pluto.reader.reference :as reference]
             [re-frame.core          :as re-frame]))
 
@@ -23,17 +23,19 @@
     (coll? child) (walk/prewalk-replace (resolve-queries env) child)))
 
 (defn bindings->env [v]
-  ;; TODO errors: pair number of arguments, keys are symbols, values are primitives or queries
-  ;; TODO destructuring
   (apply hash-map v))
 
+
 (defmethod parse 'let [_ [_ bindings & body]]
-  {:data
-   ;; TODO error if multiple body as let only considers last
-   ;; TODO resolve query references only once, error if unknown
-   (let [m     (bindings->env bindings)
-         child (last body)]
-     [let-block {:env m} child])})
+  (cond
+    (odd? (count bindings))
+    {:errors [(errors/error ::errors/invalid-block bindings)]}
+    :else
+    {:data
+     ;; TODO resolve query references only once, error if unknown
+     (let [m     (bindings->env bindings)
+           child (last body)]
+       [let-block {:env m} child])}))
 
 (defn when-block [{:keys [test]} body]
   ;; TODO warning if test is not of boolean type
@@ -48,7 +50,6 @@
     {:errors [(errors/error ::errors/unsupported-test-type test)]}))
 
 (defn if-block [{:keys [test]} & body]
-  ;; TODO warning if test is not of boolean type
   (if test
     (first body)
     (second body)))

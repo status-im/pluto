@@ -1,12 +1,13 @@
 (ns pluto.reader.errors
-  "
-  Inspired by https://github.com/cognitect-labs/anomalies and https://github.com/dawcs/anomalies-tools"
+  "Inspired by https://github.com/cognitect-labs/anomalies"
   (:require [clojure.spec.alpha :as spec]))
 
 (spec/def ::type #{::reader-error
                    ::invalid-keys
                    ::unknown-reference
                    ::unknown-component
+                   ::invalid-view
+                   ::invalid-block
                    ::unsupported-test-type})
 
 (spec/def ::value any?)

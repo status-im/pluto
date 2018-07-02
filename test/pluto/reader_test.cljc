@@ -48,6 +48,23 @@
   (is (= {:data {:views/main [:text {} "Hello"]}}
          (reader/parse {:components {'text :text}} {:views/main ['text {} "Hello"]}))))
 
+(defn- first-error-type [m]
+  (::errors/type (first (:errors m))))
+
+(deftest parse-view
+  (is (= ::errors/invalid-view (first-error-type (reader/parse-view {} {}))))
+  (is (= {:data   ['text {} "Hello"]
+          :errors (list {::errors/type ::errors/unknown-component ::errors/value 'text})}
+         (reader/parse-view {} ['text {} "Hello"])))
+  (is (= ::errors/invalid-view
+         (first-error-type (reader/parse-view {:components {'text :text}} ['text "Hello"]))))
+  (is (= ::errors/invalid-view
+         (first-error-type (reader/parse-view {:components {'text :text}} ['text {} []]))))
+  (is (= {:data [:text {} "Hello"]}
+         (reader/parse-view {:components {'text :text}} ['text {} "Hello"])))
+  (is (= {:data [:text {} "Hello"]}
+         (reader/parse-view {:components {'text :text}} ['text {} "Hello"]))))
+
 (deftest parse-blocks
   (is (=  {:data {:views/main [blocks/let-block {:env {'s "Hello"}} [:text {} 's]]}}
           (reader/parse {:components {'text :text}} {:views/main (list 'let ['s "Hello"] ['text {} 's])})))

@@ -13,9 +13,6 @@
 (defmethod resolve :view [m {:keys [value]}]
   (if-let [view (get m value)]
     {:data view}
-    {:errors [(errors/error ::errors/unknown-reference :value value)]})) ;; TODO properly handle local refs and globally whitelisted refs
-;; TODO prevent infinite loops due to self refs ?
-
-;; TODO other reference types
+    {:errors [(errors/error ::errors/unknown-reference :value value)]}))
 
 (defmethod resolve :default [m {:keys [type value]}] {:errors [{:type :unknown-reference-type :value value}]})

@@ -14,10 +14,12 @@
    # Activate
     * based on hooks, inject views / trigger events"
   (:refer-clojure :exclude [read])
-  (:require [clojure.tools.reader     :as reader]
-            [pluto.reader.blocks      :as blocks]
-            [pluto.reader.errors      :as errors]
-            [pluto.utils              :as utils]))
+  (:require [clojure.tools.reader :as reader]
+            [pluto.reader.blocks :as blocks]
+            [pluto.reader.errors :as errors]
+            [pluto.reader.hiccup :as hiccup]
+            [pluto.utils :as utils]
+            [clojure.spec.alpha :as spec]))
 
 (defn- reader-error [ex]
   (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
@@ -83,17 +85,21 @@
           {:data []} children))
 
 (defn parse-hiccup-element [{:keys [components] :as opts} o]
-  ;; TODO handle errors
-  (cond
-    (or (symbol? o) (utils/primitive? o)) {:data o}
-    (vector? o)
-    (let [[element properties & children] o
-          component (if (fn? element) element (get components element))]
-      (cond-> (let [m (parse-hiccup-children opts children)]
-                ;; Reduce parsed children to a single map and wrap them in a hiccup element
-                ;; whose component has been translated to the local platform
-                (update m :data #(apply conj [(or component element) properties] %)))
-              (nil? component) (accumulate-errors [(errors/error ::errors/unknown-component element)])))))
+  (let [explain (spec/explain-data ::hiccup/form o)]
+    (cond
+      (not (nil? explain))
+      {:errors [(errors/error ::errors/invalid-view o {:explain-data explain})]}
+
+      (or (symbol? o) (utils/primitive? o)) {:data o}
+      (vector? o)
+
+      (let [[element properties & children] o
+            component (if (fn? element) element (get components element))]
+        (cond-> (let [m (parse-hiccup-children opts children)]
+                  ;; Reduce parsed children to a single map and wrap them in a hiccup element
+                  ;; whose component has been translated to the local platform
+                  (update m :data #(apply conj [(or component element) properties] %)))
+                (nil? component) (accumulate-errors [(errors/error ::errors/unknown-component element)]))))))
 
 (defn parse-view [opts o]
   (cond
@@ -101,7 +107,7 @@
     (let [{:keys [data errors]} (blocks/parse opts o)]
       (if errors
         {:errors errors}
-        (parse-view opts data))) ;; TODO ?
+        (parse-view opts data)))
     :else     (parse-hiccup-element opts o)))
 
 (defmulti parse-value
@@ -124,7 +130,7 @@
    :errors are accumulated"
   [opts m k v]
   (if (namespace k)
-    (let [{:keys [data errors]} (parse-value opts k v)] ;; TODO skip extension, hooks
+    (let [{:keys [data errors]} (parse-value opts k v)]
       (merge-errors (assoc-in m [:data k] data)
                     (map #(assoc % :key k) errors)))
     m))
