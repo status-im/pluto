@@ -3,9 +3,6 @@
    Read time: string to data structure, only tags are replaced by records
    Parse time: validate all the things, produce hiccup than can be used as is
    # Read
-     * tags are used as reference to other elements (views, events, queries). At read time they are replaced by records,
-       at parse time they are translated to point to concrete elements (error if non existent).
-       How this translation is done is type dependent (reagent component ref, subscribe call, dispatch, ..)
    # Parse
      * properties/children are defined as symbol only, can be defined in element having fn semantic (view, event, ..), are unified at parse time
      * conditionals are defined as list with symbol as first element. Replaced at parse time by references to corresponding reagent component
@@ -19,20 +16,19 @@
             [pluto.reader.errors :as errors]
             [pluto.reader.hiccup :as hiccup]
             [pluto.utils :as utils]
-            [clojure.spec.alpha :as spec]))
+            [clojure.spec.alpha :as spec]
+            [clojure.set :as set]))
 
-(defn- reader-error [ex]
+(defn reader-error [ex]
   (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
                 (merge {::errors/message (utils/ex-message ex)}
                        (when-let [c (utils/ex-cause ex)]
                          {:cause c}))))
 
 (defn read
-  "Reads an extension definition as an EDN string. Valid tags are replaced by associated records.
-   All references (identified by tagged literals) are marked by records.
-   They reference keys in the definition map and are validated and replaced at parse time.
-  
-   No semantic validation is performed at this stage. 
+  "Reads an extension definition as an EDN string.
+
+   No semantic validation is performed at this stage.
 
    Returns a map defining:
    * :data the extension definition as a map
@@ -46,28 +42,40 @@
     (catch #?(:clj Exception :cljs :default) ex
       {:errors [(reader-error ex)]})))
 
-(def valid-keys #{'meta})
+(def mandatory-keys #{'meta})
+(def valid-keys mandatory-keys)
 (def valid-namespaces #{"hooks" "views" "events" "queries" "styles" "i18n"})
 
 (defmulti valid-namespaced-key? (fn [_ s] (namespace s)))
 
-(defmethod valid-namespaced-key? "hooks" [{:keys [valid-hooks]} s]
-  (let [valid-hook-keys (set (map name (keys valid-hooks)))]
-    (valid-hook-keys (name s))))
+(defn capacity? [m s]
+  (let [keys (set (map name (keys m)))]
+    (keys (name s))))
+
+(defmethod valid-namespaced-key? "hooks" [{:keys [hooks]} s]
+  (capacity? hooks s))
+
+(defmethod valid-namespaced-key? "queries" [{:keys [queries]} s]
+  (capacity? queries s))
+
+(defmethod valid-namespaced-key? "events" [{:keys [events]} s]
+  (capacity? events s))
 
 (defmethod valid-namespaced-key? :default [_ _] true)
 
-(defn- valid-key? [m s]
+(defn valid-key? [{:keys [capacities]} s]
   (let [ns (namespace s)]
     (cond
       ns (and (valid-namespaces ns)
-              (valid-namespaced-key? m s))
+              (valid-namespaced-key? capacities s))
       :else (valid-keys s))))
 
 (defn validate-keys [m s]
-  (let [invalid-keys (set (filter (comp not #(valid-key? m %)) s))]
-    (when (seq invalid-keys)
-      (errors/error ::errors/invalid-keys invalid-keys))))
+  (let [missing-keys (set/difference mandatory-keys s)
+        invalid-keys (set (filter (comp not #(valid-key? m %)) s))]
+    (remove nil?
+      [(when (seq invalid-keys) (errors/error ::errors/invalid-keys invalid-keys))
+       (when (seq missing-keys) (errors/error ::errors/missing-keys missing-keys))])))
 
 (defn accumulate-errors [m s]
   (update m :errors concat s))
@@ -108,15 +116,23 @@
       (if errors
         {:errors errors}
         (parse-view opts data)))
-    :else     (parse-hiccup-element opts o)))
+    :else
+    (parse-hiccup-element opts o)))
 
 (defmulti parse-value
   "Parse a definition element value.
    Returns a map defining:
     * :data the updated value
-    * :permissions 
+    * :permissions
     * :errors a collection of errors"
-  (fn [_ k _] (namespace k)))
+  (fn [_ k _] (or (namespace k) (name k))))
+
+(spec/def ::meta (spec/keys :req-un [::name ::description ::documentation]))
+
+(defmethod parse-value "meta" [_ _ v]
+  (if (spec/valid? ::meta v)
+    {:data v}
+    {:errors [(errors/error ::errors/invalid-meta v)]}))
 
 (defmethod parse-value "hooks" [_ _ v] v)
 
@@ -129,22 +145,20 @@
    :data is updated to its parsed value
    :errors are accumulated"
   [opts m k v]
-  (if (namespace k)
-    (let [{:keys [data errors]} (parse-value opts k v)]
-      (merge-errors (assoc-in m [:data k] data)
-                    (map #(assoc % :key k) errors)))
-    m))
+  (let [{:keys [data errors]} (parse-value opts k v)]
+    (merge-errors (assoc-in m [:data k] data)
+                  (map #(assoc % :key k) errors))))
 
 (defn parse
   "Parse an extension definition map as encapsulated in :data key of the map returned by read.
    `opts` is a map defining:
-   * `valid-hooks` a map of valid hook definitions
-  
+   * `capacities` a map of valid supported capacities (hooks, queries, events)
+
    Returns a map defining:
    * :data a map
    * :permissions a vector of required permissions
    * :errors a vector of errors maps triggered during parse"
   [opts m]
-  (let [errors (validate-keys opts (keys m))]
+  (let [errors (validate-keys opts (set (keys m)))]
     (merge-errors (reduce-kv #(merge-parsed-value opts %1 %2 %3) {} m)
                   errors)))

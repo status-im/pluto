@@ -4,6 +4,8 @@
 
 (spec/def ::type #{::reader-error
                    ::invalid-keys
+                   ::invalid-meta
+                   ::missing-keys
                    ::unknown-reference
                    ::unknown-component
                    ::invalid-view
