@@ -10,4 +10,3 @@
          (blocks/parse {} (list 'let ['s "Hello"] ['test {} 's]))))
   (is (= {:errors [{::errors/type ::errors/invalid-block ::errors/value ['s "Hello" 1]}]}
          (blocks/parse {} (list 'let ['s "Hello" 1] ['test {} 's])))))
-

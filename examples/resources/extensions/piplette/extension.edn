@@ -34,6 +34,15 @@
     [text {}
      content]])
 
+ views/main
+ [screen {:style @styles/screen}
+  [toolbar {}
+   [text {}
+    @i18n/title]]
+  (let [posts @queries/all-posts]
+     [list {:data     posts
+            :template [@views/post]}])]
+
  styles/screen
  {:background-color #?(:android :green
                        :ios     :red
@@ -43,10 +52,5 @@
  {:en "Peepeth !!"}
 
  hooks/main
- [screen {:style @styles/screen}
-  [toolbar {}
-   [text {}
-    @i18n/title]]
-  (let [posts @queries/all-posts]
-   [list {:data     posts
-          :template [@views/post]}])]}
+ {:view @views/main}}
+

@@ -3,8 +3,9 @@
   (:require [clojure.spec.alpha :as spec]))
 
 (spec/def ::type #{::reader-error
-                   ::invalid-keys
                    ::invalid-meta
+                   ::invalid-key
+                   ::invalid-value
                    ::missing-keys
                    ::unknown-reference
                    ::unknown-component
@@ -17,7 +18,7 @@
 (spec/def ::message string?)
 
 (spec/def ::error (spec/keys :req [::type ::value]
-                          :opt [::message]))
+                             :opt [::message]))
 
 (defn valid-type? [type]
   (spec/valid? ::type type))
@@ -27,3 +28,23 @@
   ([type o m]
    {:pre [(valid-type? type)]}
    (assoc m ::type type ::value o)))
+
+(defn accumulate-errors [m s]
+  (update m :errors concat s))
+
+(defn merge-errors [m errors]
+  (cond-> m
+          (seq errors) (accumulate-errors errors)))
+
+(defn update-errors [m errors]
+  (if (seq errors)
+    (update m :errors concat errors)
+    m))
+
+(defn merge-result [m {:keys [data errors]}]
+  (-> m
+      (update :data merge data)
+      (update-errors errors)))
+
+(defn merge-results [& ms]
+  (reduce merge-result {} ms))

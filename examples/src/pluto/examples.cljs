@@ -31,13 +31,6 @@
 (defn render [h el]
   (reagent/render h el))
 
-(defn main-hook
-  "A simple hook for :hooks/main"
-  [m]
-  [:div
-   (let [{:views/keys [main]} m]
-     main)])
-
 (defn errors-list [v]
   [:div
    [:div "Errors"]
@@ -58,20 +51,15 @@
       {:value id} cb)))
 
 (defn parse [m]
-  (reader/parse {:components       html/components
-                 :capacities
-                 {:queries #{:random-boolean}
-                  :events  #{}}
-                 :valid-hooks      {:hooks/main
-                                    {:extra-properties #{}
-                                     :type             :view}}}
+  (reader/parse-hooks {:components html/components
+                       :capacities {:hooks {'hooks/main {:properties [{:type :view :name :view}]}}}}
                 m))
 
 (defn render-extension [m el el-errors]
   (let [{:keys [data errors]} (parse m)]
     (when errors
       (render (errors-list errors) el-errors))
-    (render (main-hook data) el)))
+    (render (get-in data ['hooks/main :view]) el)))
 
 (defn read-extension [o el el-errors]
   (let [{:keys [data errors]} (reader/read (:content (first o)))]

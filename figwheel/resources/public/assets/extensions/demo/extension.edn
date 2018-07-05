@@ -1,14 +1,14 @@
-{:meta
+{meta
  {:name          "Simple Demo"
   :description   "A simple demo of extension"
   :documentation "Nothing. Just see a text with dynamic random color."}
 
- :hooks/main
+ hooks/main
  {:name        ""
   :description ""
   :view        @views/main}
 
- :views/main
+ views/main
  [view {}
   [text {} "Hello"]
   (let [cond? @queries/random-boolean]
