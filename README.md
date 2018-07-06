@@ -30,3 +30,15 @@ To add a directory:
 
 After that it will be available through localhost:8080 and the main gateway.
 It will eventually disappear from the main gateway.
+
+## Continous Deployment
+
+To make possible deploying the new version of the page from the `master` branch a Jenkins job is configured at:
+
+https://jenkins.status.im/job/misc/job/pluto/
+
+This job is ran according to the [`Jenkinsfile`](Jenkinsfile) configuration.
+In order for this to work there are two requirements:
+
+* The `status-im-auto` user which API token is used needs to have at least write access.
+* The repo has to have the https://jenkins.status.im/github-webhook/ webhook configured.
