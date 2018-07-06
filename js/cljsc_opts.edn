@@ -1,1 +1,0 @@
-{:optimizations :advanced, :output-dir "website/static/js", :output-to "website/static/js/pluto.js", :main pluto.examples, :aot-cache true}
