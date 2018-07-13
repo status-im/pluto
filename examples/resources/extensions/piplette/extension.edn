@@ -51,6 +51,6 @@
  i18n/title
  {:en "Peepeth !!"}
 
- hooks/main
+ hooks/main.piplette
  {:view @views/main}}
 

@@ -10,13 +10,12 @@
    # Activate
     * based on hooks, inject views / trigger events"
   (:refer-clojure :exclude [read])
-  (:require [clojure.set          :as set]
-            [clojure.spec.alpha   :as spec]
+  (:require [clojure.set :as set]
+            [clojure.spec.alpha :as spec]
             [clojure.tools.reader :as reader]
-            [pluto.reader.errors  :as errors]
-            [pluto.reader.hooks   :as hooks]
-            [pluto.utils          :as utils]))
-
+            [pluto.reader.errors :as errors]
+            [pluto.reader.hooks :as hooks]
+            [pluto.utils :as utils]))
 
 (defn reader-error [ex]
   (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
@@ -69,7 +68,10 @@
 (spec/def ::hooks map?)
 
 (defmethod valid-element? "hooks" [{:keys [hooks]} k v]
-  (valid-capacity? hooks k v ::hooks))
+  (if (capacity? hooks (hooks/root k))
+    (when-not (spec/valid? ::hooks v)
+      [(errors/error ::errors/invalid-value k)])
+    [(errors/error ::errors/invalid-key k)]))
 
 (spec/def ::queries map?)
 

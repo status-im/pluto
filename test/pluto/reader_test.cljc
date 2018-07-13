@@ -40,10 +40,12 @@
          (reader/validate {} {'meta default-meta})))
   (is (= [{::errors/type ::errors/invalid-meta ::errors/value {}}]
          (reader/validate {} {'meta {}})))
-  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/test}]
-         (reader/validate {} (extension {'hooks/test {}}))))
-  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/unknown}]
-         (reader/validate {:capacities {:hooks {'main {}}}} (extension {'hooks/main {} 'hooks/unknown {}}))))
+  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/test.1}]
+         (reader/validate {} (extension {'hooks/test.1 {}}))))
+  (is (= nil
+         (reader/validate {:capacities {:hooks {'main {}}}} (extension {'hooks/main.1 {}}))))
+  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/unknown.1}]
+         (reader/validate {:capacities {:hooks {'main {}}}} (extension {'hooks/main.1 {} 'hooks/unknown.1 {}}))))
   (is (= [{::errors/type ::errors/invalid-key ::errors/value 'events/unknown}]
          (reader/validate {:capacities {:events {'main {}}}} (extension {'events/main {} 'events/unknown {}}))))
   (is (= [{::errors/type ::errors/invalid-key ::errors/value 'queries/unknown}]
@@ -56,22 +58,22 @@
 (def default-capacities {:capacities {:hooks default-hooks :components default-components}})
 
 (deftest parse-blocks
-  (is (=  {:data {'meta default-meta 'hooks/main {:view [blocks/let-block {:env {'s "Hello"}} [:text {} 's]]}}}
+  (is (=  {:data {'meta default-meta 'hooks/main.1 {:view [blocks/let-block {:env {'s "Hello"}} [:text {} 's]]}}}
           (reader/parse default-capacities (extension {'views/main (list 'let ['s "Hello"] ['text {} 's])
-                                                       'hooks/main {:view '@views/main}}))))
-  (is (=  {:data {'meta default-meta 'hooks/main {:view [blocks/when-block {:test 'cond} [:text {} ""]]}}}
+                                                       'hooks/main.1 {:view '@views/main}}))))
+  (is (=  {:data {'meta default-meta 'hooks/main.1 {:view [blocks/when-block {:test 'cond} [:text {} ""]]}}}
         (reader/parse default-capacities (extension {'views/main (list 'when 'cond ['text {} ""])
-                                                     'hooks/main {:view '@views/main}}))))
-  (is (=  {:data {'meta default-meta 'hooks/main {:view nil}}
+                                                     'hooks/main.1 {:view '@views/main}}))))
+  (is (=  {:data {'meta default-meta 'hooks/main.1 {:view nil}}
            :errors (list {::errors/type ::errors/unsupported-test-type ::errors/value "string"})}
           (reader/parse default-capacities (extension {'views/main (list 'when "string" ['text {} ""])
-                                                       'hooks/main {:view '@views/main}})))))
+                                                       'hooks/main.1 {:view '@views/main}})))))
 
 (deftest parse
-  (is (= {:data   {'meta default-meta 'hooks/main {:view ['text {} "Hello"]}}
+  (is (= {:data   {'meta default-meta 'hooks/main.1 {:view ['text {} "Hello"]}}
           :errors (list {::errors/type ::errors/unknown-component ::errors/value 'text})}
          (reader/parse {:capacities {:hooks default-hooks}} (extension {'views/main ['text {} "Hello"]
-                                                                        'hooks/main {:view '@views/main}}))))
-  (is (= {:data {'meta default-meta 'hooks/main {:view [:text {} "Hello"]}}}
+                                                                        'hooks/main.1 {:view '@views/main}}))))
+  (is (= {:data {'meta default-meta 'hooks/main.1 {:view [:text {} "Hello"]}}}
          (reader/parse default-capacities (extension {'views/main ['text {} "Hello"]
-                                                      'hooks/main {:view '@views/main}})))))
+                                                      'hooks/main.1 {:view '@views/main}})))))

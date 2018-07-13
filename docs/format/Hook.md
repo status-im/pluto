@@ -11,6 +11,8 @@ Hooks are defined as part of capacities by maps detailing properties and their a
 ```
 
 Extensions can then specify hooks that will match associated host capacities.
+Hooks implemented by extensions must be qualified with an extra id. This id will be globally unique across all extensions per hook.
+e.g. an extension implementing `hooks/main` could name it `hooks/main.demo`.
 
 ```clojure
 {meta
@@ -21,7 +23,7 @@ Extensions can then specify hooks that will match associated host capacities.
  [text {}
   ""]
 
- hooks/main
+ hooks/main.demo
  {:view @views/main
   :name "test"}}
 ```
@@ -33,7 +35,7 @@ Once a host has loaded a valid extension with matching hooks, it can query the r
  {:name ""
   ...}
 
- hooks/main
+ hooks/main.demo
  {:view
   [text {}
    ""]

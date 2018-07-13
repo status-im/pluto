@@ -3,7 +3,7 @@
   :description   "A simple demo of extension"
   :documentation "Nothing. Just see a text with dynamic random color."}
 
- hooks/main
+ hooks/main.demo
  {:name        ""
   :description ""
   :view        @views/main}

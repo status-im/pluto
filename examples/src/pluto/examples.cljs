@@ -51,15 +51,15 @@
       {:value id} cb)))
 
 (defn parse [m]
-  (reader/parse-hooks {:components html/components
-                       :capacities {:hooks {'hooks/main {:properties [{:type :view :name :view}]}}}}
+  (reader/parse {:capacities {:components html/components
+                              :hooks      {'hooks/main {:properties [{:type :view :name :view}]}}}}
                 m))
 
 (defn render-extension [m el el-errors]
   (let [{:keys [data errors]} (parse m)]
     (when errors
       (render (errors-list errors) el-errors))
-    (render (get-in data ['hooks/main :view]) el)))
+    (render (get-in data ['hooks/main.demo :view]) el)))
 
 (defn read-extension [o el el-errors]
   (let [{:keys [data errors]} (reader/read (:content (first o)))]
