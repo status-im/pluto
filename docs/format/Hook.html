@@ -2,7 +2,9 @@
 <p>Hooks are defined as part of capacities by maps detailing properties and their associated type. They leverage <a href="/reference">references</a> to use various extensions elements.</p>
 <pre><code class="hljs css languages- clojure"><span class="token punctuation">{</span><span class="token operator">:capacities</span> <span class="token punctuation">{</span>hooks/main <span class="token punctuation">{</span><span class="token operator">:properties</span> <span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token operator">:name</span> <span class="token operator">:view</span> <span class="token operator">:type</span> <span class="token operator">:view</span><span class="token punctuation">}</span> <span class="token punctuation">{</span><span class="token operator">:name</span> <span class="token operator">:name</span> <span class="token operator">:type</span> <span class="token operator">:string</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span>
 </code></pre>
-<p>Extensions can then specify hooks that will match associated host capacities.</p>
+<p>Extensions can then specify hooks that will match associated host capacities.
+Hooks implemented by extensions must be qualified with an extra id. This id will be globally unique across all extensions per hook.
+e.g. an extension implementing <code>hooks/main</code> could name it <code>hooks/main.demo</code>.</p>
 <pre><code class="hljs css languages- clojure"><span class="token punctuation">{</span><span class="token keyword">meta</span>
  <span class="token punctuation">{</span><span class="token operator">:name</span> <span class="token string">""</span>
   <span class="token keyword">..</span>.<span class="token punctuation">}</span>
@@ -11,7 +13,7 @@
  <span class="token punctuation">[</span>text <span class="token punctuation">{</span><span class="token punctuation">}</span>
   <span class="token string">""</span><span class="token punctuation">]</span>
 
- hooks/main
+ hooks/main.demo
  <span class="token punctuation">{</span><span class="token operator">:view</span> @views/main
   <span class="token operator">:name</span> <span class="token string">"test"</span><span class="token punctuation">}</span><span class="token punctuation">}</span>
 </code></pre>
@@ -20,7 +22,7 @@
  <span class="token punctuation">{</span><span class="token operator">:name</span> <span class="token string">""</span>
   <span class="token keyword">..</span>.<span class="token punctuation">}</span>
 
- hooks/main
+ hooks/main.demo
  <span class="token punctuation">{</span><span class="token operator">:view</span>
   <span class="token punctuation">[</span>text <span class="token punctuation">{</span><span class="token punctuation">}</span>
    <span class="token string">""</span><span class="token punctuation">]</span>
