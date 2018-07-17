@@ -6,6 +6,9 @@
                    ::invalid-meta
                    ::invalid-key
                    ::invalid-value
+                   ::invalid-property-name
+                   ::invalid-property-type
+                   ::invalid-property-value
                    ::missing-keys
                    ::unknown-reference
                    ::unknown-component

@@ -3,7 +3,10 @@
             [pluto.reader.errors :as errors]
             [pluto.reader.views  :as views]))
 
-(defmulti resolve-property (fn [_ _ prop _] (:type prop)))
+(defmulti resolve-property
+          (fn [_ _ {:keys [type]} _] (cond
+                                       (keyword? type) type
+                                       (set? type) :keyword-set)))
 
 (defn reference->symbol
   "Returns the symbol value from a reference
@@ -20,11 +23,24 @@
 (defmethod resolve-property :view [opts m def hook]
   (views/parse opts (get m (reference->symbol (property-value def hook)))))
 
+(defn resolve-property-value [f {:keys [name] :as def} hook]
+  (if-let [o (property-value def hook)]
+    (if (f o)
+      {:data o}
+      {:errors [(errors/error ::errors/invalid-property-value o)]})
+    {:errors [(errors/error ::errors/invalid-property-name name)]}))
+
 (defmethod resolve-property :string [_ _ def hook]
-  {:data (property-value def hook)})
+  (resolve-property-value string? def hook))
 
 (defmethod resolve-property :keyword [_ _ def hook]
-  {:data (property-value def hook)})
+  (resolve-property-value keyword? def hook))
+
+(defmethod resolve-property :keyword-set [_ _ def hook]
+  (resolve-property-value (:type def) def hook))
+
+(defmethod resolve-property :default [_ _ {:keys [type]} _]
+  {:errors [(errors/error ::errors/invalid-property-type type)]})
 
 (defn hook? [s]
   (= "hooks" (namespace s)))
