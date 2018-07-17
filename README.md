@@ -14,7 +14,7 @@ Run figwheel using `clojure -A:figwheel`.
 
 Documentation website is maintained using [docusaurus](https://docusaurus.io). The layout logic can be found in `website` while the content is kept in `docs`.
 
-To hack on the documentation, run `npm run start`.
+To hack on the documentation, run `npm run start` in `website` folder.
 
 ### IPFS
 

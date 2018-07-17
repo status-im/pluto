@@ -1,10 +1,11 @@
 ---
+title: Hook
 sidebar_label: Hook
 ---
 
 Hook is the mechanism allowing a specific extensions host to define what (and how) can be extended.
 
-Hooks are defined as part of capacities by maps detailing properties and their associated type. They leverage [references](/reference) to use various extensions elements.
+Hooks are defined as part of capacities by maps detailing properties and their associated type. They leverage [references](Reference) to use various extensions elements.
 
 ```clojure
 {:capacities {hooks/main {:properties [{:name :view :type :view} {:name :name :type :string}]}}}

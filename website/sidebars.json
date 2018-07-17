@@ -1,8 +1,7 @@
 {
   "docs": {
-    "Concepts": ["Manifesto"],
-    "Format": ["format/Reference"],
+    "Concepts": ["Manifesto", "concepts/Anatomy", "concepts/Hook", "concepts/Registry"],
     "Examples": ["Examples"],
-    "Contributing": ["Development"]
+    "Contributing": ["Development", "Roadmap"]
   }
 }
