@@ -15,13 +15,17 @@
    (= 'some.ref (reference->symbol '@views/some.ref))
    ```"
   [ref]
-  (symbol (second ref)))
+  (when-let [s (second ref)]
+    (symbol s)))
 
 (defn property-value [{:keys [name]} hook]
   (get hook name))
 
 (defmethod resolve-property :view [opts m def hook]
-  (views/parse opts (get m (reference->symbol (property-value def hook)))))
+  (let [o (property-value def hook)]
+    (if-let [s (reference->symbol o)]
+      (views/parse opts (get m s))
+      {:errors [(errors/error ::errors/missing-property-value def)]})))
 
 (defn resolve-property-value [f {:keys [name] :as def} hook]
   (if-let [o (property-value def hook)]

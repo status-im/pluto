@@ -18,6 +18,12 @@
   (is (= {:errors [{::errors/type ::errors/invalid-property-value
                     ::errors/value 1}]}
          (hooks/resolve-property {} {} {:name :keyword :type :keyword} {:keyword 1})))
+  (is (= {:errors [{:pluto.reader.errors/type ::errors/missing-property-value
+                    :pluto.reader.errors/value {:name :view :type :view}}]}
+         (hooks/resolve-property {:capacities {:components {'text :text}}}
+                                 {'views/id ['text {} ""]}
+                                 {:type :view :name :view}
+                                 {})))
   (is (= {:data [:text {} ""]}
          (hooks/resolve-property {:capacities {:components {'text :text}}}
                                  {'views/id ['text {} ""]}

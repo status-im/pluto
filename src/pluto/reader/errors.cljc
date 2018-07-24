@@ -9,6 +9,8 @@
                    ::invalid-property-name
                    ::invalid-property-type
                    ::invalid-property-value
+                   ::missing-property-value
+                   ::invalid-destructuring-format
                    ::missing-keys
                    ::unknown-reference
                    ::unknown-component
@@ -44,9 +46,14 @@
     (update m :errors concat errors)
     m))
 
+(defn update-data [m data]
+  (if data
+    (update m :data merge data)
+    m))
+
 (defn merge-result [m {:keys [data errors]}]
   (-> m
-      (update :data merge data)
+      (update-data data)
       (update-errors errors)))
 
 (defn merge-results [& ms]
