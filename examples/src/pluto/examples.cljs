@@ -52,7 +52,7 @@
 
 (defn parse [m]
   (reader/parse {:capacities {:components html/components
-                              :hooks      {'hooks/main {:properties [{:type :view :name :view}]}}}}
+                              :hooks      {'hooks/main {:properties {:view :view}}}}}
                 m))
 
 (defn render-extension [m el el-errors]

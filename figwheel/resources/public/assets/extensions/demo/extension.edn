@@ -4,9 +4,7 @@
   :documentation "Nothing. Just see a text with dynamic random color."}
 
  hooks/main.demo
- {:name        ""
-  :description ""
-  :view        @views/main}
+ {:view @views/main}
 
  views/main
  [view {}

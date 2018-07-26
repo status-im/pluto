@@ -53,7 +53,7 @@
   (is (= [{::errors/type ::errors/invalid-key ::errors/value 'unknown/unknown}]
          (reader/validate {} (extension {'unknown/unknown {}})))))
 
-(def default-hooks {'hooks/main {:properties [{:name :view :type :view}]}})
+(def default-hooks {'hooks/main {:properties {:view :view}}})
 (def default-components {'text :text 'view :view})
 (def default-capacities {:capacities {:hooks default-hooks :components default-components}})
 
@@ -64,7 +64,7 @@
   (is (=  {:data {'meta default-meta 'hooks/main.1 {:view [blocks/when-block {:test 'cond} [:text {} ""]]}}}
         (reader/parse default-capacities (extension {'views/main (list 'when 'cond ['text {} ""])
                                                      'hooks/main.1 {:view '@views/main}}))))
-  (is (=  {:data {'meta default-meta 'hooks/main.1 {:view nil}}
+  (is (=  {:data {'meta default-meta 'hooks/main.1 nil}
            :errors (list {::errors/type ::errors/unsupported-test-type ::errors/value "string"})}
           (reader/parse default-capacities (extension {'views/main (list 'when "string" ['text {} ""])
                                                        'hooks/main.1 {:view '@views/main}})))))

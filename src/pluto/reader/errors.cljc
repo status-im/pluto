@@ -46,15 +46,20 @@
     (update m :errors concat errors)
     m))
 
-(defn update-data [m data]
+(defn update-data [m f data]
   (if data
-    (update m :data merge data)
+    (update m :data f data)
     m))
 
-(defn merge-result [m {:keys [data errors]}]
-  (-> m
-      (update-data data)
-      (update-errors errors)))
+(defn merge-result
+  ([m mm] (merge-result merge m mm))
+  ([f m {:keys [data errors]}]
+   (-> m
+       (update-data f data)
+       (update-errors errors))))
 
 (defn merge-results [& ms]
   (reduce merge-result {} ms))
+
+(defn merge-results-with [f & ms]
+  (reduce #(merge-result f %1 %2) {} ms))
