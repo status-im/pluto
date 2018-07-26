@@ -1,4 +1,4 @@
-Extensions development is currently in progress
+Extensions development is currently _IN PROGRESS_
 
 ## Done
 
@@ -26,9 +26,8 @@ Migrate old commands to extensions.
 * implement hooks and proposed extension points _DONE_
 * registry and hooks API _DONE_
 * define extensions points for status _DONE_
-* implement i18n [#10](https://github.com/status-im/pluto/issues/10)
-* query and events API (data can be passed around) [#9](https://github.com/status-im/pluto/issues/9) and [#8](https://github.com/status-im/pluto/issues/8) 
-* implement destructuring [#28](https://github.com/status-im/pluto/issues/28)
+* implement destructuring [#28](https://github.com/status-im/pluto/issues/28) _DONE_
+* query and events API (data can be passed around) [#9](https://github.com/status-im/pluto/issues/9) and [#8](https://github.com/status-im/pluto/issues/8) _IN PROGRESS_
 * isolated data per extension [#29](https://github.com/status-im/pluto/issues/29)
 
 ## Next
@@ -37,6 +36,7 @@ Migrate old commands to extensions.
 
 Add custom code support.
 
+* implement i18n [#10](https://github.com/status-im/pluto/issues/10)
 * implement security mechanism / permissions
 * remote code loading
 * JavaScript API

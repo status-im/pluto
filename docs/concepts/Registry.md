@@ -1,4 +1,5 @@
 ---
+title: Registry
 sidebar_label: Registry
 ---
 

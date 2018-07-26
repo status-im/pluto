@@ -1,1 +1,0 @@
-Definition keys are namespaced. Namespace is used as type.
