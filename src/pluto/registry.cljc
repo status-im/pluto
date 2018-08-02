@@ -44,6 +44,9 @@
 (defn all-active-hooks [m]
   (apply merge (filter active? (vals m))))
 
+(defn hook-id [s]
+  (keyword (last (string/split (name s) #"\."))))
+
 (defn new-registry []
   (let [exts (atom {})]
     (reify Registry
@@ -57,7 +60,7 @@
             (raw-extension (get old id)))))
       (hooks [_ path]
         (reduce-kv #(if (and (hooks/hook? %2) (string/starts-with? (name %2) (name path)))
-                      (assoc %1 %2 %3)
+                      (assoc %1 (hook-id %2) %3)
                       %1)
                    {}
                    (all-active-hooks @exts)))

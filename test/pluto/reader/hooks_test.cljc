@@ -1,5 +1,6 @@
 (ns pluto.reader.hooks-test
   (:require [clojure.test :refer [is deftest testing]]
+            [pluto.reader.blocks :as blocks]
             [pluto.reader.errors :as errors]
             [pluto.reader.hooks :as hooks]))
 
@@ -21,19 +22,25 @@
                       ::errors/value 1}]}
            (hooks/resolve-property {:name :keyword :type :keyword} {:keyword 1} {} {}))))
   (testing "View"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-value
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-name
                       :pluto.reader.errors/value :view}]}
            (hooks/resolve-property {:type :view :name :view}
                                    {}
                                    {:capacities {:components {'text :text}}}
                                    {'views/id ['text {} ""]})))
-    (is (= {:data [:text {} ""]}
-           (hooks/resolve-property {:type :view :name :view}
-                                   {:view '@views/id}
-                                   {:capacities {:components {'text :text}}}
-                                   {'views/id ['text {} ""]}))))
+    (is (= [:text {} ""]
+           ((:data (hooks/resolve-property {:type :view :name :view}
+                                           {:view '@views/id}
+                                           {:capacities {:components {'text :text}}}
+                                           {'views/id ['text {} ""]})) {})))
+    (is (= [blocks/let-block {:env {'value "test"}}
+            [:text {} 'value]]
+           ((:data (hooks/resolve-property {:type :view :name :view}
+                                           {:view '@views/id}
+                                           {:capacities {:components {'text :text}}}
+                                           {'views/id '(let [{value :value} @properties] [text {} value])})) {:value "test"}))))
   (testing "Event"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-value
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-name
                       :pluto.reader.errors/value :event}]}
            (hooks/resolve-property {:type :event :name :event}
                                    {}
@@ -45,7 +52,7 @@
                                    {}
                                    {'events/id ""}))))
   (testing "Query"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-value
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-name
                       :pluto.reader.errors/value :query}]}
            (hooks/resolve-property {:type :query :name :query}
                                    {}
@@ -68,10 +75,11 @@
            (hooks/resolve-property {:name :keyword :type #{:one :two :three}} {:keyword :for} {} {})))))
 
 (deftest parse
-  (is (= {:data {'hooks/main.1 {:view [:text {} ""]}}}
-         (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:view :view}}} :components {'text :text}}}
-                      {'views/main   ['text {} ""]
-                       'hooks/main.1 {:view '@views/main}})))
+  (is (= [:text {} ""]
+         ((get-in (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:view :view}}} :components {'text :text}}}
+                    {'views/main   ['text {} ""]
+                     'hooks/main.1 {:view '@views/main}})
+                  [:data 'hooks/main.1 :view]) {})))
   (is (= {:data {'hooks/main.1 {:name "name" :id :keyword}}}
          (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :id :keyword}}}}}
                       {'hooks/main.1 {:name "name" :id :keyword}})))

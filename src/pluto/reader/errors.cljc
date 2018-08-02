@@ -9,6 +9,7 @@
                    ::invalid-property-name
                    ::invalid-property-type
                    ::invalid-property-value
+                   ::missing-property-name
                    ::missing-property-value
                    ::invalid-destructuring-format
                    ::missing-keys

@@ -1,5 +1,5 @@
 (ns pluto.reader.views-test
-  (:require [clojure.test :refer [is deftest]]
+  (:require [clojure.test :refer [is deftest testing]]
             [pluto.reader.blocks :as blocks]
             [pluto.reader.errors :as errors]
             [pluto.reader.views :as views]))
@@ -14,15 +14,15 @@
 (deftest parse
   #_
   (is (= ::errors/invalid-view (first-error-type (views/parse {} {}))))
-  (is (= {:data   ['text {} "Hello"]
-          :errors (list {::errors/type ::errors/unknown-component ::errors/value 'text})}
-         (views/parse {} ['text {} "Hello"])))
   #_
   (is (= ::errors/invalid-view
          (first-error-type (views/parse {:capacities {:components {'text :text}}} ['text "Hello"]))))
   #_
   (is (= ::errors/invalid-view
          (first-error-type (views/parse {:capacities {:components {'text :text}}} ['text {} []]))))
+  (is (= {:data   ['text {} "Hello"]
+          :errors (list {::errors/type ::errors/unknown-component ::errors/value 'text})}
+         (views/parse {} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
          (views/parse {:capacities {:components {'text :text}}} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
@@ -45,5 +45,8 @@
                             [text {:style {:color "green"}}
                              "World?"]
                             [text {:style {:color "red"}}
-                             "World?"]))]))))
+                             "World?"]))])))
+  (testing "Properties"
+    (is (= {:data [:text {} "Hello"]}
+           (views/parse {:capacities {:components {'text :text}}} ['text {} "Hello"])))))
 

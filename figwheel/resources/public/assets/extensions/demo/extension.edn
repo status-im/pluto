@@ -7,11 +7,12 @@
  {:view @views/main}
 
  views/main
- [view {}
-  [text {} "Hello"]
-  (let [cond? @queries/random-boolean]
-    (if cond?
-      [text {:style {:color "green"}}
-       "World?"]
-      [text {:style {:color "red"}}
-       "World?"]))]}
+ (let [{name :name} @properties]
+   [view {}
+    [text {} "Hello"]
+    (let [cond? @queries/random-boolean]
+      (if cond?
+        [text {:style {:color "green"}}
+         name]
+        [text {:style {:color "red"}}
+         name]))])}

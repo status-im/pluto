@@ -2,17 +2,46 @@
   (:refer-clojure :exclude [resolve])
   (:require [pluto.reader.errors :as errors]))
 
-(defn reference? [o]
-  (and (list? o)
-       (= 'clojure.core/deref (first o))))
+(defn reference?
+  "Return true if argument is a reference"
+  [o]
+  (and (list? o) (= 'clojure.core/deref (first o))))
 
-(defmulti resolve
-          ""
-          (fn [m {:keys [type]}] type))
+(defn reference->symbol
+  "Return the symbol pointed by the reference
 
-(defmethod resolve :view [m {:keys [value]}]
-  (if-let [view (get m value)]
-    {:data view}
-    {:errors [(errors/error ::errors/unknown-reference :value value)]}))
+   ```clojure
+   (= 'some.ref (reference->name '@views/some.ref))
+   ```"
+  [o]
+  (when (reference? o)
+    (second o)))
 
-(defmethod resolve :default [m {:keys [type value]}] {:errors [{:type :unknown-reference-type :value value}]})
+(def ns->type {"views" :view "queries" :query "events" :event})
+
+(defn reference->type
+  "Return the type of a reference
+
+   ```clojure
+   (= :view (reference->type '@views/some.ref))
+   ```"
+  [o]
+  (when (reference? o)
+    (when-let [ns (namespace (reference->symbol o))]
+      (get ns->type ns))))
+
+(defn resolve
+  "Resolve a reference defined by a hook
+
+   ```clojure
+   (= {:data \"view\"} (resolve {'views/id \"view\"} {:name :view :type :view} {:view '@views/id}))
+   ```"
+  [m {:keys [name type]} hook]
+  (let [ref (get hook name)]
+    (if ref
+      (if (= type (reference->type ref))
+        (if-let [o (get m (reference->symbol ref))]
+          {:data o}
+          {:errors [(errors/error ::errors/missing-property-value name)]})
+        {:errors [(errors/error ::errors/invalid-property-type type)]})
+      {:errors [(errors/error ::errors/missing-property-name type)]})))

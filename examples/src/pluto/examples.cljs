@@ -29,7 +29,7 @@
   :random)
 
 (defn render [h el]
-  (reagent/render h el))
+  (reagent/render (h {:name "Test Extension"}) el))
 
 (defn errors-list [v]
   [:div

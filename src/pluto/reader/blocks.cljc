@@ -10,18 +10,21 @@
   (fn [_ [type]] type))
 
 (defn resolve-query [o]
-  (cond
-    (reference/reference? o)
-    @(re-frame/subscribe [(keyword (name (second o)))])))
+  @(re-frame/subscribe [(keyword (name (reference/reference->symbol o)))]))
 
-(defn resolve-queries [env]
-  (reduce-kv #(assoc %1 %2 (resolve-query %3))
+(defn resolve-binding [o]
+  (cond
+    (reference/reference? o) (resolve-query o)
+    :else o))
+
+(defn resolve-bindings [env]
+  (reduce-kv #(assoc %1 %2 (resolve-binding %3))
              {}
              env))
 
 (defn let-block [{:keys [env]} child]
   (cond
-    (coll? child) (walk/prewalk-replace (resolve-queries env) child)))
+    (coll? child) (walk/prewalk-replace (resolve-bindings env) child)))
 
 (defn symbol-afer-as? [bindings idx]
   (and (pos? idx) (= :as (nth bindings (dec idx)))))
@@ -79,25 +82,29 @@
     (sequential? s) (destructure-seq bindings s)
     (map? s) (destructure-assoc bindings s)))
 
+(defn properties? [o]
+  (and (reference/reference? o) (= 'properties (reference/reference->symbol o))))
+
 (defn merge-bindings [m k v]
   (cond
-    (symbol? k) (assoc-in m [:data k] v)
-    (sequential? k) (errors/merge-results m (destructure-seq k v))
-    (map? k) (errors/merge-results m (destructure-assoc k v))
+    (properties? v) (assoc-in m [:data 'properties] k)
+    (symbol? k)     (assoc-in m [:data k] v)
     :else
-    {:errors [(errors/error ::errors/invalid-destructuring-format [k v])]}))
+    (if-let [o (destructure k v)]
+      (errors/merge-results m o)
+      {:errors [(errors/error ::errors/invalid-destructuring-format [k v])]})))
 
 (defn bindings->env [bindings]
   (cond
     (odd? (count bindings))
     {:errors [(errors/error ::errors/invalid-destructuring-format bindings)]}
     :else
-    (reduce-kv merge-bindings
-            {} (apply hash-map bindings))))
+    (reduce-kv merge-bindings {} (apply hash-map bindings))))
  
 (defmethod parse 'let [_ [_ bindings & body]]
   (let [{:keys [data errors]} (bindings->env bindings)]
     (errors/merge-errors
+      ;; TODO fail if some symbol are not defined in the env
       ;; TODO resolve query references only once, error if unknown
       {:data
        (let [child (last body)]

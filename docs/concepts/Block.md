@@ -5,6 +5,18 @@ sidebar_label: Block
 
 # Let block
 
+Let blocks provide lexical scope to all nested elements.
+Associated bindings are key value pairs, with key either symbol or destructuring patterns.
+Values can be primitive types or references to queries.
+
+```clojure
+(let [a 1
+      {name :name} @queries/status.user]
+  [view {}
+   [text {}
+    name]])
+```
+
 ## Destructuring
 
 ### Sequential data structure

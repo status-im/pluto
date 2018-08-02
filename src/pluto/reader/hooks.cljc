@@ -1,7 +1,9 @@
 (ns pluto.reader.hooks
-  (:require [clojure.string :as string]
-            [pluto.reader.errors :as errors]
-            [pluto.reader.views  :as views]))
+  (:require [clojure.string         :as string]
+            [pluto.reader.blocks    :as blocks]
+            [pluto.reader.errors    :as errors]
+            [pluto.reader.reference :as reference]
+            [pluto.reader.views     :as views]))
 
 (defmulti resolve-property
           (fn [{:keys [type]} _ _ _]
@@ -11,36 +13,39 @@
               (map? type) :map
               (vector? type) :vector)))
 
-(defn reference->symbol
-  "Returns the symbol value from a reference
+(defn inject-properties [m properties]
+  (if-let [ps (get-in m [:env 'properties])]
+    (let [{:keys [data errors]} (blocks/destructure ps properties)]
+      (errors/merge-errors
+        {:data
+         (-> (update m :env dissoc 'properties)
+             (update :env merge data))}
+        errors))
+    {:data m}))
 
-   ```clojure
-   (= 'some.ref (reference->symbol '@views/some.ref))
-   ```"
-  [ref]
-  (when-let [s (second ref)]
-    (symbol s)))
-
-(defn property-value [name hook]
-  (get hook name))
-
-(defn resolve-reference [m {:keys [name]} hook f]
-  (let [o (property-value name hook)]
-    (if-let [s (reference->symbol o)]
-      (f (get m s))
-      {:errors [(errors/error ::errors/missing-property-value name)]})))
+(defn hiccup-with-properties [h properties]
+  (if (vector? h)
+    (let [[tag props & children] h
+          {:keys [data]} (inject-properties props properties)]
+      (apply conj [tag data]
+             (map #(hiccup-with-properties % properties) children)))
+    h))
 
 (defmethod resolve-property :view [def hook opts m]
-  (resolve-reference m def hook #(views/parse opts %)))
+  (let [{:keys [data] :as m}  (reference/resolve m def hook)
+        {:keys [data errors]} (views/parse opts data)]
+    ;; TODO Might fail at runtime if destructuring is incorrect
+    (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
+                         (concat errors (:errors m)))))
 
 (defmethod resolve-property :event [def hook _ m]
-  (resolve-reference m def hook (fn [o] {:data o})))
+  (reference/resolve m def hook))
 
 (defmethod resolve-property :query [def hook _ m]
-  (resolve-reference m def hook (fn [o] {:data o})))
+  (reference/resolve m def hook))
 
 (defn resolve-property-value [f {:keys [name optional?]} hook]
-  (if-let [o (property-value name hook)]
+  (if-let [o (get hook name)]
     (if (f o)
       {:data o}
       {:errors [(errors/error ::errors/invalid-property-value o)]})

@@ -13,7 +13,7 @@
                          :on-log  [@events/fetch-ipfs]}] ;; A map of decoded data will be injected
 
  events/fetch-ipfs
- (let [{:keys [hash]} properties]
+ (let [{:keys [hash]} @properties]
    [@queries/ipfs.get {:hash       hash
                        :on-success [@events/db.append {:path [:all-posts]}]}])
 
@@ -24,13 +24,13 @@
  views/post
  ;; TODO get account details
  ;;      handle threads
- (let [{:keys [content untrustedAddress untrustedTimestamp parentID]} properties]
+ (let [{content :content address :untrustedAddress timestamp :untrustedTimestamp} @properties]
    [view {}
     [view {}
      [text {}
-      untrustedAddress]
+      address]
      [text {}
-      untrustedTimestamp]]
+      timestamp]]
     [text {}
      content]])
 

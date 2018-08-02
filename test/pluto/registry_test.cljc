@@ -69,12 +69,12 @@
     (registry/activate! registry "id1")
     (registry/activate! registry "id2")
     (registry/activate! registry "id3")
-    (is (= {'hooks/main.1 {1 1} 'hooks/main.2 {2 2}}
+    (is (= {:1 {1 1} :2 {2 2}}
            (registry/hooks registry 'hooks/main)))
     (registry/deactivate! registry "id1")
-    (is (= {'hooks/main.2 {2 2}}
+    (is (= {:2 {2 2}}
            (registry/hooks registry 'hooks/main)))
-    (is (= {'hooks/main.2 {2 2}}
+    (is (= {:2 {2 2}}
            (registry/hooks registry 'hooks/main.2)))
     (is (= {}
            (registry/hooks registry 'hooks/main.3)))))
