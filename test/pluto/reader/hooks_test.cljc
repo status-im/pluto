@@ -64,15 +64,20 @@
                                    {}
                                    {'queries/id ""}))))
   (testing "Set"
-    (is (= {:data :one} (hooks/resolve-property {:name :keyword :type #{:one :two :three}} {:keyword :one} {} {})))
+    (is (= {:data :one} (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :one} {} {})))
     (is (= {:errors [{::errors/type  ::errors/invalid-property-value
                       ::errors/value :for}]}
-           (hooks/resolve-property {:name :keyword :type #{:one :two :three}} {:keyword :for} {} {}))))
+           (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :for} {} {}))))
+  (testing "Subset"
+    (is (= {:data #{"a" "b"}} (hooks/resolve-property {:name :scope :type #{"a" "b" "c"}} {:scope #{"a" "b"}} {} {})))
+    (is (= {:errors [{::errors/type  ::errors/invalid-property-value
+                      ::errors/value #{"a" "d"}}]}
+           (hooks/resolve-property {:name :scope :type #{"a" "b" "c"}} {:scope #{"a" "d"}} {} {}))))
   (testing "Map"
-    (is (= {:data :one} (hooks/resolve-property {:name :keyword :type #{:one :two :three}} {:keyword :one} {} {})))
+    (is (= {:data :one} (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :one} {} {})))
     (is (= {:errors [{::errors/type  ::errors/invalid-property-value
                       ::errors/value :for}]}
-           (hooks/resolve-property {:name :keyword :type #{:one :two :three}} {:keyword :for} {} {})))))
+           (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :for} {} {})))))
 
 (deftest parse
   (is (= [:text {} ""]
@@ -100,9 +105,9 @@
            (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :child {:name :string :id :keyword}}}}}}
                         {'hooks/main.1 {:name "name" :child {:name "name" :id :keyword}}})))
     (is (= {:data {'hooks/main.1 {:name "name" :child {:name "name" :type :one}}}}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :child {:name :string :type #{:one :two :three}}}}}}}
+           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :child {:name :string :type {:one-of #{:one :two :three}}}}}}}}
                         {'hooks/main.1 {:name "name" :child {:name "name" :type :one}}})))
 
     (is (= {:data {'hooks/main.1 {:name "name" :children [{:name "name" :scopes [{:scope :one}]} {:name "name" :scopes [{:scope :two}]}]}}}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :children [{:name :string :scopes [{:scope #{:one :two :three}}]}]}}}}}
+           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :children [{:name :string :scopes [{:scope {:one-of #{:one :two :three}}}]}]}}}}}
                         {'hooks/main.1 {:name "name" :children [{:name "name" :scopes [{:scope :one}]} {:name "name" :scopes [{:scope :two}]}]}})))))

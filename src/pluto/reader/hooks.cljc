@@ -1,5 +1,6 @@
 (ns pluto.reader.hooks
   (:require [clojure.string         :as string]
+            [clojure.set            :as set]
             [pluto.reader.blocks    :as blocks]
             [pluto.reader.errors    :as errors]
             [pluto.reader.reference :as reference]
@@ -9,7 +10,8 @@
           (fn [{:keys [type]} _ _ _]
             (cond
               (keyword? type) type
-              (set? type) :keyword-set
+              (:one-of type) :set
+              (set? type) :subset
               (map? type) :map
               (vector? type) :vector)))
 
@@ -58,8 +60,11 @@
 (defmethod resolve-property :keyword [def hook _ _]
   (resolve-property-value keyword? def hook))
 
-(defmethod resolve-property :keyword-set [def hook _ _]
-  (resolve-property-value (:type def) def hook))
+(defmethod resolve-property :set [def hook _ _]
+  (resolve-property-value (-> def :type :one-of) def hook))
+
+(defmethod resolve-property :subset [def hook _ _] 
+  (resolve-property-value #(set/subset? % (:type def)) def hook))
 
 (declare parse-properties)
 
