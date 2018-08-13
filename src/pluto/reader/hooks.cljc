@@ -1,6 +1,7 @@
 (ns pluto.reader.hooks
   (:require [clojure.string         :as string]
             [clojure.set            :as set]
+            [pluto.host             :as host]
             [pluto.reader.blocks    :as blocks]
             [pluto.reader.errors    :as errors]
             [pluto.reader.reference :as reference]
@@ -87,8 +88,11 @@
 (defn hooks [ext]
   (filter hook? (keys ext)))
 
-(defn root [s]
-  (symbol "hooks" (string/join "." (drop-last (string/split (name s) #"\.")))))
+(defn local-id [s]
+  (keyword (string/join "." (rest (string/split (name s) #"\.")))))
+
+(defn root-id [s]
+  (keyword (first (string/split (name s) #"\."))))
 
 (defn properties [opts s]
   (reduce-kv #(conj %1 {:name %2 :type %3}) []
@@ -105,10 +109,20 @@
              (errors/merge-errors (if data (assoc-in %1 [:data (:name (normalize-property %2))] data) %1) errors))
           {} props))
 
-(defn parse-hook [k v opts m]
-  (parse-properties (map->properties (get-in opts [:capacities :hooks (root k) :properties])) v opts m))
+(defn parse-hook [hook v opts m] 
+  (parse-properties (map->properties (host/properties hook)) v opts m))
 
 (defn parse [opts m]
-  (reduce-kv #(let [{:keys [data errors]} (parse-hook %2 %3 opts m)]
-                (errors/merge-errors (assoc-in %1 [:data %2] data) errors))
-             {} (select-keys m (hooks m))))
+  (reduce-kv (fn [acc hook-key data]
+               (let [hook-id               (local-id hook-key)
+                     hook-root             (root-id hook-key)
+                     hook                  (get-in opts [:capacities :hooks hook-root]) 
+                     {:keys [data errors]} (parse-hook hook data opts m)] 
+                 (errors/merge-errors
+                  (-> acc
+                      (assoc-in [:data :hooks hook-root hook-id :parsed] data)
+                      (assoc-in [:data :hooks hook-root hook-id :hook-ref] hook))
+                  errors)))
+             {}
+             (select-keys m (hooks m))))
+

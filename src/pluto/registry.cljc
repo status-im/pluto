@@ -1,70 +1,74 @@
 (ns pluto.registry
-  (:require [clojure.set :as set]
-            [clojure.string :as string]
-            [pluto.reader.hooks :as hooks]))
+  (:require [clojure.spec.alpha :as spec]
+            [clojure.set        :as set]
+            [clojure.string     :as string]
+            [pluto.host         :as host]))
 
-(defprotocol Registry
-  "Keep track of extensions."
-  (add! [this id extension] "Add an extension to the registry. Id must be unique. Extensions are ::inactive by default.")
-  (remove! [this id] "Remove an extension from the registry.")
-  (all [this] "A map of all extensions and their respective states.")
-  (hooks [this path] "A map of all active hooks matching `path`.")
-  (activate! [this id] "Switch an extension to active. Returns true if state was change, false if not. Returns nil if no matching extension exists.")
-  (deactivate! [this id] "Switch an extension to inactive."))
+(spec/def ::registry (spec/map-of string? ::extension))
 
-(defn initial-state [ext]
-  (assoc ext ::state ::inactive))
+(spec/def ::state (spec/or ::inactive ::active))
 
-(defn raw-extension [ext]
-  (dissoc ext ::state))
+(spec/def ::serialised-data string?)
 
-(defn existing-hooks [m ext]
-  (set/intersection (set (hooks/hooks ext))
-                    (set (hooks/hooks (apply merge (vals m))))))
+(spec/def ::data any?)
 
-(defn add-if-absent [m id ext]
-  (if (or (seq (existing-hooks m ext))
-          (contains? m id))
-    m
-    (assoc m id (initial-state ext))))
+(spec/def ::hook-id keyword?)
 
-(defn set-state-if-present [m id k]
-  (if (contains? m id)
-    (assoc-in m [id ::state] k)
-    m))
+;; TODO(janherich) - spec it so only things which satisfy the `AppHook` protocol can be there
+(spec/def ::hook-ref any?)
 
-(defn switch-state! [exts id from to]
-  (let [[old _] (swap-vals! exts #(set-state-if-present % id to))]
-    (when-let [{::keys [state]} (get old id)]
-      (= from state))))
+(spec/def ::hook (spec/keys :req-un [::hook-id ::hook-ref]))
 
-(defn active? [{::keys [state]}]
-  (= ::active state))
+(spec/def ::hooks (spec/coll-of ::hook))
 
-(defn all-active-hooks [m]
-  (apply merge (filter active? (vals m))))
+(spec/def ::extension-data (spec/keys :req-un [::state ::data ::hooks]
+                                      :opt-un [::serialised-data]))
 
-(defn hook-id [s]
-  (keyword (last (string/split (name s) #"\."))))
+(defn add
+  "Takes extensions map and parsed data, adds extension to registry with `::inactive` initial state."
+  [extensions parsed-data]
+  (let [extension-key (get-in parsed-data ['meta :name])]
+    (assoc extensions extension-key {:state           ::inactive
+                                     :data            parsed-data})))
 
-(defn new-registry []
-  (let [exts (atom {})]
-    (reify Registry
-      (add! [_ id ext]
-        (let [[old new] (swap-vals! exts #(add-if-absent % id ext))]
-          (when (= (count old) (count new))
-            (raw-extension (get old id)))))
-      (remove! [_ id]
-        (let [[old new] (swap-vals! exts dissoc id)]
-          (when-not (= (count old) (count new))
-            (raw-extension (get old id)))))
-      (hooks [_ path]
-        (reduce-kv #(if (and (hooks/hook? %2) (string/starts-with? (name %2) (name path)))
-                      (assoc %1 (hook-id %2) %3)
-                      %1)
-                   {}
-                   (all-active-hooks @exts)))
+(def ^:private state->new-state {::active   ::inactive
+                                 ::inactive ::active})
 
-      (all [_] @exts)
-      (activate! [_ id] (switch-state! exts id ::inactive ::active))
-      (deactivate! [_ id] (switch-state! exts id ::active ::inactive)))))
+(defn- switch [new-state extensions extension-key]
+  (if-let [{:keys [state data]} (get extensions extension-key)]
+    (if (= state new-state)
+      {:extensions extensions}
+      (reduce (fn [acc [app-hook extension-hooks]]
+                (reduce (fn [acc [hook-id {:keys [hook-ref parsed]}]]
+                          (assoc-in acc [app-hook hook-id] (if (= ::active new-state)
+                                                             (host/hook-in hook-ref hook-id parsed)
+                                                             (host/unhook hook-ref hook-id))))
+                        acc
+                        extension-hooks))
+              {:extensions (assoc-in extensions [extension-key :state] (get state->new-state state))}
+              (:hooks data)))
+    {:extensions extensions}))
+
+(def activate
+  "Takes extension key and activates it by turning on all hooks. Extension state is switched to active.
+  Return value is map with keys `:extensions` containg new state of extensions map + entry for each hook,
+  containg map in form of `{app-hook {extension-hook-id return-value-of-hook-in-call}}`"
+  (partial switch ::active))
+
+(def deactivate
+  "Takes extension key and de-activates it by turning off all hooks. Extension state is switched to inactive.
+  Return value is map with keys `:extensions` containing new state of extensions map + entry for each hook,
+  containg map in form of `{app-hook {extension-hook-id return-value-of-unhook-call}}`"
+  (partial switch ::inactive))
+
+(defn remove
+  "Removes extension from extension map altogether, if the extension is in active state, deactives it first.
+  Return value is map with keys `:extensions` containg new state of extensions map and (optionally, if the extension
+  was active) map of unhook value like from `deactive` function."
+  [extensions extension-key]
+  (if-let [{:keys [state]} (get extensions extension-key)]
+    (if (= ::inactive state)
+      {:extensions (dissoc extensions extension-key)}
+      (-> (deactivate extensions extension-key)
+          (update :extensions dissoc extension-key)))
+    {:extensions extensions}))

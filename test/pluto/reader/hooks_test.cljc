@@ -1,5 +1,6 @@
 (ns pluto.reader.hooks-test
   (:require [clojure.test :refer [is deftest testing]]
+            [pluto.host :as host]
             [pluto.reader.blocks :as blocks]
             [pluto.reader.errors :as errors]
             [pluto.reader.hooks :as hooks]))
@@ -79,35 +80,65 @@
                       ::errors/value :for}]}
            (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :for} {} {})))))
 
+(defn- hooks [properties]
+  {:main (reify host/AppHook
+           (id [_] :main)
+           (properties [_] properties)
+           (hook-in [_ _ _])
+           (unhook [_ _]))})
+
 (deftest parse
   (is (= [:text {} ""]
-         ((get-in (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:view :view}}} :components {'text :text}}}
+         ((get-in (hooks/parse {:capacities {:hooks      (hooks {:view :view})
+                                             :components {'text :text}}}
                     {'views/main   ['text {} ""]
-                     'hooks/main.1 {:view '@views/main}})
-                  [:data 'hooks/main.1 :view]) {})))
-  (is (= {:data {'hooks/main.1 {:name "name" :id :keyword}}}
-         (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :id :keyword}}}}}
-                      {'hooks/main.1 {:name "name" :id :keyword}})))
+                     'hooks/main.a {:view    '@views/main}})
+                  [:data :hooks :main :a :parsed :view]) {})))
+  (let [app-hooks (hooks {:name :string
+                          :id   :keyword})]
+    (is (= {:data {:hooks {:main {:a {:parsed   {:name    "name" 
+                                                 :id      :keyword}
+                                      :hook-ref (:main app-hooks)}}}}}
+           (hooks/parse {:capacities {:hooks app-hooks}}
+                        {'hooks/main.a {:name "name"
+                                        :id :keyword}}))))
   (testing "Optional property"
-    (is (= {:data {'hooks/main.1 {:name "name"}}
-            :errors [{::errors/type  ::errors/invalid-property-name
-                      ::errors/value :id}]}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :id :keyword}}}}}
-                        {'hooks/main.1 {:name "name"}})))
-    (is (= {:data {'hooks/main.1 {:name "name"}}}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :id? :keyword}}}}}
-                        {'hooks/main.1 {:name "name"}})))
-    (is (= {:data {'hooks/main.1 {:name "name" :id :keyword}}}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :id? :keyword}}}}}
-                        {'hooks/main.1 {:name "name" :id :keyword}}))))
+    (let [app-hooks (hooks {:name :string :id :keyword})]
+      (is (= {:data {:hooks {:main {:a {:parsed   {:name    "name"}
+                                        :hook-ref (:main app-hooks)}}}}
+              :errors [{::errors/type  ::errors/invalid-property-name
+                        ::errors/value :id}]}
+             (hooks/parse {:capacities {:hooks app-hooks}}
+                          {'hooks/main.a {:name    "name"}}))))
+    (is (= {:name "name"}
+           (get-in (hooks/parse {:capacities {:hooks (hooks {:name :string :id? :keyword})}}
+                                {'hooks/main.b {:name    "name"}})
+                   [:data :hooks :main :b :parsed])))
+    (is (= {:name "name"
+            :id   :keyword}
+           (get-in (hooks/parse {:capacities {:hooks (hooks {:name :string :id? :keyword})}}
+                                {'hooks/main.a {:name    "name"
+                                                :id      :keyword}})
+                   [:data :hooks :main :a :parsed]))))
   (testing "Complex property"
-    (is (= {:data {'hooks/main.1 {:name "name" :child {:name "name" :id :keyword}}}}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :child {:name :string :id :keyword}}}}}}
-                        {'hooks/main.1 {:name "name" :child {:name "name" :id :keyword}}})))
-    (is (= {:data {'hooks/main.1 {:name "name" :child {:name "name" :type :one}}}}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :child {:name :string :type {:one-of #{:one :two :three}}}}}}}}
-                        {'hooks/main.1 {:name "name" :child {:name "name" :type :one}}})))
+    (is (= {:name "name"
+            :child {:name "name" :id :keyword}}
+           (get-in (hooks/parse {:capacities {:hooks (hooks {:name :string :child {:name :string :id :keyword}})}}
+                                {'hooks/main.a {:name    "name"
+                                                :child   {:name "name" :id :keyword}}})
+                   [:data :hooks :main :a :parsed])))
+    (is (= {:name "name"
+            :child {:name "name" :type :one}}
+           (get-in (hooks/parse {:capacities {:hooks (hooks {:name :string :child {:name :string :type {:one-of #{:one :two :three}}}})}}
+                                {'hooks/main.a {:name    "name"
+                                                :child   {:name "name" :type :one}}})
+                   [:data :hooks :main :a :parsed])))
 
-    (is (= {:data {'hooks/main.1 {:name "name" :children [{:name "name" :scopes [{:scope :one}]} {:name "name" :scopes [{:scope :two}]}]}}}
-           (hooks/parse {:capacities {:hooks {'hooks/main {:properties {:name :string :children [{:name :string :scopes [{:scope {:one-of #{:one :two :three}}}]}]}}}}}
-                        {'hooks/main.1 {:name "name" :children [{:name "name" :scopes [{:scope :one}]} {:name "name" :scopes [{:scope :two}]}]}})))))
+    (is (= {:name "name"
+            :children [{:name "name" :scopes [{:scope :one}]}
+                       {:name "name" :scopes [{:scope :two}]}]}
+           (get-in (hooks/parse {:capacities {:hooks (hooks {:name :string :children [{:name :string :scopes [{:scope {:one-of #{:one :two :three}}}]}]})}}
+                                {'hooks/main.a {:name     "name"
+                                                :children [{:name "name" :scopes [{:scope :one}]}
+                                                           {:name "name" :scopes [{:scope :two}]}]}})
+                   [:data :hooks :main :a :parsed])))))
