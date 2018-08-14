@@ -1,4 +1,4 @@
-(defproject pluto "SNAPSHOT"
+(defproject status-im/pluto "iteration-2-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.238"]
                  [org.clojure/tools.reader "1.2.1"]
@@ -12,6 +12,8 @@
 
   :source-paths ["src"]
 
+  :deploy-repositories [["releases" :clojars]
+                        ["snapshots" :clojars]]
   :cljsbuild {:builds [{:id "tests"
                         :source-paths ["src" "test"]
                         :compiler {:output-to "target/testable.js"

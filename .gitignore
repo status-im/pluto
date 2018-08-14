@@ -1,4 +1,5 @@
 pom.xml
+pom.xml.asc
 pluto.iml
 figwheel_server.log
 target/

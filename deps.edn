@@ -6,7 +6,7 @@
  :paths ["src"]
  :aliases {:examples {:extra-paths ["examples/src"]}
            :figwheel {:extra-paths ["target" "examples/src" "figwheel/resources" "figwheel/src"]
-                      :extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.1.2"}
+                      :extra-deps  {com.bhauman/figwheel-main       {:mvn/version "0.1.5"}
                                     com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
                                     binaryage/devtools              {:mvn/version "0.9.10"}}
                       :main-opts   ["-m" "figwheel.main" "-b" "figwheel/dev" "-r"]}

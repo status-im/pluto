@@ -39,8 +39,9 @@
   <main>
       <div id="selection">
           Load demo extension from
-          <button disabled onclick="load('ipfs:QmSKP6f2uUsFq4mk1Afe4ZktxwQifrLb4xRQYNE1LxidKz')">IPFS</button>
-          <button onclick="load('url:assets/extensions/demo')">HTTP</button>
+          <button disabled onclick="load('ipfs@QmSKP6f2uUsFq4mk1Afe4ZktxwQifrLb4xRQYNE1LxidKz')">IPFS</button>
+          <button onclick="load('url@assets/extensions/demo')">HTTP</button>
+          <button onclick="load('gist@jeluard/1b41c8194c1658e1b6fc0bde4aa6db95')">Gist</button>
       </div>
       <div id="extension">
           <iframe id="frame" srcdoc="<body><main></main></body>"></iframe>

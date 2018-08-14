@@ -4,6 +4,7 @@
             [pluto.reader :as reader]
             [pluto.storage :as storage]
             [pluto.storage.http :as http]
+            [pluto.storage.gist :as gist]
             [pluto.storage.ipfs :as ipfs]
             [reagent.core :as reagent]
             [reagent.dom :as dom]
@@ -32,20 +33,22 @@
   (reagent/render (h {:name "Test Extension"}) el))
 
 (defn errors-list [v]
-  [:div
-   [:div "Errors"]
-   (into [:ul]
-     (for [{:keys [type] :as m} v]
-       [:li
-        [:span [:b (str type)] (pr-str (dissoc m :type))]]))])
+  (fn []
+    [:div
+     [:div "Errors"]
+     (into [:ul]
+       (for [{:keys [type] :as m} v]
+         [:li
+          [:span [:b (str type)] (pr-str (dissoc m :type))]]))]))
 
 (defn storage-for [type]
   (condp = type
     "url"  (http/HTTPStorage.)
+    "gist" (gist/GistStorage.)
     "ipfs" (ipfs/IPFSStorage. "https://cors.io/?https://gateway.ipfs.io")))
 
 (defn fetch [uri cb]
-  (let [[type id] (string/split uri ":")]
+  (let [[type id] (string/split uri "@")]
     (storage/fetch
       (storage-for type)
       {:value id} cb)))

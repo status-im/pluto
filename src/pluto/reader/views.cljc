@@ -28,6 +28,11 @@
                                   errors))
           {:data []} children))
 
+(defn resolve-element [{:keys [components]} o]
+  (cond
+    (fn? o) o
+    (symbol? o) (get components o)))
+
 (defn parse-hiccup-element [{:keys [capacities] :as opts} o]
   (let [explain (spec/explain-data ::form o)]
     (cond
@@ -39,7 +44,7 @@
       (vector? o)
 
       (let [[element properties & children] o
-            component (if (fn? element) element (get (:components capacities) element))]
+            component (resolve-element capacities element)]
         (cond-> (let [m (parse-hiccup-children opts children)]
                   ;; Reduce parsed children to a single map and wrap them in a hiccup element
                   ;; whose component has been translated to the local platform

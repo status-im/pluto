@@ -17,42 +17,43 @@ Validate technical feasibility.
 
 Pre-MVP integrated in Status.
 
-## In progress
 
 ### Iteration 1
 
 Provide infrastructure for the chat command hook.
 
-* implement hooks and proposed extension points _DONE_
-* registry and hooks API _DONE_
-* define extensions points for status _DONE_
-* implement destructuring [#28](https://github.com/status-im/pluto/issues/28) _DONE_
+* implement hooks and proposed extension points
+* registry and hooks API
+* define extensions points for status
+* implement destructuring [#28](https://github.com/status-im/pluto/issues/28)
 
-## Next
+## In progress
 
 ### Iteration 2
 
 Add remote loading support.
 
+* add extension registry UI _DONE_
+* remote loading _DONE_
 * query and events API (data can be passed around) [#9](https://github.com/status-im/pluto/issues/9) and [#8](https://github.com/status-im/pluto/issues/8)
-* isolated data per extension [#29](https://github.com/status-im/pluto/issues/29)
 * implement security mechanism / permissions
-* remote loading
+
+## Next
 
 ### Iteration 3
 
 Add custom code support.
 
-* implement i18n [#10](https://github.com/status-im/pluto/issues/10)
 * custom code
 * JavaScript API
+* implement i18n [#10](https://github.com/status-im/pluto/issues/10)
 
 ### Iteration 4
 
 Persistent extensions.
 
+* isolated data per extension [#29](https://github.com/status-im/pluto/issues/29)
 * implement data persistence
-* add extension registry UI
 
 ### Iteration 5
 
