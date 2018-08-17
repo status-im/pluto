@@ -41,13 +41,24 @@
     (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
                          (concat errors (:errors m)))))
 
-(defmethod resolve-property :event [def hook _ m]
-  (reference/resolve m def hook))
+(defn- resolve-capacities-value [key error-key capacities {:keys [name optional?]} hook]
+  (if-let [value (get hook name)]
+    (if-let [component ((get capacities key) value)]
+      {:data component}
+      {:errors [(errors/error error-key value)]})
+    (when-not optional?
+      {:errors [(errors/error ::errors/invalid-property-name name)]})))
 
-(defmethod resolve-property :query [def hook _ m]
-  (reference/resolve m def hook))
+(defmethod resolve-property :component [def hook {:keys [capacities]} _]
+  (resolve-capacities-value :components ::errors/unknown-component capacities def hook))
 
-(defn resolve-property-value [f {:keys [name optional?]} hook]
+(defmethod resolve-property :event [def hook {:keys [capacities]} m]
+  (resolve-capacities-value :events ::errors/event-not-exposed capacities def hook))
+
+(defmethod resolve-property :query [def hook {:keys [capacities]} _]
+  (resolve-capacities-value :queries ::errors/query-not-exposed capacities def hook))
+
+(defn- resolve-property-value [f {:keys [name optional?]} hook]
   (if-let [o (get hook name)]
     (if (f o)
       {:data o}

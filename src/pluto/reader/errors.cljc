@@ -17,7 +17,12 @@
                    ::unknown-component
                    ::invalid-view
                    ::invalid-block
-                   ::unsupported-test-type})
+                   ::unsupported-test-type
+                   ::forbidden-read-path
+                   ::forbidden-write-path
+                   ::query-not-exposed
+                   ::invalid-event-handler
+                   ::event-not-exposed})
 
 (spec/def ::value any?)
 

@@ -8,7 +8,7 @@ Hook is the mechanism allowing a specific host to define what (and how) can be e
 Available hooks are defined as part of capacities by maps detailing properties and their associated type. They leverage [references](Reference) to use various extensions elements.
 
 ```clojure
-{:capacities {hooks/main {:properties {:view :view :name :string}}}}
+{:capacities {hooks/main.my-hook {:properties {:view :view :name :string}}}}
 ```
 
 Properties are defined as map of property name (`keyword`) / property types.
@@ -17,7 +17,8 @@ Type can be:
 
 * `:string`, `:keyword`
 * references to `:view`, `:event` or `:query`
-* one of a set of `keywords`: `#{:one :two}`
+* one of a set: `{:one-of #{:one :two}}`
+* subset of: `#{:one :two :three}`
 * complex types `{:child {:name :string}}` and `{:children [{:name :string}]}`
 
 Extensions can then specify hooks that will match associated host capacities.

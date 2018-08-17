@@ -40,30 +40,60 @@
                                            {:view '@views/id}
                                            {:capacities {:components {'text :text}}}
                                            {'views/id '(let [{value :value} @properties] [text {} value])})) {:value "test"}))))
+  (testing "Component"
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-property-name
+                      :pluto.reader.errors/value :component}]}
+           (hooks/resolve-property {:type :component :name :component}
+                                   {}
+                                   {:capacities {}}
+                                   {})))
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/unknown-component
+                      :pluto.reader.errors/value 'selector}]}
+           (hooks/resolve-property {:type :component :name :component}
+                                   {:component 'selector}
+                                   {:capacities {:components {}}}
+                                   {})))
+    (is (= {:data "selector"}
+           (hooks/resolve-property {:type :component :name :component}
+                                   {:component 'selector}
+                                   {:capacities {:components {'selector "selector"}}}
+                                   {}))))
   (testing "Event"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-name
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-property-name
                       :pluto.reader.errors/value :event}]}
            (hooks/resolve-property {:type :event :name :event}
                                    {}
-                                   {}
-                                   {'events/id ""})))
-    (is (= {:data ""}
+                                   {:capacities {}}
+                                   {})))
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/event-not-exposed
+                      :pluto.reader.errors/value :set-in}]}
            (hooks/resolve-property {:type :event :name :event}
-                                   {:event '@events/id}
-                                   {}
-                                   {'events/id ""}))))
+                                   {:event :set-in}
+                                   {:capacities {:events #{}}}
+                                   {})))
+    (is (= {:data :set-in}
+           (hooks/resolve-property {:type :event :name :event}
+                                   {:event :set-in}
+                                   {:capacities {:events #{:set-in}}}
+                                   {}))))
   (testing "Query"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-name
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-property-name
                       :pluto.reader.errors/value :query}]}
            (hooks/resolve-property {:type :query :name :query}
                                    {}
-                                   {}
-                                   {'queries/id ""})))
-    (is (= {:data ""}
+                                   {:capacities {}}
+                                   {})))
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/query-not-exposed
+                      :pluto.reader.errors/value :get-in}]}
            (hooks/resolve-property {:type :query :name :query}
-                                   {:query '@queries/id}
-                                   {}
-                                   {'queries/id ""}))))
+                                   {:query :get-in}
+                                   {:capacities {:queries #{}}}
+                                   {})))
+    (is (= {:data :get-in}
+           (hooks/resolve-property {:type :query :name :query}
+                                   {:query :get-in}
+                                   {:capacities {:queries #{:get-in}}}
+                                   {}))))
   (testing "Set"
     (is (= {:data :one} (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :one} {} {})))
     (is (= {:errors [{::errors/type  ::errors/invalid-property-value
@@ -84,8 +114,8 @@
   {:main (reify host/AppHook
            (id [_] :main)
            (properties [_] properties)
-           (hook-in [_ _ _])
-           (unhook [_ _]))})
+           (hook-in [_ _ _ _])
+           (unhook [_ _ _ _]))})
 
 (deftest parse
   (is (= [:text {} ""]
@@ -113,13 +143,16 @@
     (is (= {:name "name"}
            (get-in (hooks/parse {:capacities {:hooks (hooks {:name :string :id? :keyword})}}
                                 {'hooks/main.b {:name    "name"}})
-                   [:data :hooks :main :b :parsed])))
+                   [:data :hooks :main :b :parsed]))) 
     (is (= {:name "name"
             :id   :keyword}
            (get-in (hooks/parse {:capacities {:hooks (hooks {:name :string :id? :keyword})}}
                                 {'hooks/main.a {:name    "name"
                                                 :id      :keyword}})
-                   [:data :hooks :main :a :parsed]))))
+                   [:data :hooks :main :a :parsed])))
+    (is (not (:errors (hooks/parse {:capacities {:hooks (hooks {:name         :string
+                                                                :suggestions? :view})}}
+                                   {'hooks/main.a {:name "name"}})))))
   (testing "Complex property"
     (is (= {:name "name"
             :child {:name "name" :id :keyword}}

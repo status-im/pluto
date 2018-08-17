@@ -1,21 +1,26 @@
 (ns pluto.reader.blocks
   (:refer-clojure :exclude [destructure])  
-  (:require [clojure.walk           :as walk]
-            [pluto.reader.errors    :as errors]
-            [pluto.reader.reference :as reference]
-            [re-frame.core          :as re-frame]))
+  (:require [clojure.walk             :as walk]
+            [pluto.reader.errors      :as errors]
+            [pluto.reader.reference   :as reference]
+            [pluto.reader.permissions :as permissions]
+            [re-frame.core            :as re-frame]))
 
 (defmulti parse
   "Parse a block element. Return hiccup data."
   (fn [_ [type]] type))
 
-(defn resolve-query [o]
-  @(re-frame/subscribe [(keyword (name (reference/reference->symbol o)))]))
+(defn resolve-query [[_ [sub-keyword sub-args :as sub]]]
+  @(re-frame/subscribe sub))
 
-(defn resolve-binding [o]
+(defn- query? [binding-value]
+  (and (list? binding-value)
+       (= 'query (first binding-value))))
+
+(defn resolve-binding [binding-value]
   (cond
-    (reference/reference? o) (resolve-query o)
-    :else o))
+    (query? binding-value) (resolve-query binding-value) 
+    :else binding-value))
 
 (defn resolve-bindings [env]
   (reduce-kv #(assoc %1 %2 (resolve-binding %3))
@@ -100,16 +105,35 @@
     {:errors [(errors/error ::errors/invalid-destructuring-format bindings)]}
     :else
     (reduce-kv merge-bindings {} (apply hash-map bindings))))
- 
-(defmethod parse 'let [_ [_ bindings & body]]
-  (let [{:keys [data errors]} (bindings->env bindings)]
+
+(defn- restrict-get-in [path {:keys [read]}]
+  (when-not (permissions/allowed-path? path read)
+    (errors/error ::errors/forbidden-read-path path)))
+
+(defn- restrict-queries
+  "Parse time enforcement of valid queries, checks that query
+  is exposed via host platform + enforces valid query vectors for 
+  `:get-in` query."
+  [{:keys [permissions queries]} env]
+  (keep (fn [[_ env-value]]
+          (when (query? env-value) 
+            (let [[_ [sub-name sub-args]] env-value]
+              (if (not (contains? queries sub-name))
+                (errors/error ::errors/query-not-exposed sub-name)
+                (when (= :get-in sub-name) 
+                  (restrict-get-in sub-args permissions))))))
+        env))
+
+(defmethod parse 'let [{:keys [capacities]} [_ bindings & body]]
+  (let [{:keys [data errors]} (bindings->env bindings)
+        query-errors          (restrict-queries capacities data)] 
     (errors/merge-errors
       ;; TODO fail if some symbol are not defined in the env
       ;; TODO resolve query references only once, error if unknown
       {:data
        (let [child (last body)]
          [let-block {:env data} child])}
-      errors)))
+      (concat errors query-errors))))
 
 (defn when-block [{:keys [test]} body]
   ;; TODO warning if test is not of boolean type

@@ -36,7 +36,7 @@
    ```clojure
    (= {:data \"view\"} (resolve {'views/id \"view\"} {:name :view :type :view} {:view '@views/id}))
    ```"
-  [m {:keys [name type]} hook]
+  [m {:keys [name type optional?]} hook] 
   (let [ref (get hook name)]
     (if ref
       (if (= type (reference->type ref))
@@ -44,4 +44,5 @@
           {:data o}
           {:errors [(errors/error ::errors/missing-property-value name)]})
         {:errors [(errors/error ::errors/invalid-property-type type)]})
-      {:errors [(errors/error ::errors/missing-property-name type)]})))
+      (when-not optional?
+        {:errors [(errors/error ::errors/missing-property-name type)]}))))

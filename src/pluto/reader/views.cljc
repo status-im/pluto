@@ -1,8 +1,10 @@
 (ns pluto.reader.views
-  (:require [clojure.spec.alpha :as spec]
-            [pluto.reader.blocks :as blocks]
-            [pluto.reader.errors :as errors]
-            [pluto.utils :as utils]))
+  (:require [clojure.spec.alpha       :as spec]
+            [pluto.reader.blocks      :as blocks]
+            [pluto.reader.errors      :as errors]
+            [pluto.reader.permissions :as permissions]
+            [pluto.utils              :as utils]
+            [re-frame.core            :as re-frame]))
 
 ;; TODO Distinguish views (can contain blocks, symbols) validation
 ;; from hiccup validation (view after parsing) that are pure hiccup
@@ -20,6 +22,11 @@
     :attrs    map?
     :children (spec/* ::form)))
 
+;; TODO add all possible event handlers
+(def ^:private event-handler->selector
+  {:on-press  (constantly true)
+   :on-change #(.-text (.-nativeEvent %))})
+
 (declare parse)
 
 (defn parse-hiccup-children [opts children]
@@ -33,6 +40,36 @@
     (fn? o) o
     (symbol? o) (get components o)))
 
+(defn- event? [prop-value]
+  (and (list? prop-value)
+       (= 'event (first prop-value))))
+
+(defn- create-event-handler [re-frame-event selector]
+  (fn [event-value]
+    (re-frame/dispatch (conj re-frame-event (selector event-value)))))
+
+(defn- resolve-element-properties [{:keys [permissions events]} properties] 
+  (reduce (fn [acc [k v]] 
+            (if (contains? event-handler->selector k)
+              (if (not (event? v))
+                (update acc :errors conj (errors/error ::errors/invalid-event-handler v))
+                (let [[_ [event-name event-args] :as re-frame-event] v]
+                  (cond
+
+                    (not (contains? events event-name))
+                    (update acc :errors conj (errors/error ::errors/event-not-exposed event-name))
+
+                    (not (permissions/allowed-path? event-args (:write permissions)))
+                    (update acc :errors conj (errors/error ::errors/forbidden-write-path event-args))
+
+                    :else
+                    (update acc :data assoc k (create-event-handler re-frame-event
+                                                                    (get event-handler->selector k))))))
+              (update acc :data assoc k v)))
+          {:data   {}
+           :errors []}
+          properties))
+
 (defn parse-hiccup-element [{:keys [capacities] :as opts} o]
   (let [explain (spec/explain-data ::form o)]
     (cond
@@ -44,12 +81,14 @@
       (vector? o)
 
       (let [[element properties & children] o
-            component (resolve-element capacities element)]
+            component                       (resolve-element capacities element)
+            {:keys [data errors]}           (resolve-element-properties capacities properties)]
         (cond-> (let [m (parse-hiccup-children opts children)]
                   ;; Reduce parsed children to a single map and wrap them in a hiccup element
                   ;; whose component has been translated to the local platform
-                  (update m :data #(apply conj [(or component element) properties] %)))
-                (nil? component) (errors/accumulate-errors [(errors/error ::errors/unknown-component element)]))))))
+                  (update m :data #(apply conj [(or component element) data] %)))
+                (nil? component) (errors/accumulate-errors [(errors/error ::errors/unknown-component element)])
+                (seq errors)     (errors/accumulate-errors errors))))))
 
 (defn parse [opts o]
   (cond

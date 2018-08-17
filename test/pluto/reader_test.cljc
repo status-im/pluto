@@ -64,8 +64,8 @@
 (def default-hooks {:main (reify host/AppHook
                             (id [_] :main)
                             (properties [_] {:view :view})
-                            (hook-in [_ _ _])
-                            (unhook [_ _]))})
+                            (hook-in [_ _ _ _])
+                            (unhook [_ _ _ _]))})
 (def default-components {'text :text 'view :view})
 (def default-capacities {:capacities {:hooks default-hooks :components default-components}})
 

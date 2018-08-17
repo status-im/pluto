@@ -3,24 +3,27 @@ title: Registry
 sidebar_label: Registry
 ---
 
-Registry allows to manage a set of extensions. Using registry a host can access hooks uniformly.
+Registry allows to manage a set of extensions, which are expected to live under `[:registry]` path in app state.
+Using registry a host can add/delete/activate/deactivate extensions uniformly and all extension hooks
+will hook-in/unhook into/from host automatically.
 
 ```clojure
-(registry/add! registry id extension)
+(registry/add extension coeffects-map) ;; returns new effects map with extension added
 ```
 
-Extensions id are uniques. Hooks defined in extensions also must have global unique ids.
+Extensions id are unique. Hooks defined in extensions also must have global unique ids.
 
 Once in a registry an extension is inactive.
 It can be either `active` or `inactive`.
 
 ```clojure
-(registry/deactivate! registry id)
-(registry/activate! registry id)
+(registry/deactivate extension-id coeffect-map) ;; returns new effects map with extension deactivated
+(registry/activate extension-id coeffects-map) ;; returns new effects map with extension activated
 ```
 
-Active hooks can then be accessed by hook id path. 
+When extension is deleted, all the hooks are deactivated (unhooked from the host) automatically, if
+it was in the active state before.
 
 ```clojure
-(registry/hooks! registry 'hooks/some.name)
+(registry/delete extension-id coeffects-map) ;; returns new effects map with extension deleted and (potential) unhook effects
 ```
