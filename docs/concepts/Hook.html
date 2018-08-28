@@ -23,14 +23,15 @@
             });
         </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1>Hook</h1></header><article><div><span><p>Hook is the mechanism allowing a specific host to define what (and how) can be extended.</p>
 <p>Available hooks are defined as part of capacities by maps detailing properties and their associated type. They leverage <a href="Reference">references</a> to use various extensions elements.</p>
-<pre><code class="hljs css languages- clojure"><span class="token punctuation">{</span><span class="token operator">:capacities</span> <span class="token punctuation">{</span>hooks/main <span class="token punctuation">{</span><span class="token operator">:properties</span> <span class="token punctuation">{</span><span class="token operator">:view</span> <span class="token operator">:view</span> <span class="token operator">:name</span> <span class="token operator">:string</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span>
+<pre><code class="hljs css languages- clojure"><span class="token punctuation">{</span><span class="token operator">:capacities</span> <span class="token punctuation">{</span>hooks/main.my-hook <span class="token punctuation">{</span><span class="token operator">:properties</span> <span class="token punctuation">{</span><span class="token operator">:view</span> <span class="token operator">:view</span> <span class="token operator">:name</span> <span class="token operator">:string</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span>
 </code></pre>
 <p>Properties are defined as map of property name (<code>keyword</code>) / property types.</p>
 <p>Type can be:</p>
 <ul>
 <li><code>:string</code>, <code>:keyword</code></li>
 <li>references to <code>:view</code>, <code>:event</code> or <code>:query</code></li>
-<li>one of a set of <code>keywords</code>: <code>#{:one :two}</code></li>
+<li>one of a set: <code>{:one-of #{:one :two}}</code></li>
+<li>subset of: <code>#{:one :two :three}</code></li>
 <li>complex types <code>{:child {:name :string}}</code> and <code>{:children [{:name :string}]}</code></li>
 </ul>
 <p>Extensions can then specify hooks that will match associated host capacities.
