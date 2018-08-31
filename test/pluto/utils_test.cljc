@@ -1,4 +1,5 @@
- (ns pluto.utils-test 
+(ns pluto.utils-test
+  (:refer-clojure :exclude [slurp])
   (:require [clojure.test :refer [is deftest testing]]
             [pluto.utils :as utils]))
 
@@ -16,3 +17,6 @@
                                       (update :a inc)
                                       (assoc :b 1))})
                            (constantly {:fire-missile true}))))))
+
+(defmacro slurp [file]
+  (clojure.core/slurp file))
