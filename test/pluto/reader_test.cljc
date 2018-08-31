@@ -8,6 +8,9 @@
 
 (deftest read
   (is (= {:data nil} (reader/read "")))
+  (is (= {:errors [{::errors/message #?(:clj "#= not allowed when *read-eval* is false" :cljs "read-eval not supported")
+                    ::errors/type ::errors/reader-error, ::errors/value :reader-error}]}
+         (reader/read "#=(eval (def x 3))")))
   (is (= {:errors [{::errors/type ::errors/reader-error ::errors/value :eof ::errors/message "Unexpected EOF while reading item 0 of vector."}]} (reader/read "[")))
   (is (= {:errors [{::errors/type ::errors/reader-error ::errors/value :reader-error ::errors/message "No reader function for tag unknown."}]}
          (reader/read "#unknown []")))

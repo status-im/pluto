@@ -10,8 +10,7 @@
    # Activate
     * based on hooks, inject views / trigger events"
   (:refer-clojure :exclude [read])
-  (:require [clojure.string :as string]
-            [clojure.set :as set]
+  (:require [clojure.set :as set]
             [clojure.spec.alpha :as spec]
             [clojure.tools.reader :as reader]
             [pluto.reader.errors :as errors]
