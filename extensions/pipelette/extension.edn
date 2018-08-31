@@ -1,0 +1,56 @@
+{meta
+ {:name          "Pipelette"
+  :description   "A light client for Peepeth"
+  :documentation "..."}
+
+ lifecycle
+ {:on-activated  [@events/fetch-all-posts]}
+
+ events/fetch-all-posts
+ [@events/ethereum.logs {:address "0xfa28ec7198028438514b49a3cf353bca5541ce1d"
+                         :topics  ["PeepEth()"]
+                         :inputs  [{:name :hash :type :string}] ;; Allows to decode transaction data
+                         :on-log  [@events/fetch-ipfs]}] ;; A map of decoded data will be injected
+
+ events/fetch-ipfs
+ (let [{:keys [hash]} @properties]
+   [@queries/ipfs.get {:hash       hash
+                       :on-success [@events/db.append {:path [:all-posts]}]}])
+
+ queries/all-posts
+ [@queries/db.get {:path  [:all-posts]
+                   :limit 20}]
+
+ views/post
+ ;; TODO get account details
+ ;;      handle threads
+ (let [{content :content address :untrustedAddress timestamp :untrustedTimestamp} @properties]
+   [view {}
+    [view {}
+     [text {}
+      address]
+     [text {}
+      timestamp]]
+    [text {}
+     content]])
+
+ views/main
+ [screen {:style @styles/screen}
+  [toolbar {}
+   [text {}
+    [@i18n/title {}]]]
+  (let [posts @queries/all-posts]
+     [list {:data     posts
+            :template [@views/post]}])]
+
+ styles/screen
+ {:background-color #?(:android :green
+                       :ios     :red
+                       :web     :white)}
+
+ i18n/title
+ {:en "Peepeth !!"}
+
+ hooks/main.pipelette
+ {:view @views/main}}
+
