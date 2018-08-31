@@ -14,6 +14,8 @@ node('linux') {
       credentialsId: 'jenkins-github-token',
       variable: 'GITHUB_TOKEN',
     )]) {
+      sh 'clojure -A:examples -m cljs.main -O advanced -d website/static/js -o website/static/js/pluto.js -c pluto.examples'
+      sh 'cp -R examples/resources/extensions website/static'
       sh 'cd website && GIT_USER="status-im-auto:$GITHUB_TOKEN" npm run publish-gh-pages'
     }
   }
