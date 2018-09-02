@@ -70,6 +70,12 @@
            :errors []}
           properties))
 
+(defn resolve-properties-children [[properties? & children]]
+  [(and (map? properties?) properties?)
+   (if (map? properties?)
+     children
+     (cons properties? children))])
+
 (defn parse-hiccup-element [{:keys [capacities] :as opts} o]
   (let [explain (spec/explain-data ::form o)]
     (cond
@@ -80,13 +86,17 @@
       (or (symbol? o) (utils/primitive? o)) {:data o}
       (vector? o)
 
-      (let [[element properties & children] o
-            component                       (resolve-element capacities element)
-            {:keys [data errors]}           (resolve-element-properties capacities properties)]
+      (let [[element & properties-children]  o
+            [properties children]            (resolve-properties-children properties-children)
+            component                        (resolve-element capacities element)
+            {:keys [data errors]}            (when properties
+                                               (resolve-element-properties capacities properties))]
         (cond-> (let [m (parse-hiccup-children opts children)]
                   ;; Reduce parsed children to a single map and wrap them in a hiccup element
                   ;; whose component has been translated to the local platform
-                  (update m :data #(apply conj [(or component element) data] %)))
+                  (update m :data #(apply conj (if data [(or component element) data]
+                                                   [(or component element)])
+                                          %)))
                 (nil? component) (errors/accumulate-errors [(errors/error ::errors/unknown-component element)])
                 (seq errors)     (errors/accumulate-errors errors))))))
 

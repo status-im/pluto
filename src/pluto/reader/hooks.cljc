@@ -27,10 +27,12 @@
     {:data m}))
 
 (defn hiccup-with-properties [h properties]
-  (if (vector? h)
-    (let [[tag props & children] h
-          {:keys [data]} (inject-properties props properties)]
-      (apply conj [tag data]
+  (if (vector? h) 
+    (let [[tag & properties-children] h
+          [props children]            (views/resolve-properties-children properties-children)
+          {:keys [data]}              (when properties
+                                        (inject-properties props properties))]
+      (apply conj (if data [tag data] [tag])
              (map #(hiccup-with-properties % properties) children)))
     h))
 

@@ -28,7 +28,6 @@
   (is (= {:data [:text {} "Hello"]}
          (views/parse {:capacities {:components {'text :text}}} ['text {} "Hello"])))
   (is (= {:data [:view
-                  {}
                   [:text {} "Hello"]
                   [blocks/let-block
                    {:env {'cond? '@queries/random-boolean}}
@@ -38,7 +37,7 @@
                      [:text {:style {:color "red"}} "World?"]]]]}
          (views/parse {:capacities {:components {'text :text
                                                  'view :view}}}
-                      '[view {}
+                      '[view
                         [text {} "Hello"]
                         (let [cond? @queries/random-boolean]
                           (if cond?
