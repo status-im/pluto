@@ -1,6 +1,6 @@
 (ns pluto.reader.block-test
   (:refer-clojure :exclude [destructure])  
-  (:require [clojure.test :refer [is deftest]]
+  (:require [clojure.test :refer [is deftest testing]]
             [pluto.reader.errors :as errors]
             [pluto.reader.blocks :as blocks]))
 
@@ -52,13 +52,20 @@
   (is (= {:data '{a 1}} (blocks/bindings->env '[[a] [1]]))))
 
 (deftest let-block
-  (is (= {:data [blocks/let-block {:env {'s "Hello"}} 's]}
-         (blocks/parse {} '(let [s "Hello"] s))))
-  (is (= {:data [blocks/let-block {:env {'s "Hello"}} ['test {} 's]]}
-         (blocks/parse {} (list 'let ['s "Hello"] ['test {} 's]))))
-  (is (= {:data [blocks/let-block {:env nil}
-                 ['test {} 's]]
-          :errors [{::errors/type ::errors/invalid-destructuring-format ::errors/value ['s "Hello" 1]}]}
-         (blocks/parse {} (list 'let ['s "Hello" 1] ['test {} 's]))))
-  (is (= {:data [blocks/let-block {:env {'a 1}} ['test {} 's]]}
-         (blocks/parse {} (list 'let ['{a :a} {:a 1}] ['test {} 's])))))
+  (testing "parse"
+    (is (= {:data [blocks/let-block {:env {'s "Hello"}} 's]}
+           (blocks/parse {} '(let [s "Hello"] s))))
+    (is (= {:data [blocks/let-block {:env {'{a :a} '(query [:aa])}} 'a]}
+           (blocks/parse {:capacities {:queries #{:aa}}} '(let [{a :a} (query [:aa])] a))))
+    (is (= {:data [blocks/let-block {:env {'s "Hello"}} ['test {} 's]]}
+           (blocks/parse {} (list 'let ['s "Hello"] ['test {} 's]))))
+    (is (= {:data [blocks/let-block {:env nil}
+                   ['test {} 's]]
+            :errors [{::errors/type ::errors/invalid-destructuring-format ::errors/value ['s "Hello" 1]}]}
+           (blocks/parse {} (list 'let ['s "Hello" 1] ['test {} 's]))))
+    (is (= {:data [blocks/let-block {:env {'a 1}} ['test {} 'a]]}
+           (blocks/parse {} (list 'let ['{a :a} {:a 1}] ['test {} 'a]))))))
+
+(deftest let-block-resolution
+  (is (= ['test {} 1] (blocks/let-block {:env {'a 1}} ['test {} 'a])))
+  (is (= ['test {} 1] (blocks/let-block {:env '{{a :a} (query [:aa])}} '[test {} a]))))

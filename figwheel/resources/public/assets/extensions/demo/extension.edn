@@ -10,7 +10,7 @@
  (let [{name :name} @properties]
    [view {}
     [text {} "Hello"]
-    (let [cond? @queries/random-boolean]
+    (let [{cond? :cond?} (query [:random-boolean]) #_@queries/random-boolean]
       (if cond?
         [text {:style {:color "green"}}
          name]

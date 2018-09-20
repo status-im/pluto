@@ -2,6 +2,7 @@
   (:require [clojure.string :as string]
             [pluto.components.html :as html]
             [pluto.reader :as reader]
+            [pluto.host :as host]
             [pluto.storage :as storage]
             [pluto.storage.http :as http]
             [pluto.storage.gist :as gist]
@@ -23,7 +24,7 @@
 (re-frame/reg-event-db
   :random
   (fn [db [_ b]]
-    (assoc db :random b)))
+    (assoc db :random {:cond? b})))
 
 (re-frame/reg-sub
   :random-boolean
@@ -53,16 +54,24 @@
       (storage-for type)
       {:value id} cb)))
 
+(def hook 
+  (reify host/AppHook
+    (id [_] :main)
+    (properties [_] {:view :view})
+    (hook-in [_ id {:keys [description scope parameters preview short-preview]} cofx])
+    (unhook [_ id {:keys [scope]} {:keys [db] :as cofx}])))
+
 (defn parse [m]
   (reader/parse {:capacities {:components html/components
-                              :hooks      {'hooks/main {:properties {:view :view}}}}}
+                              :queries    #{:random-boolean}
+                              :hooks      {:main hook}}}
                 m))
 
 (defn render-extension [m el el-errors]
   (let [{:keys [data errors]} (parse m)]
     (when errors
       (render (errors-list errors) el-errors))
-    (render (get-in data ['hooks/main.demo :view]) el)))
+    (render (get-in data [:hooks :main :demo :parsed :view]) el)))
 
 (defn read-extension [o el el-errors]
   (let [{:keys [data errors]} (reader/read (:content (first o)))]

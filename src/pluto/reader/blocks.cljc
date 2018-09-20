@@ -11,21 +11,36 @@
   (fn [_ [type]] type))
 
 (defn resolve-query [[_ [sub-keyword sub-args :as sub]]]
-  @(re-frame/subscribe sub))
+  (when-let [o (re-frame/subscribe sub)]
+    @o))
 
 (defn- query? [binding-value]
   (and (list? binding-value)
        (= 'query (first binding-value))))
 
-(defn resolve-binding [binding-value]
+(defn resolve-binding-value [v]
   (cond
-    (query? binding-value) (resolve-query binding-value) 
-    :else binding-value))
+    (query? v) (resolve-query v)
+    (not (list? v)) v))
+
+(declare destructure)
+
+(defn resolve-binding-key [k v]
+  (cond
+    (symbol? k) k
+    :else (:data (destructure k v))))
+
+(defn assoc-binding [m k v]
+  (let [resolved-value (resolve-binding-value v)]
+    (let [o (resolve-binding-key k resolved-value)]
+      (cond
+        (symbol? o)
+        (assoc m o resolved-value)
+        :else
+        (merge m o)))))
 
 (defn resolve-bindings [env]
-  (reduce-kv #(assoc %1 %2 (resolve-binding %3))
-             {}
-             env))
+  (reduce-kv assoc-binding {} env))
 
 (defn let-block [{:keys [env]} child]
   (cond
@@ -48,19 +63,22 @@
     (map? value) (errors/merge-results m (destructure-assoc value (nth s idx)))
     (sequential? value) (errors/merge-results m (destructure-seq value (nth s idx)))))
 
-(defn bindings-size [bindings]
+(defn seq-bindings-size [bindings]
   (let [size (count bindings)]
     (if (some #{:as} bindings)
       (- size 2)
       size)))
 
+(defn valid-bindings-form? [o]
+  (or (symbol? o) (vector? o) (map? o) (= :as o)))
+
 (defn destructure-seq [bindings s]
   (cond
     (or
       (not (sequential? bindings))
-      (not (every? #(or (symbol? %) (vector? %) (map? %) (= :as %)) bindings))
-      (> (bindings-size bindings) (count s)))
-    {:errors [(errors/error ::errors/invalid-destructuring-format bindings)]}
+      (not (every? valid-bindings-form? bindings))
+      (> (seq-bindings-size bindings) (count s)))
+    {:errors [(errors/error ::errors/invalid-destructuring-format {:type :sequential :data bindings})]}
     :else
     (reduce-kv #(merge-seq-bindings bindings s %1 %2 %3) {} (indexed-bindings bindings))))
 
@@ -77,8 +95,8 @@
   (cond
     (or
       (not (map? bindings))
-      (not (every? #(or (symbol? %) (vector? %) (map? %) (= :as %)) (keys bindings))))
-    {:errors [(errors/error ::errors/invalid-destructuring-format bindings)]}
+      (not (every? valid-bindings-form? (keys bindings))))
+    {:errors [(errors/error ::errors/invalid-destructuring-format {:type :assoc :data bindings})]}
     :else
     (reduce-kv #(merge-assoc-bindings s %1 %2 %3) {} bindings)))
 
@@ -93,7 +111,9 @@
 (defn merge-bindings [m k v]
   (cond
     (properties? v) (assoc-in m [:data 'properties] k)
-    (symbol? k)     (assoc-in m [:data k] v)
+    (or (symbol? k)
+        (query? v))
+    (assoc-in m [:data k] v)
     :else
     (if-let [o (destructure k v)]
       (errors/merge-results m o)

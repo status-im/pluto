@@ -122,7 +122,7 @@
              (errors/merge-errors (if data (assoc-in %1 [:data (:name (normalize-property %2))] data) %1) errors))
           {} props))
 
-(defn parse-hook [hook v opts m] 
+(defn parse-hook [hook v opts m]
   (parse-properties (map->properties (host/properties hook)) v opts m))
 
 (defn parse [opts m]
@@ -131,6 +131,7 @@
                      hook-root             (root-id hook-key)
                      hook                  (get-in opts [:capacities :hooks hook-root]) 
                      {:keys [data errors]} (parse-hook hook data opts m)] 
+                     
                  (errors/merge-errors
                   (-> acc
                       (assoc-in [:data :hooks hook-root hook-id :parsed] data)
