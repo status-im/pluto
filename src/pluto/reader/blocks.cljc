@@ -108,16 +108,21 @@
 (defn properties? [o]
   (and (reference/reference? o) (= 'properties (reference/reference->symbol o))))
 
-(defn merge-bindings [m k v]
+(defn inject-new-bindings [m v]
   (cond
-    (properties? v) (assoc-in m [:data 'properties] k)
-    (or (symbol? k)
-        (query? v))
-    (assoc-in m [:data k] v)
-    :else
-    (if-let [o (destructure k v)]
-      (errors/merge-results m o)
-      {:errors [(errors/error ::errors/invalid-destructuring-format [k v])]})))
+    (symbol? v) (get m v)
+    (list? v) (walk/prewalk-replace m v)
+    :else v))
+
+(defn merge-bindings [{:keys [data] :as m} k v]
+  (if (properties? v)
+    (assoc-in m [:data 'properties] k)
+    (let [av (inject-new-bindings data v)]
+      (if (or (symbol? k) (query? av))
+        (assoc-in m [:data k] av)
+        (if-let [o (destructure k av)]
+          (errors/merge-results m o)
+          {:errors [(errors/error ::errors/invalid-destructuring-format [k av])]})))))
 
 (defn bindings->env [bindings]
   (cond
