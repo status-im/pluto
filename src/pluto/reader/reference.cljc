@@ -5,17 +5,17 @@
 (defn reference?
   "Return true if argument is a reference"
   [o]
-  (and (list? o) (= 'clojure.core/deref (first o))))
+  (symbol? o))
 
 (defn reference->symbol
   "Return the symbol pointed by the reference
 
    ```clojure
-   (= 'some.ref (reference->name '@views/some.ref))
+   (= 'some.ref (reference->name 'views/some.ref))
    ```"
   [o]
   (when (reference? o)
-    (second o)))
+    o))
 
 (def ns->type {"views" :view "queries" :query "events" :event})
 
@@ -23,7 +23,7 @@
   "Return the type of a reference
 
    ```clojure
-   (= :view (reference->type '@views/some.ref))
+   (= :view (reference->type 'views/some.ref))
    ```"
   [o]
   (when (reference? o)
@@ -34,7 +34,7 @@
   "Resolve a reference defined by a hook
 
    ```clojure
-   (= {:data \"view\"} (resolve {'views/id \"view\"} {:name :view :type :view} {:view '@views/id}))
+   (= {:data \"view\"} (resolve {'views/id \"view\"} {:name :view :type :view} {:view 'views/id}))
    ```"
   [m {:keys [name type optional?]} hook] 
   (let [ref (get hook name)]

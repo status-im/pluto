@@ -12,7 +12,7 @@
   (:refer-clojure :exclude [read])
   (:require [clojure.set :as set]
             [clojure.spec.alpha :as spec]
-            [clojure.tools.reader :as reader]
+            [clojure.tools.reader.edn :as edn]
             [pluto.reader.errors :as errors]
             [pluto.reader.hooks :as hooks]
             [pluto.utils :as utils]))
@@ -33,10 +33,7 @@
    * :errors a vector of errors map triggered during read"
   [s]
   (try
-    {:data
-     #?(:clj   (binding [reader/*read-eval* false]
-                 (reader/read-string {} s))
-        :cljs  (reader/read-string {} s))}
+    {:data (edn/read-string {} s)}
     (catch #?(:clj Exception :cljs :default) ex
       {:errors [(reader-error ex)]})))
 

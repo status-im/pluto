@@ -8,26 +8,26 @@
 
 (deftest read
   (is (= {:data nil} (reader/read "")))
-  (is (= {:errors [{::errors/message #?(:clj "#= not allowed when *read-eval* is false" :cljs "read-eval not supported")
-                    ::errors/type ::errors/reader-error, ::errors/value :reader-error}]}
+  (is (= {:errors [{::errors/message "No reader function for tag =."
+                    ::errors/type ::errors/reader-error ::errors/value :reader-error}]}
          (reader/read "#=(eval (def x 3))")))
   (is (= {:errors [{::errors/type ::errors/reader-error ::errors/value :eof ::errors/message "Unexpected EOF while reading item 0 of vector."}]} (reader/read "[")))
   (is (= {:errors [{::errors/type ::errors/reader-error ::errors/value :reader-error ::errors/message "No reader function for tag unknown."}]}
          (reader/read "#unknown []")))
-  (is (= {:data {:extension/main '@view/main
+  (is (= {:data {:extension/main 'view/main
                  :views/main     ['view {}
                                   ['text "Hello"]
-                                  (list 'let ['cond? '@queries/random-boolean]
+                                  (list 'let ['cond? 'queries/random-boolean]
                                     (list 'when 'cond?
                                       ['text {}
                                        "World"]))]}}
          (reader/read
-           "{:extension/main @view/main
+           "{:extension/main view/main
 
              :views/main
               [view {}
                 [text \"Hello\"]
-                  (let [cond? @queries/random-boolean]
+                  (let [cond? queries/random-boolean]
                     (when cond?
                       [text {}
                         \"World\"]))]}"))))
@@ -79,24 +79,24 @@
   (is (= [blocks/let-block {:env {'s "Hello"}} [:text {} 's]]
          (view (reader/parse default-capacities
                              (extension {'views/main   (list 'let ['s "Hello"] ['text {} 's])
-                                         'hooks/main.a {:view '@views/main}})))))
+                                         'hooks/main.a {:view 'views/main}})))))
   (is (= [blocks/when-block {:test 'cond} [:text {} ""]]
          (view (reader/parse default-capacities
                              (extension {'views/main  (list 'when 'cond ['text {} ""])
-                                         'hooks/main.a {:view '@views/main}})))))
+                                         'hooks/main.a {:view 'views/main}})))))
   (is (= {:data {'meta default-meta
                  :hooks {:main {:a {:parsed   nil
                                     :hook-ref (:main default-hooks)}}}}
           :errors (list {::errors/type ::errors/unsupported-test-type ::errors/value "string"})}
          (reader/parse default-capacities (extension {'views/main  (list 'when "string" ['text {} ""])
-                                                      'hooks/main.a {:view '@views/main}})))))
+                                                      'hooks/main.a {:view 'views/main}})))))
 
 (deftest parse
   (is (= (list {::errors/type ::errors/unknown-component ::errors/value 'text})
          (:errors (reader/parse {:capacities {:hooks default-hooks}}
                                 (extension {'views/main  ['text {} "Hello"]
-                                            'hooks/main.a {:view '@views/main}})))))
+                                            'hooks/main.a {:view 'views/main}})))))
   (is (= [:text {} "Hello"]
          (view (reader/parse default-capacities
                              (extension {'views/main  ['text {} "Hello"]
-                                         'hooks/main.a {:view '@views/main}}))))))
+                                         'hooks/main.a {:view 'views/main}}))))))

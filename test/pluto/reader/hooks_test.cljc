@@ -31,15 +31,15 @@
                                    {'views/id ['text {} ""]})))
     (is (= [:text {} ""]
            ((:data (hooks/resolve-property {:type :view :name :view}
-                                           {:view '@views/id}
+                                           {:view 'views/id}
                                            {:capacities {:components {'text :text}}}
                                            {'views/id ['text {} ""]})) {})))
     (is (= [blocks/let-block {:env {'value "test"}}
             [:text {} 'value]]
            ((:data (hooks/resolve-property {:type :view :name :view}
-                                           {:view '@views/id}
+                                           {:view 'views/id}
                                            {:capacities {:components {'text :text}}}
-                                           {'views/id '(let [{value :value} @properties] [text {} value])})) {:value "test"}))))
+                                           {'views/id '(let [{value :value} properties] [text {} value])})) {:value "test"}))))
   (testing "Component"
     (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-property-name
                       :pluto.reader.errors/value :component}]}
@@ -122,7 +122,7 @@
          ((get-in (hooks/parse {:capacities {:hooks      (hooks {:view :view})
                                              :components {'text :text}}}
                     {'views/main   ['text {} ""]
-                     'hooks/main.a {:view    '@views/main}})
+                     'hooks/main.a {:view    'views/main}})
                   [:data :hooks :main :a :parsed :view]) {})))
   (let [app-hooks (hooks {:name :string
                           :id   :keyword})]

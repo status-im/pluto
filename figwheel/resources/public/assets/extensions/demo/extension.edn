@@ -4,13 +4,13 @@
   :documentation "Nothing. Just see a text with dynamic random color."}
 
  hooks/main.demo
- {:view @views/main}
+ {:view views/main}
 
  views/main
- (let [{name :name} @properties]
+ (let [{name :name} properties]
    [view {}
     [text {} "Hello"]
-    (let [{cond? :cond?} (query [:random-boolean]) #_@queries/random-boolean]
+    (let [{cond? :cond?} (query [:random-boolean])]
       (if cond?
         [text {:style {:color "green"}}
          name]
