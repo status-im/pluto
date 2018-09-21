@@ -3,8 +3,6 @@ title: Query
 sidebar_label: Query
 ---
 
-# Query
-
 Queries are exposed by the platform in the form of `:queries` key in the capacities map.
 Only those queries which are exposed can be either referenced by hook property (when the property is of the type `:query`),
 or used to read data in let block in view (eq `(let [network-name (query [:get-in [:network :name]])] [text {} network-name])`).

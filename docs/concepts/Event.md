@@ -3,8 +3,6 @@ title: Event
 sidebar_label: Event
 ---
 
-# Event
-
 Events are exposed by the platform in the form of `:events` key in the capacities map.
 Only those events which are exposed can be either referenced by hook property (when the property is of the type `:event`),
 or used as an event handler function in view (eq `[input {:on-change (event [:set-in [:current-chat :name]])}]`).

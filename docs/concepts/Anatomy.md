@@ -3,30 +3,26 @@ title: Anatomy
 sidebar_label: Anatomy of an extension
 ---
 
-A host defines a number of [hooks](Hook) in various parts of the app. Those hooks are contracts that 3rd party devs can 
-use to extend a host with their own logic / UI.
-e.g. custom chat commands, custom chat actions, custom collectible displays.
+A `host` is a computer program that serves as container of extensions. It has the hability to interpret extensions, accessible as remote data. How/if an extension will be interpreted depends on a set of `capacities` it advertises.
 
-An `extension` is provided by 3rd party developers and provides one or multiple hooks implementation.
+A host defines a number of [hooks](Hook) in various parts of the app. Those hooks are contracts that 3rd party devs can use to extend a host with their own logic / UI.
+e.g. custom chat commands, custom chat actions, custom collectible displays. Hooks can use only a subset of extensions concepts (e.g. no visual part).
 
-To implement a hook, a 3rd party devs has access to some APIs:
+An `extension` is implemented by 3rd party developers and provides one or more hooks implementations.
 
-* [view](View) to create native UI (e.g. text, list)
-* [query](Query) to access host data (e.g contacts, whisper key)
-* [event](Event) to modify host state (e.g. create a contact, scan a QR code, send a chat message)
+To implement a hook, a 3rd party developper has access to some APIs:
 
-Extensions are stored in IPFS or SWARM. They can be identified using ENS names.
+* [view](View) to create native UI. Views are composed of trees of components (e.g. text, list).
+* [query](Query) to access local host data (e.g contacts, whisper key)
+* [event](Event) to interact with host environment (e.g. create a contact, scan a QR code, send a chat message).
+
+Components surface data to the user. The data shape they expect is defined part of the components specifications. Components get their data from `queries`.
+Some components can trigger `events` based on user interaction (e.g. clicking on a button).
+Triggering an event is the only way to modify the host state, thus the data surfaced by views.
+
+`views`, `queries` and `events` are part of a host `capacities`. They are associated to permissions depending on privacy and security concerns.
+When installing an extension, a user will has access to all required permissions.
+
+Extensions are stored in decentralized storages like IPFS or SWARM. They can be identified using ENS names.
 
 A user can discover extensions and decide to install them. Once installed associated hooks can be activated. This process is abstracted by the [Registry](Registry).
-
-# Reference
-
-All main concepts are identified via references.
-
-References are identified by a symbol preceded by a @. This symbol must be define a namespace that identifies the reference type.
-
-Reference can be:
-
-* local (e.g. `@views/id`)
-* pluto defaults, depending on the platform (e.g. `@views/pluto.name`)
-* third party extensions (e.g. `@views/my-extension.id` with `my-extension` being registered in .stateofus.eth)
