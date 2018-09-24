@@ -3,10 +3,7 @@
             [pluto.components.html :as html]
             [pluto.reader :as reader]
             [pluto.host :as host]
-            [pluto.storage :as storage]
-            [pluto.storage.http :as http]
-            [pluto.storage.gist :as gist]
-            [pluto.storage.ipfs :as ipfs]
+            [pluto.storages :as storages]
             [reagent.core :as reagent]
             [reagent.dom :as dom]
             [re-frame.core :as re-frame]
@@ -42,18 +39,6 @@
          [:li
           [:span [:b (str type)] (pr-str (dissoc m :type))]]))]))
 
-(defn storage-for [type]
-  (condp = type
-    "url"  (http/HTTPStorage.)
-    "gist" (gist/GistStorage.)
-    "ipfs" (ipfs/IPFSStorage. "https://cors.io/?https://gateway.ipfs.io")))
-
-(defn fetch [uri cb]
-  (let [[type id] (string/split uri "@")]
-    (storage/fetch
-      (storage-for type)
-      {:value id} cb)))
-
 (def hook 
   (reify host/AppHook
     (id [_] :main)
@@ -86,4 +71,4 @@
   [s el el-errors]
   (dom/unmount-component-at-node el)
   (dom/unmount-component-at-node el-errors)
-  (fetch s #(render-result % el el-errors)))
+  (storages/fetch s #(render-result % el el-errors)))
