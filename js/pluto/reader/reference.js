@@ -7,18 +7,18 @@ goog.require('pluto.reader.errors');
  * Return true if argument is a reference
  */
 pluto.reader.reference.reference_QMARK_ = (function pluto$reader$reference$reference_QMARK_(o){
-return ((cljs.core.list_QMARK_(o)) && (cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$sym$clojure$core_SLASH_deref,cljs.core.first(o))));
+return (o instanceof cljs.core.Symbol);
 });
 /**
  * Return the symbol pointed by the reference
  * 
  * ```clojure
- * (= 'some.ref (reference->name '@views/some.ref))
+ * (= 'some.ref (reference->name 'views/some.ref))
  * ```
  */
 pluto.reader.reference.reference__GT_symbol = (function pluto$reader$reference$reference__GT_symbol(o){
 if(cljs.core.truth_(pluto.reader.reference.reference_QMARK_(o))){
-return cljs.core.second(o);
+return o;
 } else {
 return null;
 }
@@ -28,7 +28,7 @@ pluto.reader.reference.ns__GT_type = new cljs.core.PersistentArrayMap(null, 3, [
  * Return the type of a reference
  * 
  * ```clojure
- * (= :view (reference->type '@views/some.ref))
+ * (= :view (reference->type 'views/some.ref))
  * ```
  */
 pluto.reader.reference.reference__GT_type = (function pluto$reader$reference$reference__GT_type(o){
@@ -48,15 +48,15 @@ return null;
  * Resolve a reference defined by a hook
  * 
  * ```clojure
- * (= {:data "view"} (resolve {'views/id "view"} {:name :view :type :view} {:view '@views/id}))
+ * (= {:data "view"} (resolve {'views/id "view"} {:name :view :type :view} {:view 'views/id}))
  * ```
  */
-pluto.reader.reference.resolve = (function pluto$reader$reference$resolve(m,p__2089,hook){
-var map__2090 = p__2089;
-var map__2090__$1 = ((((!((map__2090 == null)))?(((((map__2090.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2090.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2090):map__2090);
-var name = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2090__$1,cljs.core.cst$kw$name);
-var type = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2090__$1,cljs.core.cst$kw$type);
-var optional_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2090__$1,cljs.core.cst$kw$optional_QMARK_);
+pluto.reader.reference.resolve = (function pluto$reader$reference$resolve(m,p__1245,hook){
+var map__1246 = p__1245;
+var map__1246__$1 = ((((!((map__1246 == null)))?(((((map__1246.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1246.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1246):map__1246);
+var name = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1246__$1,cljs.core.cst$kw$name);
+var type = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1246__$1,cljs.core.cst$kw$type);
+var optional_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1246__$1,cljs.core.cst$kw$optional_QMARK_);
 var ref = cljs.core.get.cljs$core$IFn$_invoke$arity$2(hook,name);
 if(cljs.core.truth_(ref)){
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(type,pluto.reader.reference.reference__GT_type(ref))){
