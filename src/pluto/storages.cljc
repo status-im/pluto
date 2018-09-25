@@ -8,12 +8,12 @@
 (def all
   {"url"  (http/HTTPStorage.)
    "gist" (gist/GistStorage.)
-   "ipfs" (ipfs/IPFSStorage. "https://gateway.ipfs.io")})
+   "ipfs" (ipfs/IPFSStorage.)})
 
 (defn fetch [uri cb]
-  (when (and uri cb))
+  (when (and uri cb)
     (let [[type id] (string/split uri "@")]
       (when-let [s (get all type)]
         (storage/fetch
           s
-          {:value id} cb))))
+          {:value id} cb)))))
