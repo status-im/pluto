@@ -23,7 +23,7 @@
                        (when-let [c (utils/ex-cause ex)]
                          {:cause c}))))
 
-(defn read
+(defn ^:export read
   "Reads an extension definition as an EDN string.
 
    No semantic validation is performed at this stage.
@@ -101,7 +101,7 @@
     {:data {'meta v}}
     {:errors [(errors/error ::errors/invalid-meta v)]}))
 
-(defn parse
+(defn ^:export parse
   "Parse an extension definition map as encapsulated in :data key of the map returned by read.
    `opts` is a map defining:
    * `capacities` a map of valid supported capacities (hooks, queries, events)
@@ -113,6 +113,6 @@
   [opts m]
   (let [errors (validate opts m)]
     (errors/merge-results
-      (parse-meta ('meta m))
+      ;(parse-meta ('meta m))
       (hooks/parse opts m)
       {:errors errors})))

@@ -57,7 +57,7 @@
            (blocks/parse {} '(let [s "Hello"] s))))
     (is (= {:data [blocks/let-block {:env '{{a :a} (query [:aa])}} 'a]}
            (blocks/parse {:capacities {:queries #{:aa}}} '(let [{a :a} (query [:aa])] a))))
-    
+
     (is (= {:data [blocks/let-block {:env '{a {:b 1} b 1}} 'b]}
            (blocks/parse {} '(let [{a :a} {:a {:b 1}} {b :b} a] b))))
     (is (= {:data [blocks/let-block {:env '{x 1 {a :a} (query [:aa 1])}} 'a]}

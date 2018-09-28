@@ -72,3 +72,76 @@ main {
 
 @media only screen and (min-width: 1500px) {
 }
+
+/* Try */
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+  
+.parinfer-error {
+  background: #FFBEBE;
+  color: black !important;
+}
+
+.parinfer-paren-trail {
+  opacity: 0.4;
+}
+
+.CodeMirror {
+  box-sizing: border-box;
+  padding: 10px;
+  height: 100% !important;
+}
+  
+#wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+main {
+  width: 75%;
+  overflow: auto;
+}
+
+#content {
+  height: 80vh;
+}
+
+#errors {
+  height: 20vh;
+  overflow: auto;
+}
+
+#errors.ok {
+  background-color: #E0F2F1;
+}
+
+#errors.warnings {
+  background-color: #FCE4EC;
+}
+
+#errors.errors {
+  background-color: #FCE4EC;
+}
+
+#errors div {
+  padding: 10px;
+}
+  
+#panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 25%;
+}
+
+#panel p {
+  margin: 10px;
+}
+
+#qr {
+  z-index: -1;
+}

@@ -20,7 +20,8 @@ const siteConfig = {
 
   headerLinks: [
     {doc: 'Manifesto', label: 'Docs'},
-    {page: 'examples', label: 'Examples'}
+    {page: 'examples', label: 'Examples'},
+    {page: 'try', label: 'Try'}
   ],
 
   /* path to images for header/footer */

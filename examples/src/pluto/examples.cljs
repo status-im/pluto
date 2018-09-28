@@ -1,6 +1,7 @@
 (ns pluto.examples
   (:require [clojure.string :as string]
             [pluto.components.html :as html]
+            [pluto.js :as js]
             [pluto.reader :as reader]
             [pluto.host :as host]
             [pluto.storages :as storages]
