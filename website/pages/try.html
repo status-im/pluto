@@ -45,7 +45,7 @@
     function clearErrors() {
       const el = document.getElementById("errors");
       el.innerHTML = '';
-      el.classList.className = "";
+      el.className = "";
     }
 
     function displayErrors(errors) {
@@ -99,6 +99,7 @@
     `;
     var cm = CodeMirror(document.getElementById("content"));
     cm.on("change", function(c, change) {
+      clearErrors();
       const read = pluto.reader.read(cm.getValue());
       const readJS = pluto.js.from_clj(read);
       displayErrors(readJS.errors);
