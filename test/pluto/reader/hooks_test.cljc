@@ -4,23 +4,9 @@
             [pluto.reader.errors :as errors]
             [pluto.reader.hooks :as hooks]))
 
+#_
 (deftest resolve-property
-  (testing "String"
-    (is (= {:errors [{::errors/type ::errors/invalid-property-type
-                      ::errors/value :unknown}]}
-           (hooks/resolve-property {:name :string :type :unknown} {:string "value"} {} {})))
-    (is (= {:errors [{::errors/type ::errors/invalid-property-name
-                      ::errors/value :string}]}
-           (hooks/resolve-property {:name :string :type :string} {:unknown "value"} {} {})))
-    (is (= {:data "value"} (hooks/resolve-property {:name :string :type :string} {:string "value"} {} {})))
-    (is (= {:errors [{::errors/type ::errors/invalid-property-value
-                      ::errors/value 1}]}
-           (hooks/resolve-property {:name :string :type :string} {:string 1} {} {}))))
-  (testing "Keyword"
-    (is (= {:data :value} (hooks/resolve-property {:name :keyword :type :keyword} {:keyword :value} {} {})))
-    (is (= {:errors [{::errors/type ::errors/invalid-property-value
-                      ::errors/value 1}]}
-           (hooks/resolve-property {:name :keyword :type :keyword} {:keyword 1} {} {}))))
+
   (testing "View"
     (is (= {:errors [{:pluto.reader.errors/type  ::errors/missing-property-name
                       :pluto.reader.errors/value :view}]}
@@ -40,7 +26,7 @@
                                            {:capacities {:components {'text :text}}}
                                            {'views/id '(let [{value :value} properties] [text {} value])})) {:value "test"}))))
   (testing "Component"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-property-name
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-type-name
                       :pluto.reader.errors/value :component}]}
            (hooks/resolve-property {:type :component :name :component}
                                    {}
@@ -58,7 +44,7 @@
                                    {:capacities {:components {'selector "selector"}}}
                                    {}))))
   (testing "Event"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-property-name
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-type-name
                       :pluto.reader.errors/value :event}]}
            (hooks/resolve-property {:type :event :name :event}
                                    {}
@@ -76,7 +62,7 @@
                                    {:capacities {:events #{:set-in}}}
                                    {}))))
   (testing "Query"
-    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-property-name
+    (is (= {:errors [{:pluto.reader.errors/type  ::errors/invalid-type-name
                       :pluto.reader.errors/value :query}]}
            (hooks/resolve-property {:type :query :name :query}
                                    {}
@@ -92,22 +78,7 @@
            (hooks/resolve-property {:type :query :name :query}
                                    {:query :get-in}
                                    {:capacities {:queries #{:get-in}}}
-                                   {}))))
-  (testing "Set"
-    (is (= {:data :one} (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :one} {} {})))
-    (is (= {:errors [{::errors/type  ::errors/invalid-property-value
-                      ::errors/value :for}]}
-           (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :for} {} {}))))
-  (testing "Subset"
-    (is (= {:data #{"a" "b"}} (hooks/resolve-property {:name :scope :type #{"a" "b" "c"}} {:scope #{"a" "b"}} {} {})))
-    (is (= {:errors [{::errors/type  ::errors/invalid-property-value
-                      ::errors/value #{"a" "d"}}]}
-           (hooks/resolve-property {:name :scope :type #{"a" "b" "c"}} {:scope #{"a" "d"}} {} {}))))
-  (testing "Map"
-    (is (= {:data :one} (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :one} {} {})))
-    (is (= {:errors [{::errors/type  ::errors/invalid-property-value
-                      ::errors/value :for}]}
-           (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :for} {} {})))))
+                                   {})))))
 
 (defn- hooks [properties]
   {:main {:properties properties}})
@@ -131,7 +102,7 @@
     (let [app-hooks (hooks {:name :string :id :keyword})]
       (is (= {:data {:hooks {:main {:a {:parsed   {:name    "name"}
                                         :hook-ref (:main app-hooks)}}}}
-              :errors [{::errors/type  ::errors/invalid-property-name
+              :errors [{::errors/type  ::errors/invalid-type-name
                         ::errors/value :id}]}
              (hooks/parse {:capacities {:hooks app-hooks}}
                           {'hooks/main.a {:name    "name"}}))))

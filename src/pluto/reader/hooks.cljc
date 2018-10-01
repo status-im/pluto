@@ -31,7 +31,7 @@
     {:data m}))
 
 (defn hiccup-with-properties [h properties]
-  (if (vector? h) 
+  (if (vector? h)
     (let [[tag & properties-children] h
           [props children]            (views/resolve-properties-children properties-children)
           {:keys [data]}              (when properties
@@ -53,7 +53,7 @@
       {:data component}
       {:errors [(errors/error error-key value)]})
     (when-not optional?
-      {:errors [(errors/error ::errors/invalid-property-name name)]})))
+      {:errors [(errors/error ::errors/invalid-type-name name)]})))
 
 (defmethod resolve-property :component [def hook {:keys [capacities]} _]
   (resolve-capacities-value :components ::errors/unknown-component capacities def hook))
@@ -68,9 +68,9 @@
   (if-let [o (get hook name)]
     (if (f o)
       {:data o}
-      {:errors [(errors/error ::errors/invalid-property-value o)]})
+      {:errors [(errors/error ::errors/invalid-type-value o)]})
     (when-not optional?
-      {:errors [(errors/error ::errors/invalid-property-name name)]})))
+      {:errors [(errors/error ::errors/invalid-type-name name)]})))
 
 (defmethod resolve-property :string [def hook _ _]
   (resolve-property-value string? def hook))
@@ -97,7 +97,7 @@
     (apply errors/merge-results-with #(conj (vec %1) %2) (map #(parse-properties props % opts m) ((:name def) hook)))))
 
 (defmethod resolve-property :default [{:keys [type]} _ _ _]
-  {:errors [(errors/error ::errors/invalid-property-type type)]})
+  {:errors [(errors/error ::errors/invalid-type type)]})
 
 (defn hook? [s]
   (= "hooks" (namespace s)))

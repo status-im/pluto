@@ -23,7 +23,7 @@
   (is (= {:errors [{::errors/type  ::errors/missing-property-value
                     ::errors/value :view}]}
          (reference/resolve {} {:name :view :type :view} {:view 'views/id})))
-  (is (= {:errors [{::errors/type  ::errors/invalid-property-type
+  (is (= {:errors [{::errors/type  ::errors/invalid-type
                     ::errors/value :view}]}
          (reference/resolve {'events/id "events"} {:name :view :type :view} {:view 'events/id})))
   (is (= {:errors [{::errors/type  ::errors/missing-property-name

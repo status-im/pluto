@@ -1,2 +1,6 @@
-{:main     pluto.figwheel
- :log-file "figwheel-main.log"}
+^{:watch-dirs ["src" "figwheel/src" "examples/src"]
+  ;:auto-testing true
+  :log-file "figwheel-main.log"
+  :log-level :info}
+{:main     pluto.figwheel}
+

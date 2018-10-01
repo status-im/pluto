@@ -9,7 +9,8 @@
  views/main
  (let [{name :name} properties]
    [view {}
-    [text {} "Hello"]
+    [button {:on-click [:alert {:value name}]}
+     "Hello"]
     (let [{cond? :cond?} (query [:random-boolean])]
       (if cond?
         [text {:style {:color "green"}}

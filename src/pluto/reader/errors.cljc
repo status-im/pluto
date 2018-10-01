@@ -6,9 +6,12 @@
                    ::invalid-meta
                    ::invalid-key
                    ::invalid-value
-                   ::invalid-property-name
-                   ::invalid-property-type
-                   ::invalid-property-value
+                   ;; Types
+                   ::invalid-type
+                   ::invalid-type-name
+                   ::invalid-type-value
+                   ::invalid-sequential-type
+                   ::invalid-assoc-type
                    ::missing-property-name
                    ::missing-property-value
                    ::invalid-destructuring-format
@@ -31,13 +34,10 @@
 (spec/def ::error (spec/keys :req [::type ::value]
                              :opt [::message]))
 
-(defn valid-type? [type]
-  (spec/valid? ::type type))
-
 (defn error
   ([type o] (error type o {}))
   ([type o m]
-   {:pre [(valid-type? type)]}
+   {:pre [(spec/valid? ::type type)]}
    (assoc m ::type type ::value o)))
 
 (defn accumulate-errors [m s]

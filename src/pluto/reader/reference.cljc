@@ -43,6 +43,6 @@
         (if-let [o (get m (reference->symbol ref))]
           {:data o}
           {:errors [(errors/error ::errors/missing-property-value name)]})
-        {:errors [(errors/error ::errors/invalid-property-type type)]})
+        {:errors [(errors/error ::errors/invalid-type type)]})
       (when-not optional?
         {:errors [(errors/error ::errors/missing-property-name type)]}))))

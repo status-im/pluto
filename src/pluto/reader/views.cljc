@@ -35,10 +35,10 @@
                                   errors))
           {:data []} children))
 
-(defn resolve-element [{:keys [components]} o]
+(defn resolve-component [{:keys [components]} o]
   (cond
     (fn? o) o
-    (symbol? o) (get components o)))
+    (symbol? o) (:value (get components o))))
 
 (defn- event? [prop-value]
   (and (list? prop-value)
@@ -48,7 +48,9 @@
   (fn [event-value]
     (re-frame/dispatch (conj re-frame-event (selector event-value)))))
 
-(defn- resolve-element-properties [{:keys [permissions events]} properties] 
+(defn- resolve-component-properties [component {:keys [permissions events] :as capacities} properties]
+  ; (println ":" properties (get-in capacities [:components component :properties]))
+  ; TODO validate component properties based on capacities
   (reduce (fn [acc [k v]] 
             (if (contains? event-handler->selector k)
               (if (not (event? v))
@@ -84,13 +86,13 @@
       ;; {:errors [(errors/error ::errors/invalid-view o {:explain-data explain})]}
 
       (or (symbol? o) (utils/primitive? o)) {:data o}
-      (vector? o)
 
+      (vector? o)
       (let [[element & properties-children]  o
             [properties children]            (resolve-properties-children properties-children)
-            component                        (resolve-element capacities element)
+            component                        (resolve-component capacities element)
             {:keys [data errors]}            (when properties
-                                               (resolve-element-properties capacities properties))]
+                                               (resolve-component-properties element capacities properties))]
         (cond-> (let [m (parse-hiccup-children opts children)]
                   ;; Reduce parsed children to a single map and wrap them in a hiccup element
                   ;; whose component has been translated to the local platform

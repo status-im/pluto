@@ -24,6 +24,15 @@
   (fn [db [_ b]]
     (assoc db :random {:cond? b})))
 
+(re-frame/reg-fx
+ ::alert
+ (fn [value] (js/alert value)))
+
+(re-frame/reg-event-fx
+  :alert
+  (fn [cofx [_ {:keys [value]}]]
+    {::alert value}))
+
 (re-frame/reg-sub
   :random-boolean
   :random)
@@ -48,7 +57,10 @@
 (defn parse [m]
   (reader/parse {:capacities {:components html/components
                               :queries    #{:random-boolean}
-                              :hooks      {:main {:hook hook :properties {:view :view}}}}}
+                              :hooks      {:main {:hook hook :properties {:view :view}}}
+                              :events     {:log
+                                           {:permissions [:read]
+                                            :value       []}}}}
                 m))
 
 (defn render-extension [m el el-errors]
