@@ -42,8 +42,6 @@
          (reader/validate {} {})))
   (is (= nil
          (reader/validate {} {'meta default-meta})))
-  (is (= [{::errors/type ::errors/invalid-meta ::errors/value {}}]
-         (reader/validate {} {'meta {}})))
   (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/test}]
          (reader/validate {} (extension {'hooks/test {:hook-id :a}}))))
   (is (= nil

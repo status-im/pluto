@@ -58,10 +58,6 @@
 
 (spec/def ::meta (spec/keys :req-un [::name ::description ::documentation]))
 
-(defmethod valid-element? "meta" [_ _ v]
-  (when-not (spec/valid? ::meta v)
-    [(errors/error ::errors/invalid-meta v)]))
-
 (spec/def ::hooks map?)
 
 (defmethod valid-element? "hooks" [{:keys [hooks]} k v]
@@ -94,7 +90,7 @@
         missing-keys (set/difference mandatory-keys keys)]
     (reduce-kv #(if-let [errors (valid-element? capacities %2 %3)] (concat %1 errors) %1)
                (when (seq missing-keys) [(errors/error ::errors/missing-keys missing-keys)])
-               m)))
+               (dissoc m 'meta))))
 
 (defn parse-meta [v]
   (if (spec/valid? ::meta v)
@@ -113,6 +109,6 @@
   [opts m]
   (let [errors (validate opts m)]
     (errors/merge-results
-      ;(parse-meta ('meta m))
+      (parse-meta ('meta m))
       (hooks/parse opts m)
       {:errors errors})))

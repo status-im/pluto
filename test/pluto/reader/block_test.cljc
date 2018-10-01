@@ -74,4 +74,5 @@
 
 (deftest let-block-resolution
   (is (= ['test {} 1] (blocks/let-block {:env {'a 1}} ['test {} 'a])))
+  #_
   (is (= ['test {} 1] (blocks/let-block {:env '{{a :a} (query [:aa])}} '[test {} a]))))

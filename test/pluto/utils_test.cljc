@@ -18,5 +18,6 @@
                                       (assoc :b 1))})
                            (constantly {:fire-missile true}))))))
 
-(defmacro slurp [file]
-  (clojure.core/slurp file))
+#?(:clj
+ (defmacro slurp [file]
+   (clojure.core/slurp file)))
