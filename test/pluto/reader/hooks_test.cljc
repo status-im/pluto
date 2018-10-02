@@ -1,6 +1,5 @@
 (ns pluto.reader.hooks-test
   (:require [clojure.test :refer [is deftest testing]]
-            [pluto.host :as host]
             [pluto.reader.blocks :as blocks]
             [pluto.reader.errors :as errors]
             [pluto.reader.hooks :as hooks]))
@@ -111,11 +110,7 @@
            (hooks/resolve-property {:name :keyword :type {:one-of #{:one :two :three}}} {:keyword :for} {} {})))))
 
 (defn- hooks [properties]
-  {:main (reify host/AppHook
-           (id [_] :main)
-           (properties [_] properties)
-           (hook-in [_ _ _ _])
-           (unhook [_ _ _ _]))})
+  {:main {:properties properties}})
 
 (deftest parse
   (is (= [:text {} ""]

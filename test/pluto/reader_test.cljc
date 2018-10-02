@@ -1,8 +1,7 @@
 (ns pluto.reader-test
   (:refer-clojure :exclude [read])
-  (:require [clojure.test :refer [is deftest]]
-            [pluto.host :as host]
-            [pluto.reader :as reader]
+  (:require [clojure.test        :refer [is deftest]]
+            [pluto.reader        :as reader]
             [pluto.reader.errors :as errors]
             [pluto.reader.blocks :as blocks]))
 
@@ -62,11 +61,7 @@
   (is (= [{::errors/type ::errors/invalid-key ::errors/value 'unknown/unknown}]
          (reader/validate {} (extension {'unknown/unknown {}})))))
 
-(def default-hooks {:main (reify host/AppHook
-                            (id [_] :main)
-                            (properties [_] {:view :view})
-                            (hook-in [_ _ _ _])
-                            (unhook [_ _ _ _]))})
+(def default-hooks {:main {:properties {:view :view}}})
 (def default-components {'text :text 'view :view})
 (def default-capacities {:capacities {:hooks default-hooks :components default-components}})
 

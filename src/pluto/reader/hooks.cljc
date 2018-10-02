@@ -1,11 +1,15 @@
 (ns pluto.reader.hooks
   (:require [clojure.string         :as string]
             [clojure.set            :as set]
-            [pluto.host             :as host]
             [pluto.reader.blocks    :as blocks]
             [pluto.reader.errors    :as errors]
             [pluto.reader.reference :as reference]
             [pluto.reader.views     :as views]))
+
+(defprotocol Hook
+  "Encapsulate hook lifecycle."
+  (hook-in [this id properties cofx] "Hook it into host app.")
+  (unhook [this id properties cofx] "Remove extension hook from app."))
 
 (defmulti resolve-property
           (fn [{:keys [type]} _ _ _]
@@ -123,7 +127,7 @@
           {} props))
 
 (defn parse-hook [hook v opts m]
-  (parse-properties (map->properties (host/properties hook)) v opts m))
+  (parse-properties (map->properties (:properties hook)) v opts m))
 
 (defn parse [opts m]
   (reduce-kv (fn [acc hook-key data]
@@ -131,7 +135,6 @@
                      hook-root             (root-id hook-key)
                      hook                  (get-in opts [:capacities :hooks hook-root]) 
                      {:keys [data errors]} (parse-hook hook data opts m)] 
-                     
                  (errors/merge-errors
                   (-> acc
                       (assoc-in [:data :hooks hook-root hook-id :parsed] data)

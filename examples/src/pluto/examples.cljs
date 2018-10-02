@@ -1,14 +1,14 @@
 (ns pluto.examples
-  (:require [clojure.string :as string]
+  (:require [clojure.string        :as string]
             [pluto.components.html :as html]
-            [pluto.js :as js]
-            [pluto.reader :as reader]
-            [pluto.host :as host]
-            [pluto.storages :as storages]
-            [reagent.core :as reagent]
-            [reagent.dom :as dom]
-            [re-frame.core :as re-frame]
-            [re-frame.loggers :as re-frame.loggers]))
+            [pluto.js              :as js]
+            [pluto.reader          :as reader]
+            [pluto.reader.hooks    :as hooks]
+            [pluto.storages        :as storages]
+            [reagent.core          :as reagent]
+            [reagent.dom           :as dom]
+            [re-frame.core         :as re-frame]
+            [re-frame.loggers      :as re-frame.loggers]))
 
 (def warn (js/console.warn.bind js/console))
 (re-frame.loggers/set-loggers!
@@ -41,16 +41,14 @@
           [:span [:b (str type)] (pr-str (dissoc m :type))]]))]))
 
 (def hook 
-  (reify host/AppHook
-    (id [_] :main)
-    (properties [_] {:view :view})
+  (reify hooks/Hook
     (hook-in [_ id {:keys [description scope parameters preview short-preview]} cofx])
     (unhook [_ id {:keys [scope]} {:keys [db] :as cofx}])))
 
 (defn parse [m]
   (reader/parse {:capacities {:components html/components
                               :queries    #{:random-boolean}
-                              :hooks      {:main hook}}}
+                              :hooks      {:main {:hook hook :properties {:view :view}}}}}
                 m))
 
 (defn render-extension [m el el-errors]

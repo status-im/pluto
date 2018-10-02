@@ -5,5 +5,6 @@
             #?(:cljs [pluto.utils-test :include-macros true :refer [slurp]])))
 
 (deftest examples
-  (is (empty? (:errors (reader/parse {} (:data (reader/read (slurp "figwheel/resources/public/assets/extensions/demo/extension.edn"))))))))
+  (is (empty? (:errors (reader/parse {:capacities {:hooks {:main {:properties {}}}}}
+                          (:data (reader/read (slurp "figwheel/resources/public/assets/extensions/demo/extension.edn"))))))))
 

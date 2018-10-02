@@ -1,8 +1,9 @@
 (ns pluto.registry
+  (:refer-clojure :exclude [remove])
   (:require [clojure.spec.alpha :as spec]
             [clojure.set        :as set]
             [clojure.string     :as string]
-            [pluto.host         :as host]
+            [pluto.reader.hooks :as hooks]
             [pluto.utils        :as utils]))
 
 (spec/def :registry/registry (spec/map-of string? :registry/extension))
@@ -12,6 +13,8 @@
 (spec/def :registry/data any?)
 
 (spec/def :registry/extension (spec/keys :req-un [:registry/state :registry/data]))
+
+;; TODO move to a protocol and provide default re-frame implementation
 
 (defn add
   "Takes parsed data and coeffects map, adds extension to registry with `:inactive` initial state."
@@ -31,8 +34,8 @@
              (mapcat (fn [[app-hook extension-hooks]]
                        (map (fn [[hook-id {:keys [hook-ref parsed]}]]
                               (if (= :active new-state)
-                                (partial host/hook-in hook-ref hook-id parsed)
-                                (partial host/unhook hook-ref hook-id parsed)))
+                                (partial hooks/hook-in (:hook hook-ref) hook-id parsed)
+                                (partial hooks/unhook (:hook hook-ref) hook-id parsed)))
                             extension-hooks))
                      (:hooks data))))))
 
@@ -44,7 +47,7 @@
   "Takes extension key and de-activates it by turning off all hooks. Extension state is switched to inactive."
   (partial switch :inactive))
 
-(defn delete
+(defn remove
   "Removes extension from extension map altogether, if the extension is in active state, deactives it first."
   [extension-key {:keys [db] :as cofx}]
   (when-let [{:keys [state]} (get-in db [:registry extension-key])] 

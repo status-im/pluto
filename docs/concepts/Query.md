@@ -15,11 +15,6 @@ by the app-hook and extension must correctly refer to query from capacities map.
 ### Example
 
 ```clojure
-;; App hook code in host application
-(reify host/AppHook
-  (id [_] :wallet-asset)
-  (properties [_] {:able-to-send :query}))
-  
 ;; Capacities map in the host application
 {:capacities {:queries #{:network-up}}}
 

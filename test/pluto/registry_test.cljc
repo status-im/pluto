@@ -1,19 +1,19 @@
 (ns pluto.registry-test
   (:refer-clojure :exclude [read])
-  (:require [clojure.test :refer [is deftest testing]]
-            [pluto.utils    :as utils]
-            [pluto.host     :as host]
-            [pluto.registry :as registry]))
+  (:require [clojure.test       :refer [is deftest testing]]
+            [pluto.reader.hooks :as hooks]
+            [pluto.registry     :as registry]
+            [pluto.utils        :as utils]))
 
 (def parsed-data {'meta {:name "test"}
                   :hooks {:main {:a {:parsed   {:name    "tester"}
-                                     :hook-ref (reify host/AppHook
-                                                 (id [_] :main)
-                                                 (properties [_] {:name :string})
+                                     :hook-ref {:properties {:name :string}
+                                                :hook
+                                                (reify hooks/Hook
                                                  (hook-in [_ id properties {:keys [db]}]
                                                    {:db (assoc-in db [:main id] properties)})
                                                  (unhook [_ id _ {:keys [db]}] 
-                                                   {:db (update db :main dissoc id)}))}}}})
+                                                   {:db (update db :main dissoc id)}))}}}}})
 
 (deftest add-test
   (testing "Correctly adds extension"
@@ -55,10 +55,10 @@
 
 (deftest remove-test
   (testing "When extension is not present, do nothing"
-    (is (= nil (registry/delete "test" {:db {}}))))
+    (is (= nil (registry/remove "test" {:db {}}))))
   (testing "When extension is present and inactive, remove it"
     (is (= {:db {:registry {}}}
-           (registry/delete "test"
+           (registry/remove "test"
                             {:db {:registry {"test" {:state :inactive}}}}))))
   (testing "When extension is present and active, remove it + produce unhook effects"
     (is (= {:db {:registry {}
@@ -66,4 +66,4 @@
            (utils/merge-fx {:db {}}
                            (partial registry/add parsed-data)
                            (partial registry/activate "test") 
-                           (partial registry/delete "test"))))))
+                           (partial registry/remove "test"))))))
