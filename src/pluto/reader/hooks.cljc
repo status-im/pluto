@@ -1,10 +1,10 @@
 (ns pluto.reader.hooks
-  (:require [clojure.string         :as string]
-            [clojure.set            :as set]
-            [pluto.reader.blocks    :as blocks]
-            [pluto.reader.errors    :as errors]
-            [pluto.reader.reference :as reference]
-            [pluto.reader.views     :as views]))
+  (:require [clojure.string             :as string]
+            [clojure.set                :as set]
+            [pluto.reader.destructuring :as destructuring]
+            [pluto.reader.errors        :as errors]
+            [pluto.reader.reference     :as reference]
+            [pluto.reader.views         :as views]))
 
 (defprotocol Hook
   "Encapsulate hook lifecycle."
@@ -22,7 +22,7 @@
 
 (defn inject-properties [m properties]
   (if-let [ps (get-in m [:env 'properties])]
-    (let [{:keys [data errors]} (blocks/destructure ps properties)]
+    (let [{:keys [data errors]} (destructuring/destructure ps properties)]
       (errors/merge-errors
         {:data
          (-> (update m :env dissoc 'properties)
