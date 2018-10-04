@@ -145,3 +145,9 @@ main {
 #qr {
   z-index: -1;
 }
+
+#qr-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
