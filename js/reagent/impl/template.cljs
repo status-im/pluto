@@ -82,7 +82,7 @@
   (if (named? k)
     (if-some [k' (cache-get custom-prop-name-cache (name k))]
       k'
-      (aset prop-name-cache (name k)
+      (aset custom-prop-name-cache (name k)
             (util/dash-to-camel k)))
     k))
 
@@ -122,12 +122,18 @@
       ;; Merge classes
       class
       (assoc :class (let [old-class (:class props)]
-                      (if (nil? old-class) class (str class " " old-class)))))))
+                      (if (nil? old-class) class (str class " " (if (named? old-class)
+                                                                  (name old-class)
+                                                                  old-class))))))))
 
 (defn stringify-class [{:keys [class] :as props}]
   (if (coll? class)
     (->> class
-         (filter identity)
+         (keep (fn [c]
+                 (if c
+                   (if (named? c)
+                     (name c)
+                     c))))
          (string/join " ")
          (assoc props :class))
     props))
@@ -377,11 +383,10 @@
             pos (.indexOf n ">")]
         (case pos
           -1 (native-element (cached-parse n) v 1)
+          ;; TODO: Doesn't this match :>foo or any keyword starting with >
           0 (let [comp (nth v 1 nil)]
               ;; Support [:> comp ...]
               (assert (= ">" n) (hiccup-err v "Invalid Hiccup tag"))
-              (assert (or (string? comp) (fn? comp))
-                      (hiccup-err v "Expected React component in"))
               (native-element #js{:name comp} v 2))
           ;; Support extended hiccup syntax, i.e :div.bar>a.foo
           ;; Apply metadata (e.g. :key) to the outermost element.

@@ -19,6 +19,10 @@
 
 (defn ^boolean is-trace-enabled?
   "See https://groups.google.com/d/msg/clojurescript/jk43kmYiMhA/IHglVr_TPdgJ for more details"
+  ;; We can remove this extra step of type hinting indirection once our minimum CLJS version includes
+  ;; https://dev.clojure.org/jira/browse/CLJS-1439
+  ;; r1.10.63 is the first version with this:
+  ;; https://github.com/clojure/clojurescript/commit/9ec796d791b1b2bd613af2f62cdecfd25caa6482
   []
   trace-enabled?)
 
@@ -32,7 +36,7 @@
   [key f]
   (if trace-enabled?
     (swap! trace-cbs assoc key f)
-    (console :warn "Tracing is not enabled. Please set {\"re_frame.trace.trace_enabled_QMARK_\" true} in :closure-defines. See: https://github.com/Day8/re-frame-trace#installation.")))
+    (console :warn "Tracing is not enabled. Please set {\"re_frame.trace.trace_enabled_QMARK_\" true} in :closure-defines. See: https://github.com/Day8/re-frame-10x#installation.")))
 
 (defn remove-trace-cb [key]
   (swap! trace-cbs dissoc key)
@@ -84,8 +88,8 @@
   ;; to avoid constant setting and cancelling
   ;; timeouts.
 
-  ;; If we are within 10 ms of next delivery
-  (when (< (- @next-delivery 10) now)
+  ;; If we are within 25 ms of next delivery
+  (when (< (- @next-delivery 25) now)
     (schedule-debounce)
     ;; The next-delivery time is not perfectly accurate
     ;; as scheduling the debounce takes some time, but
@@ -107,8 +111,8 @@
 
           Common keys for trace-opts
           :op-type - what kind of operation is this? e.g. :sub/create, :render.
-          :operation - identifier for the operation, for an subscription it would be the subscription keyword
-          tags - a map of arbitrary kv pairs"
+          :operation - identifier for the operation, for a subscription it would be the subscription keyword
+          :tags - a map of arbitrary kv pairs"
      [{:keys [operation op-type tags child-of] :as trace-opts} & body]
      `(if (is-trace-enabled?)
         (binding [*current-trace* (start-trace ~trace-opts)]

@@ -10,7 +10,7 @@
  [ethereum.logs {:address "0xfa28ec7198028438514b49a3cf353bca5541ce1d"
                  :topics  ["PeepEth()"]
                  :inputs  [{:name :hash :type :string}] ;; Allows to decode transaction data
-                 :on-log  [@events/fetch-ipfs]}] ;; A map of decoded data will be injected
+                 :on-log  [events/fetch-ipfs]}] ;; A map of decoded data will be injected
 
  events/fetch-ipfs
  (let [{hash :hash} properties]
@@ -38,8 +38,8 @@
  [screen {:style screen}
   [toolbar {}
    [text {}
-    [@i18n/title {}]]]
-  (let [posts @queries/all-posts]
+    [i18n/title {}]]]
+  (let [posts queries/all-posts]
      [list {:data     posts
             :template [post]}])]
 

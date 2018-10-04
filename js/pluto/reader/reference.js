@@ -1,4 +1,4 @@
-// Compiled by ClojureScript 1.10.329 {:static-fns true, :optimize-constants true}
+// Compiled by ClojureScript 1.10.339 {:static-fns true, :optimize-constants true}
 goog.provide('pluto.reader.reference');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
@@ -51,12 +51,12 @@ return null;
  * (= {:data "view"} (resolve {'views/id "view"} {:name :view :type :view} {:view 'views/id}))
  * ```
  */
-pluto.reader.reference.resolve = (function pluto$reader$reference$resolve(m,p__1245,hook){
-var map__1246 = p__1245;
-var map__1246__$1 = ((((!((map__1246 == null)))?(((((map__1246.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1246.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1246):map__1246);
-var name = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1246__$1,cljs.core.cst$kw$name);
-var type = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1246__$1,cljs.core.cst$kw$type);
-var optional_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1246__$1,cljs.core.cst$kw$optional_QMARK_);
+pluto.reader.reference.resolve = (function pluto$reader$reference$resolve(m,p__7198,hook){
+var map__7199 = p__7198;
+var map__7199__$1 = ((((!((map__7199 == null)))?(((((map__7199.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__7199.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__7199):map__7199);
+var name = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__7199__$1,cljs.core.cst$kw$name);
+var type = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__7199__$1,cljs.core.cst$kw$type);
+var optional_QMARK_ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__7199__$1,cljs.core.cst$kw$optional_QMARK_);
 var ref = cljs.core.get.cljs$core$IFn$_invoke$arity$2(hook,name);
 if(cljs.core.truth_(ref)){
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(type,pluto.reader.reference.reference__GT_type(ref))){
@@ -68,7 +68,7 @@ return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,o], null
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_missing_DASH_property_DASH_value,name)], null)], null);
 }
 } else {
-return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_property_DASH_type,type)], null)], null);
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_type,type)], null)], null);
 }
 } else {
 if(cljs.core.truth_(optional_QMARK_)){

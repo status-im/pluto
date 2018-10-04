@@ -88,10 +88,15 @@
 ;;    {:dispatch-later [{:ms 200 :dispatch [:event-id "param"]}    ;;  in 200ms do this: (dispatch [:event-id "param"])
 ;;                      {:ms 100 :dispatch [:also :this :in :100ms]}]}
 ;;
+;; Note: nil entries in the collection are ignored which means events can be added
+;; conditionally:
+;;    {:dispatch-later [ (when (> 3 5) {:ms 200 :dispatch [:conditioned-out]})
+;;                       {:ms 100 :dispatch [:another-one]}]}
+;;
 (reg-fx
   :dispatch-later
   (fn [value]
-    (doseq [{:keys [ms dispatch] :as effect} value]
+    (doseq [{:keys [ms dispatch] :as effect} (remove nil? value)]
         (if (or (empty? dispatch) (not (number? ms)))
           (console :error "re-frame: ignoring bad :dispatch-later value:" effect)
           (set-timeout! #(router/dispatch dispatch) ms)))))
@@ -99,7 +104,7 @@
 
 ;; :dispatch
 ;;
-;; `dispatch` one event. Excepts a single vector.
+;; `dispatch` one event. Expects a single vector.
 ;;
 ;; usage:
 ;;   {:dispatch [:event-id "param"] }
