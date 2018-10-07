@@ -10,7 +10,8 @@
   (clj->js o))
 
 (def ctx
-  {:capacities {:components {'text :text 'view :div 'status/token-selector :div 'status/asset-selector :div}
+  {:capacities {:components {'text {:value :text} 'view {:value :div} 'status/token-selector {:value :div} 'status/asset-selector {:value :div}
+                             'status/send-status {:value :div} 'status/nft-token {:value :div}}
                 :hooks {:commands {:properties {:scope         #{:personal-chats :public-chats}
                                                 :description   :string
                                                 :short-preview :view
@@ -18,7 +19,7 @@
                                                 :parameters    [{:id           :keyword
                                                                   :type         {:one-of #{:text :phone :password :number}}
                                                                   :placeholder  :string
-                                                                  :suggestions? :component}]}}}}})
+                                                                  :suggestions? :view}]}}}}})
 
 (defn ^:export parse [m]
   (reader/parse ctx (:data m)))
