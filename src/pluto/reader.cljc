@@ -10,12 +10,13 @@
    # Activate
     * based on hooks, inject views / trigger events"
   (:refer-clojure :exclude [read])
-  (:require [clojure.set :as set]
-            [clojure.spec.alpha :as spec]
+  (:require [clojure.set              :as set]
+            [clojure.spec.alpha       :as spec]
             [clojure.tools.reader.edn :as edn]
-            [pluto.reader.errors :as errors]
-            [pluto.reader.hooks :as hooks]
-            [pluto.utils :as utils]))
+            [pluto.reader.errors      :as errors]
+            [pluto.reader.hooks       :as hooks]
+            pluto.reader.views
+            [pluto.utils              :as utils]))
 
 (defn reader-error [ex]
   (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
@@ -99,16 +100,16 @@
 
 (defn ^:export parse
   "Parse an extension definition map as encapsulated in :data key of the map returned by read.
-   `opts` is a map defining:
+   `ctx` is a map defining:
    * `capacities` a map of valid supported capacities (hooks, queries, events)
 
    Returns a map defining:
    * :data a map of meta and parsed hooks
    * :permissions a vector of required permissions
    * :errors a vector of errors maps triggered during parse"
-  [opts m]
-  (let [errors (validate opts m)]
+  [ctx m]
+  (let [errors (validate ctx m)]
     (errors/merge-results
       (parse-meta ('meta m))
-      (hooks/parse opts m)
+      (hooks/parse ctx m)
       {:errors errors})))

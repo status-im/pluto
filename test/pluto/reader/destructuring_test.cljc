@@ -1,8 +1,8 @@
 (ns pluto.reader.destructuring-test
   (:refer-clojure :exclude [destructure])  
-  (:require [clojure.test :refer [is deftest testing]]
-            [pluto.reader.errors :as errors]
-            [pluto.reader.destructuring :as destructuring]))
+  (:require [clojure.test :refer [is deftest]]
+            [pluto.reader.destructuring :as destructuring]
+            [pluto.reader.errors        :as errors]))
 
 (deftest destructure-seq
   (is (= {:errors [{::errors/type ::errors/invalid-destructuring-format ::errors/value {:data [1] :type :sequential}}]}

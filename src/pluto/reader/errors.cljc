@@ -12,20 +12,17 @@
                    ::invalid-type-value
                    ::invalid-sequential-type
                    ::invalid-assoc-type
-                   ::missing-property-name
-                   ::missing-property-value
+                   ::invalid-reference
                    ::invalid-destructuring-format
                    ::missing-keys
                    ::unknown-reference
                    ::unknown-component
+                   ::unknown-component-property
                    ::invalid-view
                    ::invalid-block
                    ::unsupported-test-type
                    ::forbidden-read-path
-                   ::forbidden-write-path
-                   ::query-not-exposed
-                   ::invalid-event-handler
-                   ::event-not-exposed})
+                   ::query-not-exposed})
 
 (spec/def ::value any?)
 

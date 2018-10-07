@@ -1,6 +1,6 @@
 (ns pluto.storages
-  (:require [clojure.string :as string]
-            [pluto.storage :as storage]
+  (:require [clojure.string     :as string]
+            [pluto.storage      :as storage]
             [pluto.storage.http :as http]
             [pluto.storage.gist :as gist]
             [pluto.storage.ipfs :as ipfs]))

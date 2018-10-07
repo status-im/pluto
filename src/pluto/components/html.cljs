@@ -1,11 +1,10 @@
-(ns pluto.components.html
- (:require [re-frame.core :as re-frame]))
+(ns pluto.components.html)
 
 (defn view [props & content]
   (into [:div props] content))
 
 (defn button [{:keys [on-click]} & content]
-  (into [:button {:on-click #(re-frame/dispatch on-click)}] content))
+  (into [:button {:on-click on-click}] content))
 
 (defn text [props & content]
   (into [:span props] content))
@@ -14,9 +13,9 @@
                           :value      view
                           :description ""
                           :examples   []}
-                 'button {:properties {}
+                 'button {:properties {:on-click :event}
                           :value      button
                           :examples   []}
-                 'text   {:properties {:on-click :event}
+                 'text   {:properties {}
                           :value      text
                           :examples   []}})

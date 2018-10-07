@@ -1,10 +1,12 @@
 (ns pluto.reader.views
-  (:require [clojure.spec.alpha       :as spec]
-            [pluto.reader.blocks      :as blocks]
-            [pluto.reader.errors      :as errors]
-            [pluto.reader.permissions :as permissions]
-            [pluto.utils              :as utils]
-            [re-frame.core            :as re-frame]))
+  (:require [clojure.spec.alpha         :as spec]
+            [pluto.reader.blocks        :as blocks]
+            [pluto.reader.destructuring :as destructuring]
+            [pluto.reader.errors        :as errors]
+            [pluto.reader.permissions   :as permissions]
+            [pluto.reader.reference     :as reference]
+            [pluto.reader.types         :as types]
+            [pluto.utils                :as utils]))
 
 ;; TODO Distinguish views (can contain blocks, symbols) validation
 ;; from hiccup validation (view after parsing) that are pure hiccup
@@ -22,63 +24,56 @@
     :attrs    map?
     :children (spec/* ::form)))
 
-;; TODO add all possible event handlers
-(def ^:private event-handler->selector
-  {:on-press  (constantly true)
-   :on-change #(.-text (.-nativeEvent %))})
-
 (declare parse)
 
-(defn parse-hiccup-children [opts children]
-  (reduce #(let [{:keys [data errors]} (parse opts %2)]
+(defn parse-hiccup-children [ctx ext children]
+  (reduce #(let [{:keys [data errors]} (parse ctx ext %2)]
              (errors/merge-errors (update %1 :data conj data)
                                   errors))
           {:data []} children))
 
-(defn resolve-component [{:keys [components]} o]
+(defn component? [o]
+  (symbol? o))
+
+(defn- resolve-component [ctx o]
   (cond
     (fn? o) o
-    (symbol? o) (:value (get components o))))
+    (symbol? o) (get-in ctx [:capacities :components o :value])))
 
-(defn- event? [prop-value]
-  (and (list? prop-value)
-       (= 'event (first prop-value))))
+(defmulti resolve-default-component-properties (fn [property value] property))
 
-(defn- create-event-handler [re-frame-event selector]
-  (fn [event-value]
-    (re-frame/dispatch (conj re-frame-event (selector event-value)))))
+(defmethod resolve-default-component-properties :style [_ value]
+  {:data value})
 
-(defn- resolve-component-properties [component {:keys [permissions events] :as capacities} properties]
-  ; (println ":" properties (get-in capacities [:components component :properties]))
-  ; TODO validate component properties based on capacities
-  (reduce (fn [acc [k v]] 
-            (if (contains? event-handler->selector k)
-              (if (not (event? v))
-                (update acc :errors conj (errors/error ::errors/invalid-event-handler v))
-                (let [[_ [event-name event-args] :as re-frame-event] v]
-                  (cond
+(defmethod resolve-default-component-properties :default [_ value]
+  nil)
 
-                    (not (contains? events event-name))
-                    (update acc :errors conj (errors/error ::errors/event-not-exposed event-name))
+(defn- resolve-component-property [ctx ext component k v]
+  (or (resolve-default-component-properties k v)
+      (if-let [type (k (get-in ctx [:capacities :components component :properties]))]
+        (types/resolve ctx ext type v)
+        {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]})))
 
-                    (not (permissions/allowed-path? event-args (:write permissions)))
-                    (update acc :errors conj (errors/error ::errors/forbidden-write-path event-args))
+(defn- resolve-property [ctx ext component k v]
+  (if (component? component)
+    (resolve-component-property ctx ext component k v)
+    {:data v}))
 
-                    :else
-                    (update acc :data assoc k (create-event-handler re-frame-event
-                                                                    (get event-handler->selector k))))))
-              (update acc :data assoc k v)))
-          {:data   {}
-           :errors []}
-          properties))
+(defn- resolve-component-properties [ctx ext component properties]
+  (reduce-kv (fn [acc k v]
+               (let [{:keys [data errors]} (resolve-property ctx ext component k v)]
+                 (-> (update acc :data assoc k data))))
+             {:data   {}
+              :errors []}
+             properties))
 
-(defn resolve-properties-children [[properties? & children]]
+(defn- resolve-properties-children [[properties? & children]]
   [(and (map? properties?) properties?)
    (if (map? properties?)
      children
      (cons properties? children))])
 
-(defn parse-hiccup-element [{:keys [capacities] :as opts} o]
+(defn- parse-hiccup-element [ctx ext o]
   (let [explain (spec/explain-data ::form o)]
     (cond
       ;; TODO Validate views, not hiccup
@@ -90,10 +85,10 @@
       (vector? o)
       (let [[element & properties-children]  o
             [properties children]            (resolve-properties-children properties-children)
-            component                        (resolve-component capacities element)
+            component                        (resolve-component ctx element)
             {:keys [data errors]}            (when properties
-                                               (resolve-component-properties element capacities properties))]
-        (cond-> (let [m (parse-hiccup-children opts children)]
+                                               (resolve-component-properties ctx ext element properties))]
+        (cond-> (let [m (parse-hiccup-children ctx ext children)]
                   ;; Reduce parsed children to a single map and wrap them in a hiccup element
                   ;; whose component has been translated to the local platform
                   (update m :data #(apply conj (if data [(or component element) data]
@@ -102,12 +97,42 @@
                 (nil? component) (errors/accumulate-errors [(errors/error ::errors/unknown-component element)])
                 (seq errors)     (errors/accumulate-errors errors))))))
 
-(defn parse [opts o]
+(defn parse [ctx ext o]
   (cond
     (list? o)
-    (let [{:keys [data errors]} (blocks/parse opts o)]
+    (let [{:keys [data errors]} (blocks/parse ctx o)]
       (if errors
         {:errors errors}
-        (parse opts data)))
+        (parse ctx ext data)))
     :else
-    (parse-hiccup-element opts o)))
+    (parse-hiccup-element ctx ext o)))
+
+(defn- inject-properties [m properties]
+  (if-let [ps (get-in m [:env 'properties])]
+    (let [{:keys [data errors]} (destructuring/destructure ps properties)]
+      (errors/merge-errors
+        {:data
+         (-> m
+             (update :env dissoc 'properties)
+             (update :env merge data))}
+        errors))
+    {:data m}))
+
+(defn- hiccup-with-properties [h properties]
+  (if (vector? h)
+    (let [[tag & properties-children] h
+          [props children]            (resolve-properties-children properties-children)
+          {:keys [data]}              (when properties
+                                        (inject-properties props properties))]
+      (apply conj (if data [tag data] [tag])
+             (map #(hiccup-with-properties % properties) children)))
+    h))
+
+(defmethod types/resolve :view [ctx ext type value]
+  (let [{:keys [data errors]} (reference/resolve ext value)]
+    (if data
+      (let [{:keys [data errors]} (parse ctx ext data)]
+        ;; TODO Might fail at runtime if destructuring is incorrect
+        (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
+                             (concat errors (:errors ext))))
+      {:errors errors})))

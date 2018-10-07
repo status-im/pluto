@@ -1,6 +1,6 @@
 (ns pluto.storage.ipfs
   (:require [clojure.string :as string]
-            [pluto.storage :as storage]))
+            [pluto.storage  :as storage]))
 
 (defn result [xhr]
   (let [status (.-status xhr)]

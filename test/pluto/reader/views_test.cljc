@@ -1,12 +1,16 @@
 (ns pluto.reader.views-test
+  (:refer-clojure :exclude [resolve])
   (:require [clojure.test :refer [is deftest testing]]
             [pluto.reader.blocks :as blocks]
             [pluto.reader.errors :as errors]
-            [pluto.reader.views :as views]))
+            [pluto.reader.types  :as types]
+            [pluto.reader.views  :as views]))
 
 (deftest parse-hiccup-children
-  (is (=  {:data (list [:text {} ""])} (views/parse-hiccup-children {:capacities {:components {'text :text}}}
-                                                                    (list ['text {} ""])))))
+  (is (=  {:data (list [:text {} ""])}
+          (views/parse-hiccup-children {:capacities {:components {'text {:value :text}}}}
+                                       {}
+                                       (list ['text {} ""])))))
 
 (defn- first-error-type [m]
   (::errors/type (first (:errors m))))
@@ -16,17 +20,18 @@
   (is (= ::errors/invalid-view (first-error-type (views/parse {} {}))))
   #_
   (is (= ::errors/invalid-view
-         (first-error-type (views/parse {:capacities {:components {'text :text}}} ['text "Hello"]))))
+         (first-error-type (views/parse {:capacities {:components {'text {:value :text}}}} ['text "Hello"]))))
   #_
   (is (= ::errors/invalid-view
-         (first-error-type (views/parse {:capacities {:components {'text :text}}} ['text {} []]))))
+         (first-error-type (views/parse {:capacities {:components {'text {:value :text}}}} ['text {} []]))))
+  #_
   (is (= {:data   ['text {} "Hello"]
           :errors (list {::errors/type ::errors/unknown-component ::errors/value 'text})}
          (views/parse {} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
-         (views/parse {:capacities {:components {'text :text}}} ['text {} "Hello"])))
+         (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
-         (views/parse {:capacities {:components {'text :text}}} ['text {} "Hello"])))
+         (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
   (is (= {:data [:view
                   [:text {} "Hello"]
                   [blocks/let-block
@@ -36,8 +41,9 @@
                      [:text {:style {:color "green"}} "World?"]
                      [:text {:style {:color "red"}} "World?"]]]]}
          (views/parse {:capacities {:queries #{:random-boolean}
-                                    :components {'text :text
-                                                 'view :view}}}
+                                    :components {'text {:value :text}
+                                                 'view {:value :view}}}}
+                      {}
                       '[view
                         [text {} "Hello"]
                         (let [cond? (query [:random-boolean])]
@@ -48,5 +54,10 @@
                              "World?"]))])))
   (testing "Properties"
     (is (= {:data [:text {} "Hello"]}
-           (views/parse {:capacities {:components {'text :text}}} ['text {} "Hello"])))))
+           (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))))
 
+(deftest resolve
+  (is (= [:text "Hello"] ((:data (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/main])) {})))
+  (is (= {:errors [{::errors/type  ::errors/unknown-reference,
+                    ::errors/value {:value 'views/unknown}}]}
+         (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/unknown]))))

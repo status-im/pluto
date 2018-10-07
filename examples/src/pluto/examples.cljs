@@ -57,8 +57,10 @@
 (defn parse [m]
   (reader/parse {:capacities {:components html/components
                               :queries    #{:random-boolean}
-                              :hooks      {:main {:hook hook :properties {:view :view}}}
-                              :events     {:log
+                              :hooks      {:main
+                                           {:hook       hook
+                                            :properties {:view :view}}}
+                              :events     {:alert
                                            {:permissions [:read]
                                             :value       []}}}}
                 m))

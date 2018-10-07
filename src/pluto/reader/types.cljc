@@ -4,6 +4,7 @@
   (:refer-clojure :exclude [resolve])
   (:require [clojure.string      :as string]
             [clojure.set         :as set]
+            [re-frame.core       :as re-frame]
             [pluto.reader.errors :as errors]))
 
 (defmulti resolve
@@ -11,7 +12,7 @@
    Returns a map of either:
     * data with the resolved data
     * errors encapsulating all errors generated during resolution"
-  (fn [ctx type value]
+  (fn [ctx ext type value]
     (cond
       (keyword? type) type
       (:one-of type)  :one-of
@@ -22,33 +23,29 @@
 (defn invalid-type-value [type value]
   (errors/error ::errors/invalid-type-value {:type type :value value}))
 
-(defmethod resolve :string [_ _ value]
+(defmethod resolve :string [_ _ _ value]
   (if (string? value)
     {:data value}
     {:errors [(invalid-type-value :string value)]}))
 
-(defmethod resolve :keyword [_ _ value]
+(defmethod resolve :keyword [_ _ _ value]
   (if (keyword? value)
     {:data value}
     {:errors [(invalid-type-value :keyword value)]}))
 
-(defmethod resolve :subset [_ type value]
-  (println ">>" value type (not (nil? value)) (set/subset? value type))
+(defmethod resolve :subset [_ _ type value]
   (if (and (not (nil? value)) (set/subset? value type))
     {:data value}
     {:errors [(invalid-type-value :subset value)]}))
 
-(defmethod resolve :one-of [_ {:keys [one-of]} value]
+(defmethod resolve :one-of [_ _ {:keys [one-of]} value]
   (if-let [o (one-of value)]
     {:data o}
     {:errors [(invalid-type-value :one-of value)]}))
 
-(defmethod resolve :default [_ value _]
-  {:errors [(errors/error ::errors/invalid-type {:value value})]})
-
-(defmethod resolve :sequence [ctx type value]
+(defmethod resolve :sequence [ctx ext type value]
   (if (and (vector? type) (= 1 (count type)) (map? (first type)))
-    (apply errors/merge-results-with #(conj (vec %1) %2) (map #(resolve ctx (first type) %) value))
+    (apply errors/merge-results-with #(conj (vec %1) %2) (map #(resolve ctx ext (first type) %) value))
     {:errors [(errors/error ::errors/invalid-sequential-type {:type type :value value})]}))
 
 (def ^:private sentinel ::sentinel)
@@ -59,18 +56,28 @@
      :name      normalized-name
      :optional? (not= name normalized-name)}))
 
-(defn- resolve-property [ctx m {:keys [name optional? value]} type]
+(defn- resolve-property [ctx ext m {:keys [name optional? value]} type]
   (if (not= sentinel value)
-    (let [{:keys [data errors]} (resolve ctx type value)]
+    (let [{:keys [data errors]} (resolve ctx ext type value)]
       (errors/merge-errors
         (if data (assoc-in m [:data name] data) m)
         errors))
-    (if-not optional?
-      {:errors [(errors/error ::errors/invalid-type-value {:type type :value value})]}
-      {:data {}})))
+    (if optional?
+      (update m :data #(if (empty? %) {} %))
+      (assoc m :errors [(errors/error ::errors/invalid-type-name name)]))))
 
-(defmethod resolve :assoc [ctx type value]
+(defmethod resolve :assoc [ctx ext type value]
   (if (map? type)
-    (reduce-kv #(resolve-property ctx %1 (property %2 value) %3)
+    (reduce-kv #(resolve-property ctx ext %1 (property %2 value) %3)
                {} type)
     {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
+
+(defmethod resolve :event [_ _ _ value]
+  {:data #(re-frame/dispatch value)})
+
+(defmethod resolve :query [ctx _ _ value]
+  {:data #(when-let [o (re-frame/subscribe value)]
+           @o)})
+
+(defmethod resolve :default [_ _ type value]
+  {:errors [(errors/error ::errors/invalid-type (merge {:type type} (when value {:value value})))]})
