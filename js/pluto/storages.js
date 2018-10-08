@@ -16,9 +16,9 @@ return cb;
 return and__3938__auto__;
 }
 })())){
-var vec__7437 = clojure.string.split.cljs$core$IFn$_invoke$arity$2(uri,"@");
-var type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__7437,(0),null);
-var id = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__7437,(1),null);
+var vec__2250 = clojure.string.split.cljs$core$IFn$_invoke$arity$2(uri,"@");
+var type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2250,(0),null);
+var id = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2250,(1),null);
 var temp__5457__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(pluto.storages.all,type);
 if(cljs.core.truth_(temp__5457__auto__)){
 var s = temp__5457__auto__;
