@@ -129,7 +129,7 @@
     h))
 
 (defmethod types/resolve :view [ctx ext type value]
-  (let [{:keys [data errors]} (reference/resolve ext value)]
+  (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
     (if data
       (let [{:keys [data errors]} (parse ctx ext data)]
         ;; TODO Might fail at runtime if destructuring is incorrect

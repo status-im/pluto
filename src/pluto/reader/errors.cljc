@@ -16,6 +16,7 @@
                    ::invalid-destructuring-format
                    ::missing-keys
                    ::unknown-reference
+                   ::unknown-reference-type
                    ::unknown-component
                    ::unknown-component-property
                    ::invalid-view
