@@ -10,8 +10,8 @@
   (clj->js o))
 
 (def ctx
-  {:capacities {:components {'text {:value :text} 'view {:value :div} 'status/token-selector {:value :div} 'status/asset-selector {:value :div}
-                             'status/send-status {:value :div} 'status/nft-token {:value :div}}
+  {:capacities {:components {'text {:value :text} 'view {:value :div} 'token-selector {:value :div} 'asset-selector {:value :div}
+                             'send-status {:value :div} 'nft-token {:value :div}}
                 :hooks {:commands {:properties {:scope         #{:personal-chats :public-chats}
                                                 :description   :string
                                                 :short-preview :view
