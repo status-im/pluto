@@ -20,11 +20,11 @@
                    ::unknown-reference-type
                    ::unknown-component
                    ::unknown-component-property
+                   ::unknown-query
+                   ::unknown-event
                    ::invalid-view
                    ::invalid-block
-                   ::unsupported-test-type
-                   ::forbidden-read-path
-                   ::query-not-exposed})
+                   ::unsupported-test-type})
 
 (spec/def ::value any?)
 

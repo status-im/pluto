@@ -2,10 +2,11 @@
   "Resolve values based on provided types.
    Handles primitives, references and composed values."
   (:refer-clojure :exclude [resolve])
-  (:require [clojure.string      :as string]
-            [clojure.set         :as set]
-            [re-frame.core       :as re-frame]
-            [pluto.reader.errors :as errors]))
+  (:require [clojure.string         :as string]
+            [clojure.set            :as set]
+            [re-frame.core          :as re-frame]
+            [pluto.reader.errors    :as errors]
+            [pluto.reader.reference :as reference]))
 
 (defmulti resolve
   "Resolve a value based on a type.
@@ -72,12 +73,16 @@
                {} type)
     {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
 
-(defmethod resolve :event [_ _ _ value]
-  {:data #(re-frame/dispatch value)})
+(defmethod resolve :event [ctx ext type [event-name event-properties :as value]]
+  (if-let [data (:data (reference/resolve ctx ext type value))]
+    {:data #(re-frame/dispatch [data event-properties])}
+    {:errors [(errors/error ::errors/unknown-event {:type type :value event-name})]}))
 
-(defmethod resolve :query [ctx _ _ value]
-  {:data #(when-let [o (re-frame/subscribe value)]
-           @o)})
+(defmethod resolve :query [ctx ext type [query-name query-properties :as value]]
+  (if-let [data (:data (reference/resolve ctx ext type value))]
+    {:data #(when-let [o (re-frame/subscribe [data query-properties])]
+             @o)}
+    {:errors [(errors/error ::errors/unknown-query {:type type :value query-name})]}))
 
 (defmethod resolve :default [_ _ type value]
   {:errors [(errors/error ::errors/invalid-type (merge {:type type} (when value {:value value})))]})

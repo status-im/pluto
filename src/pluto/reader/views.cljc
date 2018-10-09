@@ -62,7 +62,8 @@
 (defn- resolve-component-properties [ctx ext component properties]
   (reduce-kv (fn [acc k v]
                (let [{:keys [data errors]} (resolve-property ctx ext component k v)]
-                 (-> (update acc :data assoc k data))))
+                 (errors/merge-errors (update acc :data assoc k data)
+                                      errors)))
              {:data   {}
               :errors []}
              properties))
@@ -100,7 +101,7 @@
 (defn parse [ctx ext o]
   (cond
     (list? o)
-    (let [{:keys [data errors]} (blocks/parse ctx o)]
+    (let [{:keys [data errors]} (blocks/parse ctx ext o)]
       (if errors
         {:errors errors}
         (parse ctx ext data)))

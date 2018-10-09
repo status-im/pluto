@@ -20,13 +20,14 @@
   (when (reference? o)
     (first o)))
 
-(def type->ns {:view "views" :query "queries" :event "events"})
+(def type->ns  {:view "views" :query "queries" :event "events"})
+(def type->capacity {:view :components :query :queries :event :events})
 
 (defn- resolve-symbol
   "Resolve a symbol first via the extension definition then via the host ctx."
-  [ctx ext ns s]
+  [ctx ext type ns s]
   (or (get ext (symbol ns (name s)))
-      (get-in ctx [:capacities :components s :value])))
+      (get-in ctx [:capacities (get type->capacity type) s :value])))
 
 (defn resolve
   "Resolve a reference defined by a hook
@@ -37,7 +38,7 @@
   [ctx ext type value]
   (if-let [s (reference->symbol value)]
     (if-let [ns (get type->ns type)]
-      (if-let [o (resolve-symbol ctx ext ns s)]
+      (if-let [o (resolve-symbol ctx ext type ns s)]
         {:data o}
         {:errors [(errors/error ::errors/unknown-reference {:value s})]})
       {:errors [(errors/error ::errors/unknown-reference-type {:value type})]})

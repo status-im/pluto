@@ -8,19 +8,20 @@
 
 (defmulti parse
   "Parse a block element. Return hiccup data."
-  (fn [_ [type]] type))
+  (fn [ctx ext [type]] type))
 
-(defn resolve-query [query]
-  (let [{:keys [data]} (types/resolve {} {} :query query)]
-    (data)))
+(defn resolve-query [ctx ext query]
+  (let [{:keys [data errors]} (types/resolve ctx ext :query query)]
+    ;; TODO errors ??
+    (when data (data))))
 
 (defn- query? [binding-value]
   (vector? binding-value))
 
-(defn resolve-binding-value [v]
+(defn resolve-binding-value [ctx ext v]
   ;; TODO resolve query statically
   (cond
-    (query? v) (resolve-query v)
+    (query? v) (resolve-query ctx ext v)
     (not (list? v)) v))
 
 (defn resolve-binding-key [k v]
@@ -29,16 +30,16 @@
     ;; TODO handle errors
     (:data (destructuring/destructure k v))))
 
-(defn assoc-binding [m k v]
-  (let [resolved-value (resolve-binding-value v)]
-    (let [o (resolve-binding-key k resolved-value)]
-      (if (symbol? o)
-        (assoc m o resolved-value)
-        (merge m o)))))
+(defn assoc-binding [ctx ext m k v]
+  (let [resolved-value (resolve-binding-value ctx ext v)
+        o (resolve-binding-key k resolved-value)]
+    (if (symbol? o)
+      (assoc m o resolved-value)
+      (merge m o))))
 
-(defn let-block [{:keys [env]} child]
+(defn let-block [{:keys [env ctx ext]} child]
   (cond
-    (coll? child) (walk/prewalk-replace (reduce-kv assoc-binding {} env) child)))
+    (coll? child) (walk/prewalk-replace (reduce-kv #(assoc-binding ctx ext %1 %2 %3) {} env) child)))
 
 (defn properties? [o]
   (= 'properties o))
@@ -64,14 +65,14 @@
     {:errors [(errors/error ::errors/invalid-destructuring-format bindings)]}
     (reduce-kv merge-bindings {} (apply hash-map bindings))))
 
-(defmethod parse 'let [{:keys [capacities]} [_ bindings & body]]
+(defmethod parse 'let [ctx ext [_ bindings & body]]
   (let [{:keys [data errors]} (bindings->env bindings)]
       ;; TODO fail if some symbol are not defined in the env
       ;; TODO resolve query references only once, error if unknown
     (merge
       {:data
        (let [child (last body)]
-         [let-block {:env data} child])}
+         [let-block {:env data :ctx ctx :ext ext} child])}
       (when errors
         {:errors errors}))))
 
@@ -80,7 +81,7 @@
   (when test
     body))
 
-(defmethod parse 'when [_ [_ test & body]]
+(defmethod parse 'when [_ _ [_ test & body]]
   (cond
     (symbol? test)
     {:data (apply conj [when-block {:test test}] body)}
@@ -92,7 +93,7 @@
     (first body)
     (second body)))
 
-(defmethod parse 'if [_ [_ test then else]]
+(defmethod parse 'if [_ _ [_ test then else]]
   (cond
     (symbol? test)
     {:data (apply conj [if-block {:test test}] (list then else))}
