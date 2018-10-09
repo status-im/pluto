@@ -64,7 +64,7 @@
         errors))
     (if optional?
       (update m :data #(if (empty? %) {} %))
-      (assoc m :errors [(errors/error ::errors/invalid-type-name name)]))))
+      (assoc m :errors [(errors/error ::errors/missing-property name)]))))
 
 (defmethod resolve :assoc [ctx ext type value]
   (if (map? type)

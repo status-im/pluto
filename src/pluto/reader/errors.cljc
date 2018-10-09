@@ -14,6 +14,7 @@
                    ::invalid-assoc-type
                    ::invalid-reference
                    ::invalid-destructuring-format
+                   ::missing-property
                    ::missing-keys
                    ::unknown-reference
                    ::unknown-reference-type

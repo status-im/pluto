@@ -27,7 +27,7 @@
     (let [app-hooks (hooks {:name :string :id :keyword})]
       (is (= {:data {:hooks {:main {:a {:parsed   {:name "name"}
                                         :hook-ref (:main app-hooks)}}}}
-              :errors [{::errors/type  ::errors/invalid-type-name
+              :errors [{::errors/type  ::errors/missing-property
                         ::errors/value :id}]}
              (hooks/parse {:capacities {:hooks app-hooks}}
                           {'hooks/main.a {:name "name"}}))))
