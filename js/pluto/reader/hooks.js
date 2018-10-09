@@ -68,23 +68,19 @@ return cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(clojure.string.join.cljs$
 pluto.reader.hooks.root_id = (function pluto$reader$hooks$root_id(s){
 return cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(cljs.core.first(clojure.string.split.cljs$core$IFn$_invoke$arity$2(cljs.core.name(s),/\./)));
 });
-pluto.reader.hooks.parse_hook = (function pluto$reader$hooks$parse_hook(ctx,ext,hook,v){
-var G__2159 = ctx;
-var G__2160 = ext;
-var G__2161 = cljs.core.cst$kw$properties.cljs$core$IFn$_invoke$arity$1(hook);
-var G__2162 = v;
-return (pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4 ? pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4(G__2159,G__2160,G__2161,G__2162) : pluto.reader.types.resolve.call(null,G__2159,G__2160,G__2161,G__2162));
-});
 pluto.reader.hooks.parse = (function pluto$reader$hooks$parse(ctx,ext){
 return cljs.core.reduce_kv((function (acc,hook_key,data){
 var hook_id = pluto.reader.hooks.local_id(hook_key);
 var hook_root = pluto.reader.hooks.root_id(hook_key);
-var hook = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(ctx,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$capacities,cljs.core.cst$kw$hooks,hook_root], null));
-var map__2163 = pluto.reader.hooks.parse_hook(ctx,ext,hook,data);
-var map__2163__$1 = ((((!((map__2163 == null)))?(((((map__2163.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2163.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2163):map__2163);
-var m = map__2163__$1;
-var data__$1 = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2163__$1,cljs.core.cst$kw$data);
-var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2163__$1,cljs.core.cst$kw$errors);
+var map__2169 = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(ctx,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$capacities,cljs.core.cst$kw$hooks,hook_root], null));
+var map__2169__$1 = ((((!((map__2169 == null)))?(((((map__2169.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2169.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2169):map__2169);
+var hook = map__2169__$1;
+var properties = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2169__$1,cljs.core.cst$kw$properties);
+var map__2170 = (pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4 ? pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4(ctx,ext,properties,data) : pluto.reader.types.resolve.call(null,ctx,ext,properties,data));
+var map__2170__$1 = ((((!((map__2170 == null)))?(((((map__2170.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2170.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2170):map__2170);
+var m = map__2170__$1;
+var data__$1 = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2170__$1,cljs.core.cst$kw$data);
+var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2170__$1,cljs.core.cst$kw$errors);
 return pluto.reader.errors.merge_errors(cljs.core.assoc_in(cljs.core.assoc_in(acc,new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$data,cljs.core.cst$kw$hooks,hook_root,hook_id,cljs.core.cst$kw$parsed], null),data__$1),new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$data,cljs.core.cst$kw$hooks,hook_root,hook_id,cljs.core.cst$kw$hook_DASH_ref], null),hook),errors);
 }),cljs.core.PersistentArrayMap.EMPTY,cljs.core.select_keys(ext,pluto.reader.hooks.hooks(ext)));
 });
