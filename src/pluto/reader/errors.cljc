@@ -14,6 +14,9 @@
                    ::invalid-assoc-type
                    ::invalid-reference
                    ::invalid-destructuring-format
+                   ::invalid-let-body
+                   ::invalid-bindings
+                   ::invalid-bindings-format
                    ::missing-property
                    ::missing-keys
                    ::unknown-reference

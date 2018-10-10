@@ -99,13 +99,9 @@
                 (seq errors)     (errors/accumulate-errors errors))))))
 
 (defn parse [ctx ext o]
-  (cond
-    (list? o)
-    (let [{:keys [data errors]} (blocks/parse ctx ext o)]
-      (if errors
-        {:errors errors}
-        (parse ctx ext data)))
-    :else
+  (if (list? o) ;; TODO introduce a block? fn
+    (let [{:keys [data errors] :as m} (blocks/parse ctx ext o)]
+      (errors/merge-errors (parse ctx ext data) errors))
     (parse-hiccup-element ctx ext o)))
 
 (defn- inject-properties [m properties]
@@ -132,7 +128,7 @@
 (defmethod types/resolve :view [ctx ext type value]
   (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
     (if data
-      (let [{:keys [data errors]} (parse ctx ext data)]
+      (let [{:keys [data errors] :as m} (parse ctx ext data)]
         ;; TODO Might fail at runtime if destructuring is incorrect
         (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
                              (concat errors (:errors ext))))

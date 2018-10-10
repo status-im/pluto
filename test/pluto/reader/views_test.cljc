@@ -32,26 +32,19 @@
          (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
          (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
-  (is (= {:data [:view
-                  [:text {} "Hello"]
-                  [blocks/let-block
-                   {:env '{cond? (query [:random-boolean])}}
-                   [blocks/if-block
-                     {:test 'cond?}
-                     [:text {:style {:color "green"}} "World?"]
-                     [:text {:style {:color "red"}} "World?"]]]]}
-         (views/parse {:capacities {:queries #{:random-boolean}
-                                    :components {'text {:value :text}
-                                                 'view {:value :view}}}}
-                      {}
-                      '[view
-                        [text {} "Hello"]
-                        (let [cond? (query [:random-boolean])]
-                          (if cond?
-                            [text {:style {:color "green"}}
-                             "World?"]
-                            [text {:style {:color "red"}}
-                             "World?"]))])))
+  (is (empty?
+        (:errors (views/parse {:capacities {:queries {'random-boolean {:value :value}}
+                                            :components {'text {:value :text}
+                                                         'view {:value :view}}}}
+                              {}
+                              '[view
+                                [text {} "Hello"]
+                                (let [cond? [random-boolean]]
+                                  (if cond?
+                                    [text {:style {:color "green"}}
+                                     "World?"]
+                                    [text {:style {:color "red"}}
+                                     "World?"]))]))))
   (testing "Properties"
     (is (= {:data [:text {} "Hello"]}
            (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))))

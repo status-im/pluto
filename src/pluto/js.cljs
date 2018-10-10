@@ -12,6 +12,7 @@
 (def ctx
   {:capacities {:components {'text {:value :text} 'view {:value :div} 'token-selector {:value :div} 'asset-selector {:value :div}
                              'send-status {:value :div} 'nft-token {:value :div}}
+                :queries {'get-collectible-token {:value :get-collectible-token}}
                 :hooks {:commands {:properties {:scope         #{:personal-chats :public-chats}
                                                 :description   :string
                                                 :short-preview :view
