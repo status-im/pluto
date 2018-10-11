@@ -73,17 +73,21 @@
                {} type)
     {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
 
-(defmethod resolve :event [ctx ext type [event-name event-properties :as value]]
+(defn- resolve-reference [ctx ext type [name _ :as value] f error]
   (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
-    (errors/merge-errors {:data #(re-frame/dispatch (if event-properties [data event-properties] [data]))}
-                         (when errors
-                           {:errors (apply conj errors [(errors/error ::errors/unknown-event {:type type :value name})])}))))
+       (merge (when data {:data (f data)})
+              (when errors
+                    {:errors (apply conj [(errors/error error name)] errors)}))))
 
-(defmethod resolve :query [ctx ext type [properties name :as value]]
-  (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
-    (errors/merge-errors {:data #(re-frame/subscribe (if properties [data properties] [data]))}
-                         (when errors
-                           {:errors (apply conj errors [(errors/error ::errors/unknown-query {:type type :value name})])}))))
+(defmethod resolve :event [ctx ext type [_ properties :as value]]
+  (resolve-reference ctx ext type value
+                     (fn [data] #(re-frame/dispatch (if properties [data properties] [data])))
+                     ::errors/unknown-event))
+
+(defmethod resolve :query [ctx ext type [name properties :as value]]
+  (resolve-reference ctx ext type value
+                     (fn [data] #(re-frame/subscribe (if properties [data properties] [data])))
+                     ::errors/unknown-query))
 
 (defmethod resolve :default [_ _ type value]
   {:errors [(errors/error ::errors/invalid-type (merge {:type type} (when value {:value value})))]})

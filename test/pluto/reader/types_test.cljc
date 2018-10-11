@@ -101,3 +101,13 @@
                                :name     "hello"
                                :children [{:name "name" :scopes [{:scope :one}]}
                                           {:name "name" :scopes [{:scope :two}]}]}))))
+
+(deftest resolve-reference
+  (is (= {:errors [{::errors/type  ::errors/unknown-event
+                    ::errors/value 'event}
+                   {::errors/type  ::errors/unknown-reference
+                    ::errors/value {:value 'event}}]}
+         (types/resolve {} {} :event ['event])))
+  (let [{:keys [data errors]} (types/resolve {:capacities {:events {'event {:value :event}}}} {} :event ['event])]
+    (is (not errors))
+    (is data)))

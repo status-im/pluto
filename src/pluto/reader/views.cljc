@@ -110,6 +110,7 @@
 (defn parse [ctx ext o]
   (if (list? o) ;; TODO introduce a block? fn
     (let [{:keys [data errors] :as m} (blocks/parse ctx ext o)]
+      ;; TODO handle nil data case
       (errors/merge-errors (parse ctx ext data) errors))
     (parse-hiccup-element ctx ext o)))
 
