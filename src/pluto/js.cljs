@@ -9,12 +9,13 @@
 (defn ^:export from-clj [o]
   (clj->js o))
 
+(defn component [])
+
 (def ctx
-  {:capacities {:components {'text {:value :text} 'view {:value :div} 'token-selector {:value :div} 'asset-selector {:value :div}
-                             'send-status {:value :div} 'nft-token {:value :div}}
+  {:capacities {:components {'text {:value component} 'view {:value component} 'token-selector {:value component} 'asset-selector {:value component}
+                             'send-status {:value component} 'nft-token {:value component}}
                 :queries {'get-collectible-token {:value :get-collectible-token}}
                 :hooks {:commands {:properties {:scope         #{:personal-chats :public-chats}
-                                                :description   :string
                                                 :short-preview :view
                                                 :preview       :view
                                                 :parameters    [{:id           :keyword

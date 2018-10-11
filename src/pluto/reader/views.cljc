@@ -105,7 +105,8 @@
                                                    [(or component element)])
                                           %)))
                 (nil? component) (errors/accumulate-errors [(errors/error ::errors/unknown-component element)])
-                (seq errors)     (errors/accumulate-errors errors))))))
+                (seq errors)     (errors/accumulate-errors errors)))
+      :else {:errors [(errors/error ::errors/unknown-component o)]})))
 
 (defn parse [ctx ext o]
   (if (list? o) ;; TODO introduce a block? fn
@@ -138,8 +139,10 @@
 (defmethod types/resolve :view [ctx ext type value]
   (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
     (if data
-      (let [{:keys [data errors] :as m} (parse ctx ext data)]
-        ;; TODO Might fail at runtime if destructuring is incorrect
-        (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
-                             (concat errors (:errors ext))))
+      (if (fn? data)
+        {:data data}
+        (let [{:keys [data errors] :as m} (parse ctx ext data)]
+          ;; TODO Might fail at runtime if destructuring is incorrect
+          (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
+                               (concat errors (:errors ext)))))
       {:errors errors})))
