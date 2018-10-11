@@ -1,5 +1,6 @@
 (ns pluto.reader.blocks
   (:require [clojure.walk               :as walk]
+            [clojure.spec.alpha         :as spec]
             [re-frame.core              :as re-frame]
             [pluto.reader.destructuring :as destructuring]
             [pluto.reader.errors        :as errors]
@@ -94,23 +95,36 @@
       {:errors [(errors/error ::errors/invalid-let-body {:value body})]})))
 
 (defn when-block [{:keys [test]} body]
-  ;; TODO warning if test is not of boolean type
-  (when test
-    body))
+  (when test body))
 
-(defmethod parse 'when [_ _ [_ test & body]]
-  (if (symbol? test)
-    {:data (apply conj [when-block {:test test}] body)}
-    {:errors [(errors/error ::errors/unsupported-test-type test)]}))
+(defmethod parse 'when [_ _ [_ test & body :as parts]]
+  (let [errors (cond-> nil
+                 (not (symbol? test))
+                 (conj (errors/error ::errors/unsupported-test-type test))
+                 (empty? body)
+                 (conj (errors/error ::errors/invalid-when-block parts {:empty-body-clause body})))]
+    (if (not-empty errors)
+      {:errors errors}
+      {:data (apply conj [when-block {:test test}] body)})))
 
 (defn if-block [{:keys [test]} & body]
   (if test
     (first body)
     (second body)))
 
-(defmethod parse 'if [_ _ [_ test then else]]
-  (if (symbol? test)
-    {:data (apply conj [if-block {:test test}] (list then else))}
-    {:errors [(errors/error ::errors/unsupported-test-type test)]}))
+(defmethod parse 'if [_ _ [_ test then else :as parts]]
+  (let [parts-count (count (rest parts))
+        errors (cond-> nil
+                 (not (symbol? test))
+                 (conj (errors/error ::errors/unsupported-test-type test))
+                 (< 3 parts-count)
+                 (conj (errors/error ::errors/invalid-if-block parts {:type :too-many-clauses
+                                                                      :clause-count parts-count}))
+                 (> 3 parts-count)
+                 (conj (errors/error ::errors/invalid-if-block parts {:type :three-clauses-required
+                                                                      :clause-count parts-count})))]
+    (if (not-empty errors)
+      {:errors errors}
+      {:data (apply conj [if-block {:test test}] (list then else))})))
 
 (defmethod parse :default [ctx ext block] {:errors [{:type :unknown-block-type :ctx ctx :block block}]})
