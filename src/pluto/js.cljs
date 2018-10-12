@@ -13,7 +13,8 @@
 
 (def ctx
   {:capacities {:components {'text {:value component} 'view {:value component} 'token-selector {:value component} 'asset-selector {:value component}
-                             'send-status {:value component} 'nft-token {:value component}}
+                             'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
+                             'nft-token-viewer {:value component :properties {:token :string}}}
                 :queries {'get-collectible-token {:value :get-collectible-token}}
                 :hooks {:commands {:properties {:scope         #{:personal-chats :public-chats}
                                                 :short-preview :view
