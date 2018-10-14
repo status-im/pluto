@@ -2,10 +2,11 @@
   "Resolve values based on provided types.
    Handles primitives, references and composed values."
   (:refer-clojure :exclude [resolve])
-  (:require [clojure.string      :as string]
-            [clojure.set         :as set]
-            [re-frame.core       :as re-frame]
-            [pluto.reader.errors :as errors]))
+  (:require [clojure.string         :as string]
+            [clojure.set            :as set]
+            [re-frame.core          :as re-frame]
+            [pluto.reader.errors    :as errors]
+            [pluto.reader.reference :as reference]))
 
 (defmulti resolve
   "Resolve a value based on a type.
@@ -64,7 +65,7 @@
         errors))
     (if optional?
       (update m :data #(if (empty? %) {} %))
-      (assoc m :errors [(errors/error ::errors/invalid-type-name name)]))))
+      (assoc m :errors [(errors/error ::errors/missing-property name)]))))
 
 (defmethod resolve :assoc [ctx ext type value]
   (if (map? type)
@@ -72,12 +73,21 @@
                {} type)
     {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
 
-(defmethod resolve :event [_ _ _ value]
-  {:data #(re-frame/dispatch value)})
+(defn- resolve-reference [ctx ext type [name _ :as value] f error]
+  (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
+       (merge (when data {:data (f data)})
+              (when errors
+                    {:errors (apply conj [(errors/error error name)] errors)}))))
 
-(defmethod resolve :query [ctx _ _ value]
-  {:data #(when-let [o (re-frame/subscribe value)]
-           @o)})
+(defmethod resolve :event [ctx ext type [_ properties :as value]]
+  (resolve-reference ctx ext type value
+                     (fn [data] #(re-frame/dispatch (if properties [data properties] [data])))
+                     ::errors/unknown-event))
+
+(defmethod resolve :query [ctx ext type [name properties :as value]]
+  (resolve-reference ctx ext type value
+                     (fn [data] #(re-frame/subscribe (if properties [data properties] [data])))
+                     ::errors/unknown-query))
 
 (defmethod resolve :default [_ _ type value]
   {:errors [(errors/error ::errors/invalid-type (merge {:type type} (when value {:value value})))]})

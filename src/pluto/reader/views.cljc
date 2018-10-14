@@ -13,16 +13,19 @@
 
 (spec/def ::form
   (spec/or
-    :string  string?
-    :number  number?
-    :symbol  symbol?
-    :element ::element))
+   :string  string?
+   :number  number?
+   :symbol  symbol?
+   :element vector?
+   :block   list?))
+
+(spec/def ::property-map (spec/map-of keyword? any?))
 
 (spec/def ::element
   (spec/cat
-    :tag      (spec/or :symbol symbol? :fn fn?)
-    :attrs    map?
-    :children (spec/* ::form)))
+   :tag      (spec/or :symbol symbol? :fn fn?)
+   :attrs    (spec/? map?) 
+   :children (spec/* ::form)))
 
 (declare parse)
 
@@ -50,8 +53,9 @@
 
 (defn- resolve-component-property [ctx ext component k v]
   (or (resolve-default-component-properties k v)
-      (if-let [type (k (get-in ctx [:capacities :components component :properties]))]
-        (types/resolve ctx ext type v)
+      (if-let [type (get-in ctx [:capacities :components component :properties k])]
+        ;; TODO Infer symbol types and fail if type does not match
+        (if (symbol? v) v (types/resolve ctx ext type v))
         {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]})))
 
 (defn- resolve-property [ctx ext component k v]
@@ -60,25 +64,32 @@
     {:data v}))
 
 (defn- resolve-component-properties [ctx ext component properties]
-  (reduce-kv (fn [acc k v]
-               (let [{:keys [data errors]} (resolve-property ctx ext component k v)]
-                 (-> (update acc :data assoc k data))))
-             {:data   {}
-              :errors []}
-             properties))
+  (if-let [explain (spec/explain-data ::property-map properties)]
+    {:errors [(errors/error ::errors/invalid-property-map properties {:explain-data explain})]}
+    (reduce-kv (fn [acc k v]
+                 (let [{:keys [data errors]} (resolve-property ctx ext component k v)]
+                   (errors/merge-errors (update acc :data assoc k data)
+                                        errors)))
+               {:data   {}
+                :errors []}
+               properties)))
 
 (defn- resolve-properties-children [[properties? & children]]
   [(and (map? properties?) properties?)
-   (if (map? properties?)
-     children
-     (cons properties? children))])
+   (cond
+     (map? properties?) children
+     (not (nil? properties?)) (cons properties? children)
+     :else children)])
 
 (defn- parse-hiccup-element [ctx ext o]
-  (let [explain (spec/explain-data ::form o)]
+  (let [explain
+        (if (vector? o) ;; this eliminates spec explain data noise
+          (spec/explain-data ::element o)
+          (spec/explain-data ::form o))]
     (cond
       ;; TODO Validate views, not hiccup
-      ;; (not (nil? explain))
-      ;; {:errors [(errors/error ::errors/invalid-view o {:explain-data explain})]}
+      (not (nil? explain))
+      {:errors [(errors/error ::errors/invalid-view o {:explain-data explain})]}
 
       (or (symbol? o) (utils/primitive? o)) {:data o}
 
@@ -95,16 +106,16 @@
                                                    [(or component element)])
                                           %)))
                 (nil? component) (errors/accumulate-errors [(errors/error ::errors/unknown-component element)])
-                (seq errors)     (errors/accumulate-errors errors))))))
+                (seq errors)     (errors/accumulate-errors errors)))
+      :else {:errors [(errors/error ::errors/unknown-component o)]})))
 
 (defn parse [ctx ext o]
-  (cond
-    (list? o)
-    (let [{:keys [data errors]} (blocks/parse ctx o)]
-      (if errors
-        {:errors errors}
-        (parse ctx ext data)))
-    :else
+  (if (list? o) ;; TODO introduce a block? fn
+    (let [{:keys [data errors] :as m} (blocks/parse ctx ext o)]
+      (errors/merge-errors
+       (when data
+         (parse ctx ext data))
+       errors))
     (parse-hiccup-element ctx ext o)))
 
 (defn- inject-properties [m properties]
@@ -129,10 +140,12 @@
     h))
 
 (defmethod types/resolve :view [ctx ext type value]
-  (let [{:keys [data errors]} (reference/resolve ext value)]
+  (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
     (if data
-      (let [{:keys [data errors]} (parse ctx ext data)]
-        ;; TODO Might fail at runtime if destructuring is incorrect
-        (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
-                             (concat errors (:errors ext))))
+      (if (fn? data)
+        {:data data}
+        (let [{:keys [data errors] :as m} (parse ctx ext data)]
+          ;; TODO Might fail at runtime if destructuring is incorrect
+          (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
+                               (concat errors (:errors ext)))))
       {:errors errors})))

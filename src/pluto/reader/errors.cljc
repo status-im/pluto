@@ -14,15 +14,21 @@
                    ::invalid-assoc-type
                    ::invalid-reference
                    ::invalid-destructuring-format
+                   ::invalid-let-body
+                   ::invalid-bindings
+                   ::invalid-bindings-format
+                   ::missing-property
                    ::missing-keys
                    ::unknown-reference
+                   ::unknown-reference-type
                    ::unknown-component
                    ::unknown-component-property
+                   ::unknown-query
+                   ::unknown-event
                    ::invalid-view
+                   ::invalid-property-map                   
                    ::invalid-block
-                   ::unsupported-test-type
-                   ::forbidden-read-path
-                   ::query-not-exposed})
+                   ::unsupported-test-type})
 
 (spec/def ::value any?)
 

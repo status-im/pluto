@@ -56,13 +56,14 @@
 
 (defn parse [m]
   (reader/parse {:capacities {:components html/components
-                              :queries    #{:random-boolean}
+                              :queries    {'random-boolean
+                                           {:value :random-boolean}}
                               :hooks      {:main
                                            {:hook       hook
                                             :properties {:view :view}}}
-                              :events     {:alert
+                              :events     {'alert
                                            {:permissions [:read]
-                                            :value       []}}}}
+                                            :value       :alert}}}}
                 m))
 
 (defn render-extension [m el el-errors]

@@ -20,15 +20,12 @@
 (defn root-id [s]
   (keyword (first (string/split (name s) #"\."))))
 
-(defn parse-hook [ctx ext hook v]
-  (types/resolve ctx ext (:properties hook) v))
-
 (defn parse [ctx ext]
   (reduce-kv (fn [acc hook-key data]
-               (let [hook-id               (local-id hook-key)
-                     hook-root             (root-id hook-key)
-                     hook                  (get-in ctx [:capacities :hooks hook-root])
-                     {:keys [data errors] :as m} (parse-hook ctx ext hook data)]
+               (let [hook-id                       (local-id hook-key)
+                     hook-root                     (root-id hook-key)
+                     {:keys [properties] :as hook} (get-in ctx [:capacities :hooks hook-root])
+                     {:keys [data errors] :as m}   (types/resolve ctx ext properties data)]
                  (errors/merge-errors
                   (-> acc
                       (assoc-in [:data :hooks hook-root hook-id :parsed] data)

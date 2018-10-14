@@ -1,6 +1,6 @@
 (ns pluto.reader.types-test
   (:refer-clojure :exclude [resolve])
-  (:require [clojure.test        :refer [is deftest testing]]
+  (:require [clojure.test :refer [is deftest testing]]
             [pluto.reader.errors :as errors]
             [pluto.reader.types  :as types]))
 
@@ -81,6 +81,17 @@
   (is (= {:data {:scopes [{:scope :one}]}}
          (types/resolve {} {} {:scopes [{:scope {:one-of #{:one :two :three}}}]}
                              {:scopes [{:scope :one}]})))
+  (is (= {:data {:students [{:firstname "John" :lastname "Doe"}]}}
+         (types/resolve {} {} {:students [{:firstname :string :lastname :string :name? :string}]}
+                              {:students [{:firstname "John" :lastname "Doe"}]})))
+  (is (= '[text]
+         (let [m (types/resolve {} '{views/screen [text]} {:screen :view :students [{:firstname :string :lastname :string :name? :string}]}
+                                   {:screen ['screen] :students [{:firstname "John" :lastname "Doe"}]})]
+           ((get-in m [:data :screen]) {}))))
+  (is (= '[text]
+         (let [m (types/resolve {} '{views/screen [text]} {:screen? :view :students [{:firstname :string :lastname :string :name? :string}]}
+                                   {:screen ['screen] :students [{:firstname "John" :lastname "Doe" :name "Henry"}]})]
+           ((get-in m [:data :screen]) {}))))
   (is (= {:data {:name     "hello"
                  :children [{:name "name" :scopes [{:scope :one}]}
                             {:name "name" :scopes [{:scope :two}]}]}}
@@ -90,3 +101,13 @@
                                :name     "hello"
                                :children [{:name "name" :scopes [{:scope :one}]}
                                           {:name "name" :scopes [{:scope :two}]}]}))))
+
+(deftest resolve-reference
+  (is (= {:errors [{::errors/type  ::errors/unknown-event
+                    ::errors/value 'event}
+                   {::errors/type  ::errors/unknown-reference
+                    ::errors/value {:value 'event}}]}
+         (types/resolve {} {} :event ['event])))
+  (let [{:keys [data errors]} (types/resolve {:capacities {:events {'event {:value :event}}}} {} :event ['event])]
+    (is (not errors))
+    (is data)))

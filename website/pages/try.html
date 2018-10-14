@@ -17,15 +17,13 @@
     const ipfs = new window.Ipfs();
 
     async function load() {
-      const buffer = await loadIPFS(ipfs, "QmcCqb34EYQfR1bYEhKJmRT6s2MCEaRnA5f1Q7e6diUWqT");
+      const buffer = await loadIPFS(ipfs, "QmSVkTdYfQaju7YJc5NuW5e2m7PqwkDusodpmxd44f71gf");
       return buffer.toString();
     }
 
     ipfs.once("ready", async () => {
       const content = await load();
       codeMirror.setValue(content);
-      codeMirror.markText({line: 10, ch:0}, {line: 12, ch: 20}, {classname: "test2"});
-      codeMirror.addLineClass(4, "", "test")
     })
 
     function extensionLink(hash) {
@@ -63,7 +61,7 @@
         names.forEach(function(element) {
           s = s.concat("<li>" + element[0]);
           if (element[1] != null) {
-            s = s.concat(":" + element[1]);
+            s = s.concat(":" + JSON.stringify(element[1]));
           }
           s = s.concat("</li>");
         });
@@ -75,6 +73,11 @@
     function uploadIPFS(ipfs, s) {
       return ipfs.files.add({path: 'extension.edn',
                             content: ipfs.types.Buffer.from(s, 'utf8')})
+    }
+
+    function clearQR() {
+      const qel = document.getElementById("qr-wrapper");
+      qel.innerHTML = '';
     }
 
     function displayQR(s) {
@@ -101,8 +104,10 @@
   </div>
   <script>
     const codeMirror = CodeMirror(document.getElementById("content"));
+    codeMirror.setValue("Loading content ...");
     codeMirror.on("change", function(c, change) {
       clearErrors();
+      clearQR();
       const read = pluto.reader.read(codeMirror.getValue());
       const readJS = pluto.js.from_clj(read);
       displayErrors(readJS.errors);

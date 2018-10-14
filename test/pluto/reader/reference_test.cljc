@@ -19,10 +19,15 @@
 
 (deftest resolve
   (is (= {:errors [{::errors/type  ::errors/unknown-reference
-                    ::errors/value {:value 'views/id}}]}
-         (reference/resolve {} ['views/id])))
+                    ::errors/value {:value 'id}}]}
+         (reference/resolve {} {} :view ['id])))
   (is (= {:errors [{::errors/type  ::errors/invalid-reference
                     ::errors/value {:value ""}}]}
-         (reference/resolve {'views/id "view"} "")))
+         (reference/resolve {} {'views/id "view"} :view "")))
+  (is (= {:errors [{::errors/type  ::errors/unknown-reference-type
+                    ::errors/value {:value :unknown}}]}
+         (reference/resolve {} {'views/id "view"} :unknown ['id])))
   (is (= {:data "view"}
-         (reference/resolve {'views/id "view"} ['views/id]))))
+         (reference/resolve {} {'views/id "view"} :view ['id])))
+  (is (= {:data :div}
+         (reference/resolve {:capacities {:components {'component {:value :div}}}} {} :view ['component]))))
