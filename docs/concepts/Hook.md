@@ -48,4 +48,4 @@ Once a host has loaded a valid extension with matching hooks, it can query the r
 ### Views
 
 Views references are resolved as a function of one argument that returns hiccup data.
-The argument must be a map of key/value pairs. This map is used as value for `@properties` reference available in `let` blocks.
+The argument must be a map of key/value pairs. This map is used as value for `properties` reference available in `let` blocks.

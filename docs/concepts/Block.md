@@ -11,7 +11,7 @@ Values can be primitive types or references to queries.
 
 ```clojure
 (let [a 1
-      {name :name} @queries/status.user]
+      {name :name} [status.user]]
   [view {}
    [text {}
     name]])
