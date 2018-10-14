@@ -3,7 +3,7 @@
 Associated bindings are key value pairs, with key either symbol or destructuring patterns.
 Values can be primitive types or references to queries.</p>
 <pre><code class="hljs css language-clojure"><span class="token punctuation">(</span><span class="token keyword">let</span> <span class="token punctuation">[</span><span class="token number">a</span> <span class="token number">1</span>
-      <span class="token punctuation">{</span><span class="token keyword">name</span> <span class="token operator">:name</span><span class="token punctuation">}</span> @queries/status.user<span class="token punctuation">]</span>
+      <span class="token punctuation">{</span><span class="token keyword">name</span> <span class="token operator">:name</span><span class="token punctuation">}</span> <span class="token punctuation">[</span>status.user<span class="token punctuation">]</span><span class="token punctuation">]</span>
   <span class="token punctuation">[</span>view <span class="token punctuation">{</span><span class="token punctuation">}</span>
    <span class="token punctuation">[</span>text <span class="token punctuation">{</span><span class="token punctuation">}</span>
     <span class="token keyword">name</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
