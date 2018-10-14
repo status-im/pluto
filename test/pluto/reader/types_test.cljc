@@ -106,8 +106,12 @@
   (is (= {:errors [{::errors/type  ::errors/unknown-event
                     ::errors/value 'event}
                    {::errors/type  ::errors/unknown-reference
-                    ::errors/value {:value 'event}}]}
+                    ::errors/value {:value 'event :type :event}}]}
          (types/resolve {} {} :event ['event])))
   (let [{:keys [data errors]} (types/resolve {:capacities {:events {'event {:value :event}}}} {} :event ['event])]
     (is (not errors))
-    (is data)))
+    (is data))
+  (let [{:keys [data errors]} (types/resolve {:capacities {:events {'event {:value :event :arguments {:on-finished? :event}}}}}
+                                             {} :event ['event {:on-finished ['event]}])]
+    (is (not errors))
+    (is (= [:event {:on-finished [:event]}] data))))

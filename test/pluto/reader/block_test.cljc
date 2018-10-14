@@ -21,7 +21,7 @@
     (is (= {:data [blocks/let-block {:env '{a {:b 1} b 1}} 'b]}
            (blocks/parse {} {} '(let [{a :a} {:a {:b 1}} {b :b} a] b))))
     (is (empty?
-           (:errors (blocks/parse {:capacities {:queries {'aa {:value :a}}}} {} '(let [x 1 {a :a} [aa {:x x}]] a)))))
+           (:errors (blocks/parse {:capacities {:queries {'aa {:value :a :arguments {:x :string}}}}} {} '(let [x 1 {a :a} [aa {:x x}]] a)))))
 
     (is (= {:data [blocks/let-block {:env {'s "Hello"}} ['test {} 's]]}
            (blocks/parse {} {} (list 'let ['s "Hello"] ['test {} 's]))))

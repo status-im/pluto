@@ -8,18 +8,26 @@
             [pluto.reader.errors    :as errors]
             [pluto.reader.reference :as reference]))
 
+(def reference-types #{:view :event :query})
+
 (defmulti resolve
   "Resolve a value based on a type.
    Returns a map of either:
     * data with the resolved data
     * errors encapsulating all errors generated during resolution"
   (fn [ctx ext type value]
-    (cond
-      (keyword? type) type
-      (:one-of type)  :one-of
-      (set? type)     :subset
-      (map? type)     :assoc
-      (vector? type)  :sequence)))
+    (if (symbol? value)
+      :symbol
+      (cond
+        (keyword? type) type
+        (:one-of type)  :one-of
+        (set? type)     :subset
+        (map? type)     :assoc
+        (vector? type)  :sequence))))
+
+(defmethod resolve :symbol [_ _ _ value]
+  ;; TODO properly validate symbols based on inferred type
+  {:data value})
 
 (defn invalid-type-value [type value]
   (errors/error ::errors/invalid-type-value {:type type :value value}))
@@ -73,21 +81,26 @@
                {} type)
     {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
 
-(defn- resolve-reference [ctx ext type [name _ :as value] f error]
+(defn- resolve-arguments [ctx ext key data arguments]
+  (resolve ctx ext (get-in ctx [:capacities key data :arguments]) arguments))
+
+(defn- reference-with-arguments [ctx ext ref key name arguments]
+  (if arguments
+    (let [{:keys [data errors]} (resolve-arguments ctx ext key name arguments)]
+      (errors/merge-errors {:data [ref data]} errors))
+    {:data [ref]}))
+
+(defn resolve-reference [ctx ext type [name arguments :as value] key error]
   (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
-       (merge (when data {:data (f data)})
-              (when errors
-                    {:errors (apply conj [(errors/error error name)] errors)}))))
+     (merge (when data (reference-with-arguments ctx ext data key name arguments))
+            (when errors
+              {:errors (apply conj [(errors/error error name)] errors)}))))
 
-(defmethod resolve :event [ctx ext type [_ properties :as value]]
-  (resolve-reference ctx ext type value
-                     (fn [data] #(re-frame/dispatch (if properties [data properties] [data])))
-                     ::errors/unknown-event))
+(defmethod resolve :event [ctx ext type [name arguments :as value]]
+  (resolve-reference ctx ext type value :events ::errors/unknown-event))
 
-(defmethod resolve :query [ctx ext type [name properties :as value]]
-  (resolve-reference ctx ext type value
-                     (fn [data] #(re-frame/subscribe (if properties [data properties] [data])))
-                     ::errors/unknown-query))
+(defmethod resolve :query [ctx ext type [name arguments :as value]]
+  (resolve-reference ctx ext type value :queries ::errors/unknown-query))
 
 (defmethod resolve :default [_ _ type value]
   {:errors [(errors/error ::errors/invalid-type (merge {:type type} (when value {:value value})))]})

@@ -29,17 +29,23 @@
   (or (get ext (symbol ns (name s)))
       (get-in ctx [:capacities (get type->capacity type) s :value])))
 
+(defn valid-reference? [[name arguments :as value]]
+  (and (symbol? name)
+       (>= 2 (count value))
+       (or (nil? arguments) (map? arguments) (symbol? arguments))))
+
 (defn resolve
   "Resolve a reference defined by a hook
 
    ```clojure
-   (= {:data \"view\"} (resolve {'views/id \"view\"} :view ['id]))
+   (= {:data \"view\"} (resolve {} {'views/id \"view\"} :view ['id]))
    ```"
   [ctx ext type value]
-  (if-let [s (reference->symbol value)]
-    (if-let [ns (get type->ns type)]
-      (if-let [o (resolve-symbol ctx ext type ns s)]
-        {:data o}
-        {:errors [(errors/error ::errors/unknown-reference {:value s})]})
-      {:errors [(errors/error ::errors/unknown-reference-type {:value type})]})
-    {:errors [(errors/error ::errors/invalid-reference {:value value})]}))
+  (if (valid-reference? value)
+    (let [s (reference->symbol value)]
+      (if-let [ns (get type->ns type)]
+        (if-let [o (resolve-symbol ctx ext type ns s)]
+          {:data o}
+          {:errors [(errors/error ::errors/unknown-reference {:value s :type type})]})
+        {:errors [(errors/error ::errors/unknown-reference-type {:value type})]}))
+    {:errors [(errors/error ::errors/invalid-reference {:type type :value value})]}))

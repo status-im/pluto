@@ -13,7 +13,7 @@
 
 (defn resolve-binding-value [v]
   (cond
-    (fn? v) @(v) ;; TODO better abstract query
+    (vector? v) @(re-frame/subscribe v) ;; TODO better abstract query
     (not (list? v)) v))
 
 (defn resolve-binding-key [k v]

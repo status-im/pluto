@@ -25,6 +25,7 @@
                    ::unknown-component-property
                    ::unknown-query
                    ::unknown-event
+                   ::invalid-component-property-type
                    ::invalid-view
                    ::invalid-property-map                   
                    ::invalid-block

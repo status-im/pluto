@@ -12,17 +12,35 @@
 (defn component [])
 
 (def ctx
-  {:capacities {:components {'text {:value component} 'view {:value component} 'token-selector {:value component} 'asset-selector {:value component}
+  {:capacities {:components {'button {:value component :properties {:on-click :event}}
+                             'text-input         {:value component}
+                             'text {:value component} 'view {:value component} 'token-selector {:value component} 'asset-selector {:value component}
                              'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
                              'nft-token-viewer {:value component :properties {:token :string}}}
-                :queries {'get-collectible-token {:value :get-collectible-token}}
-                :hooks {:commands {:properties {:scope         #{:personal-chats :public-chats}
+                :queries {'get-collectible-token {:value :get-collectible-token}
+                          'store/get {:value :store/get}}
+                :events     {'alert
+                             {:permissions [:read]
+                              :value       :alert}
+                             'log
+                             {:permissions [:read]
+                              :value       :log}
+                             'store/put
+                             {:permissions [:read]
+                              :value       :store/put}
+                             'http/get
+                             {:permissions [:read]
+                              :value       :http/get}}
+                :hooks {:commands {:properties {:description?  :string
+                                                :scope         #{:personal-chats :public-chats}
                                                 :short-preview :view
                                                 :preview       :view
                                                 :parameters    [{:id           :keyword
                                                                   :type         {:one-of #{:text :phone :password :number}}
                                                                   :placeholder  :string
-                                                                  :suggestions? :view}]}}}}})
+                                                                  :suggestions? :view}]
+                                                :on-send?      :event
+                                                :on-receive?   :event}}}}})
 
 (defn ^:export parse [m]
   (reader/parse ctx (:data m)))

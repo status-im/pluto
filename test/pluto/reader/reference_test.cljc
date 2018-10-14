@@ -17,12 +17,22 @@
   (is (= 'test (reference/reference->symbol ['test])))
   (is (= 'views/id (reference/reference->symbol ['views/id {}]))))
 
+(deftest valid-reference?
+  (is (false? (reference/valid-reference? "")))
+  (is (true?  (reference/valid-reference? ['test])))
+  (is (true?  (reference/valid-reference? ['views/id {}])))
+  (is (false? (reference/valid-reference? ['views/id {} {}])))
+  (is (false? (reference/valid-reference? ['views/id 1 {}])))
+  (is (false? (reference/valid-reference? ["id" {}])))
+  (is (true?  (reference/valid-reference? ['views/id {}])))
+  (is (true?  (reference/valid-reference? ['views/id 'arg]))))
+
 (deftest resolve
   (is (= {:errors [{::errors/type  ::errors/unknown-reference
-                    ::errors/value {:value 'id}}]}
+                    ::errors/value {:value 'id :type :view}}]}
          (reference/resolve {} {} :view ['id])))
   (is (= {:errors [{::errors/type  ::errors/invalid-reference
-                    ::errors/value {:value ""}}]}
+                    ::errors/value {:value "" :type :view}}]}
          (reference/resolve {} {'views/id "view"} :view "")))
   (is (= {:errors [{::errors/type  ::errors/unknown-reference-type
                     ::errors/value {:value :unknown}}]}

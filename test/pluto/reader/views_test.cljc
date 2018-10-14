@@ -52,7 +52,7 @@
 (deftest resolve
   (is (= [:text "Hello"] ((:data (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/main])) {})))
   (is (= {:errors [{::errors/type  ::errors/unknown-reference,
-                    ::errors/value {:value 'views/unknown}}]}
+                    ::errors/value {:value 'views/unknown :type :view}}]}
          (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/unknown]))))
 
 (deftest invalid-view-element-spec-errors

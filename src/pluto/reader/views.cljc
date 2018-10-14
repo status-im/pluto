@@ -1,5 +1,6 @@
 (ns pluto.reader.views
   (:require [clojure.spec.alpha         :as spec]
+            [re-frame.core              :as re-frame]
             [pluto.reader.blocks        :as blocks]
             [pluto.reader.destructuring :as destructuring]
             [pluto.reader.errors        :as errors]
@@ -43,7 +44,9 @@
     (fn? o) o
     (symbol? o) (get-in ctx [:capacities :components o :value])))
 
-(defmulti resolve-default-component-properties (fn [property value] property))
+(defmulti resolve-default-component-properties
+  "Resolve default properties available for all components."
+  (fn [property value] property))
 
 (defmethod resolve-default-component-properties :style [_ value]
   {:data value})
@@ -51,12 +54,23 @@
 (defmethod resolve-default-component-properties :default [_ value]
   nil)
 
+(defn resolve-existing-component-property-type [ctx ext type v]
+  (let [{:keys [data errors] :as t} (types/resolve ctx ext type v)]
+    (if (= :event type)
+      (errors/merge-errors {:data #(re-frame/dispatch data)} errors)
+      t)))
+
+(defn resolve-custom-component-properties [ctx ext component k v]
+  (if-let [type (get-in ctx [:capacities :components component :properties k])]
+    (if-not (and (types/reference-types type) (not= :event type))
+      ;; TODO Infer symbol types and fail if type does not match
+      (if (symbol? v) v (resolve-existing-component-property-type ctx ext type v))
+      {:errors [(errors/error ::errors/invalid-component-property-type {:component component :property k :type type})]})
+    {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]}))
+
 (defn- resolve-component-property [ctx ext component k v]
   (or (resolve-default-component-properties k v)
-      (if-let [type (get-in ctx [:capacities :components component :properties k])]
-        ;; TODO Infer symbol types and fail if type does not match
-        (if (symbol? v) v (types/resolve ctx ext type v))
-        {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]})))
+      (resolve-custom-component-properties ctx ext component k v)))
 
 (defn- resolve-property [ctx ext component k v]
   (if (component? component)
