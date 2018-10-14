@@ -63,7 +63,8 @@
                                             :properties {:view :view}}}
                               :events     {'alert
                                            {:permissions [:read]
-                                            :value       :alert}}}}
+                                            :value       :alert
+                                            :arguments {:value :string}}}}}
                 m))
 
 (defn render-extension [m el el-errors]

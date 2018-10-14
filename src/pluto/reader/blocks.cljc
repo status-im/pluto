@@ -30,8 +30,14 @@
       (assoc m o resolved-value)
       (merge m o))))
 
-(defn let-block [{:keys [env ctx ext]} children]
-  (walk/prewalk-replace (reduce-kv assoc-binding {} env) children))
+(defn replace-atom [values o]
+  (cond (contains? values o) (get values o)
+        (symbol? o) nil
+        :else o))
+
+(defn let-block [{:keys [env]} children]
+  (let [values (reduce-kv assoc-binding {} env)]    ;
+    (walk/prewalk #(replace-atom values %) children)))
 
 (defn properties? [o]
   (= 'properties o))
