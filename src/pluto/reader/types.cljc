@@ -4,7 +4,6 @@
   (:refer-clojure :exclude [resolve])
   (:require [clojure.string         :as string]
             [clojure.set            :as set]
-            [re-frame.core          :as re-frame]
             [pluto.reader.errors    :as errors]
             [pluto.reader.reference :as reference]))
 

@@ -1,6 +1,5 @@
 (ns pluto.reader.views
   (:require [clojure.spec.alpha         :as spec]
-            [re-frame.core              :as re-frame]
             [pluto.reader.blocks        :as blocks]
             [pluto.reader.destructuring :as destructuring]
             [pluto.reader.errors        :as errors]
@@ -8,9 +7,6 @@
             [pluto.reader.reference     :as reference]
             [pluto.reader.types         :as types]
             [pluto.utils                :as utils]))
-
-;; TODO Distinguish views (can contain blocks, symbols) validation
-;; from hiccup validation (view after parsing) that are pure hiccup
 
 (spec/def ::form
   (spec/or
@@ -41,7 +37,7 @@
 
 (defn- resolve-component [ctx o]
   (cond
-    (fn? o) o
+    (fn? o) o ;; TODO better abstract blocks
     (symbol? o) (get-in ctx [:capacities :components o :value])))
 
 (defmulti resolve-default-component-properties
@@ -54,17 +50,11 @@
 (defmethod resolve-default-component-properties :default [_ value]
   nil)
 
-(defn resolve-existing-component-property-type [ctx ext type v]
-  (let [{:keys [data errors] :as t} (types/resolve ctx ext type v)]
-    (if (= :event type)
-      (errors/merge-errors {:data #(re-frame/dispatch data)} errors)
-      t)))
-
 (defn resolve-custom-component-properties [ctx ext component k v]
   (if-let [type (get-in ctx [:capacities :components component :properties k])]
     (if-not (and (types/reference-types type) (not= :event type))
       ;; TODO Infer symbol types and fail if type does not match
-      (if (symbol? v) v (resolve-existing-component-property-type ctx ext type v))
+      (if (symbol? v) v (types/resolve ctx ext type v))
       {:errors [(errors/error ::errors/invalid-component-property-type {:component component :property k :type type})]})
     {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]}))
 
