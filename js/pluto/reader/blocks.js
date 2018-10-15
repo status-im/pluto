@@ -2,6 +2,7 @@
 goog.provide('pluto.reader.blocks');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
+goog.require('clojure.string');
 goog.require('clojure.walk');
 goog.require('re_frame.core');
 goog.require('pluto.reader.destructuring');
@@ -20,9 +21,9 @@ var method_cache__4416__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cl
 var cached_hierarchy__4417__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
 var hierarchy__4418__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$3(cljs.core.PersistentArrayMap.EMPTY,cljs.core.cst$kw$hierarchy,cljs.core.get_global_hierarchy());
 return (new cljs.core.MultiFn(cljs.core.symbol.cljs$core$IFn$_invoke$arity$2("pluto.reader.blocks","parse"),((function (method_table__4414__auto__,prefer_table__4415__auto__,method_cache__4416__auto__,cached_hierarchy__4417__auto__,hierarchy__4418__auto__){
-return (function (ctx,ext,p__2097){
-var vec__2098 = p__2097;
-var type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2098,(0),null);
+return (function (ctx,ext,p__2093){
+var vec__2094 = p__2093;
+var type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2094,(0),null);
 return type;
 });})(method_table__4414__auto__,prefer_table__4415__auto__,method_cache__4416__auto__,cached_hierarchy__4417__auto__,hierarchy__4418__auto__))
 ,cljs.core.cst$kw$default,hierarchy__4418__auto__,method_table__4414__auto__,prefer_table__4415__auto__,method_cache__4416__auto__,cached_hierarchy__4417__auto__));
@@ -55,13 +56,37 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(m,o,resolved_value);
 return cljs.core.merge.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([m,o], 0));
 }
 });
+pluto.reader.blocks.interpolate = (function pluto$reader$blocks$interpolate(values,s){
+return cljs.core.reduce_kv((function (p1__2097_SHARP_,p2__2098_SHARP_,p3__2099_SHARP_){
+return clojure.string.replace(p1__2097_SHARP_,["${",cljs.core.str.cljs$core$IFn$_invoke$arity$1(p2__2098_SHARP_),"}"].join(''),p3__2099_SHARP_);
+}),s,values);
+});
+pluto.reader.blocks.replace_atom = (function pluto$reader$blocks$replace_atom(values,o){
+if(cljs.core.contains_QMARK_(values,o)){
+return cljs.core.get.cljs$core$IFn$_invoke$arity$2(values,o);
+} else {
+if((o instanceof cljs.core.Symbol)){
+return null;
+} else {
+if(typeof o === 'string'){
+return pluto.reader.blocks.interpolate(values,o);
+} else {
+return o;
+
+}
+}
+}
+});
 pluto.reader.blocks.let_block = (function pluto$reader$blocks$let_block(p__2101,children){
 var map__2102 = p__2101;
 var map__2102__$1 = ((((!((map__2102 == null)))?(((((map__2102.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2102.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2102):map__2102);
 var env = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2102__$1,cljs.core.cst$kw$env);
-var ctx = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2102__$1,cljs.core.cst$kw$ctx);
-var ext = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2102__$1,cljs.core.cst$kw$ext);
-return clojure.walk.prewalk_replace(cljs.core.reduce_kv(pluto.reader.blocks.assoc_binding,cljs.core.PersistentArrayMap.EMPTY,env),children);
+var values = cljs.core.reduce_kv(pluto.reader.blocks.assoc_binding,cljs.core.PersistentArrayMap.EMPTY,env);
+return clojure.walk.prewalk(((function (values,map__2102,map__2102__$1,env){
+return (function (p1__2100_SHARP_){
+return pluto.reader.blocks.replace_atom(values,p1__2100_SHARP_);
+});})(values,map__2102,map__2102__$1,env))
+,children);
 });
 pluto.reader.blocks.properties_QMARK_ = (function pluto$reader$blocks$properties_QMARK_(o){
 return cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$sym$properties,o);

@@ -2,6 +2,7 @@
 goog.provide('pluto.components.html');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
+goog.require('re_frame.core');
 pluto.components.html.view = (function pluto$components$html$view(var_args){
 var args__4534__auto__ = [];
 var len__4531__auto___1997 = arguments.length;
@@ -60,7 +61,11 @@ pluto.components.html.button.cljs$core$IFn$_invoke$arity$variadic = (function (p
 var map__2003 = p__2002;
 var map__2003__$1 = ((((!((map__2003 == null)))?(((((map__2003.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2003.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2003):map__2003);
 var on_click = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2003__$1,cljs.core.cst$kw$on_DASH_click);
-return cljs.core.into.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$button,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$on_DASH_click,on_click], null)], null),content);
+return cljs.core.into.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$button,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$on_DASH_click,((function (map__2003,map__2003__$1,on_click){
+return (function (){
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(on_click) : re_frame.core.dispatch.call(null,on_click));
+});})(map__2003,map__2003__$1,on_click))
+], null)], null),content);
 });
 
 pluto.components.html.button.cljs$lang$maxFixedArity = (1);
