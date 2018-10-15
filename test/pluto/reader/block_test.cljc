@@ -36,3 +36,18 @@
   (is (= [identity {} 1] (blocks/let-block {:env {'a 1}} [identity {} 'a])))
   #_
   (is (= ['test {} 1] (blocks/let-block {:env '{{a :a} [:aa]}} '[test {} a]))))
+
+(defn first-error-type [{:keys [errors]}]
+  (-> errors first :pluto.reader.errors/type))
+
+(deftest parse-if-when-errors
+  (is (= (first-error-type (blocks/parse {} {} '(if [])))
+         :pluto.reader.errors/invalid-if-block))
+  (is (= (first-error-type (blocks/parse {} {} '(if asdf [])))
+         :pluto.reader.errors/invalid-if-block))
+  (is (= (first-error-type (blocks/parse {} {} '(if asdf)))
+         :pluto.reader.errors/invalid-if-block))  
+  (is (= (first-error-type (blocks/parse {} {} '(when [])))
+         :pluto.reader.errors/invalid-when-block))
+  (is (= (first-error-type (blocks/parse {} {} '(when asdf)))
+         :pluto.reader.errors/invalid-when-block)))

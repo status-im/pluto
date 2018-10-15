@@ -30,6 +30,8 @@
                    ::invalid-view
                    ::invalid-property-map                   
                    ::invalid-block
+                   ::invalid-if-block
+                   ::invalid-when-block                   
                    ::unsupported-test-type})
 
 (spec/def ::value any?)
