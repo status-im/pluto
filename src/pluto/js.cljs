@@ -17,20 +17,70 @@
                              'text {:value component} 'view {:value component} 'token-selector {:value component} 'asset-selector {:value component}
                              'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
                              'nft-token-viewer {:value component :properties {:token :string}}}
-                :queries {'get-collectible-token {:value :get-collectible-token}
-                          'store/get {:value :store/get}}
+                :queries {'get-collectible-token {:value :get-collectible-token :arguments {:token :string :symbol :string}}
+                          'store/get {:value :store/get :arguments {:key :string}}}
                 :events     {'alert
                              {:permissions [:read]
-                              :value       :alert}
+                              :value       :alert
+                              :arguments   {:value :string}}
                              'log
                              {:permissions [:read]
-                              :value       :log}
+                              :value       :log
+                              :arguments   {:value :string}}
                              'store/put
                              {:permissions [:read]
-                              :value       :store/put}
+                              :value       :store/put
+                              :arguments   {:key :string :value :string}}
                              'http/get
                              {:permissions [:read]
-                              :value       :http/get}}
+                              :value       :http/get
+                              :arguments   {:url        :string
+                                            :timeout    :string
+                                            :on-success :event
+                                            :on-failure :event}}
+                             'browser/open {:value  :browser/open :arguments {:url :string}}
+                             'chat/open {:value  :chat/open :arguments {:url :string}}
+                             'ethereum/sign
+                             {:arguments
+                              {:account   :string
+                               :message   :string
+                               :on-result :event}}
+                             'ethereum/send-raw-transaction
+                             {:arguments {:data :string}}
+                             'ethereum/send-transaction
+                             {:arguments
+                              {:from       :string
+                               :to         :string
+                               :gas?       :string
+                               :gas-price? :string
+                               :value?     :string
+                               :data?      :string
+                               :nonce?     :string}}
+                             'ethereum/new-contract
+                             {:arguments
+                              {:from       :string
+                               :gas?       :string
+                               :gas-price? :string
+                               :value?     :string
+                               :data?      :string
+                               :nonce?     :string}}
+                             'ethereum/call
+                             {:arguments
+                              {:from?      :string
+                               :to         :string
+                               :gas?       :string
+                               :gas-price? :string
+                               :value?     :string
+                               :data?      :string
+                               :block      :string}}
+
+                             'ethereum/logs
+                             {:arguments
+                              {:from?     :string
+                               :to        :string
+                               :address   :string
+                               :topics    :string
+                               :blockhash :string}}}
                 :hooks {:commands {:properties {:description?  :string
                                                 :scope         #{:personal-chats :public-chats}
                                                 :short-preview :view

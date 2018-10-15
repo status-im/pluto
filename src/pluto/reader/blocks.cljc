@@ -1,5 +1,6 @@
 (ns pluto.reader.blocks
-  (:require [clojure.walk               :as walk]
+  (:require [clojure.string             :as string]
+            [clojure.walk               :as walk]
             [re-frame.core              :as re-frame]
             [pluto.reader.destructuring :as destructuring]
             [pluto.reader.errors        :as errors]
@@ -30,12 +31,17 @@
       (assoc m o resolved-value)
       (merge m o))))
 
+(defn interpolate [values s]
+  (reduce-kv #(string/replace %1 (str "${" %2 "}") %3) s values))
+
 (defn replace-atom [values o]
   (cond (contains? values o) (get values o)
         (symbol? o) nil
+        (string? o) (interpolate values o)
         :else o))
 
 (defn let-block [{:keys [env]} children]
+  ;; TODO nested let block should accumulate the env
   (let [values (reduce-kv assoc-binding {} env)]    ;
     (walk/prewalk #(replace-atom values %) children)))
 

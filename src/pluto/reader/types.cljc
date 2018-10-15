@@ -81,7 +81,9 @@
     {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
 
 (defn- resolve-arguments [ctx ext key data arguments]
-  (resolve ctx ext (get-in ctx [:capacities key data :arguments]) arguments))
+  (if-let [type (get-in ctx [:capacities key data :arguments])]
+    (resolve ctx ext type arguments)
+    {:errors [(errors/error ::errors/missing-reference-arguments {:type key :value data})]}))
 
 (defn- reference-with-arguments [ctx ext ref key name arguments]
   (if arguments

@@ -7,13 +7,13 @@
  {:view [main]}
 
  views/main
- (let [{name :name} properties]
+ (let [{name :name}   properties
+       {cond? :cond?} [random-boolean]]
    [view {}
     [button {:on-click [alert {:value name}]}
-     "Hello"]
-    (let [{cond? :cond?} [random-boolean]]
-      (if cond?
-        [text {:style {:color "green"}}
-         name]
-        [text {:style {:color "red"}}
-         name]))])}
+     "Hello ${name}"]
+    (if cond?
+      [text {:style {:color "green"}}
+       name]
+      [text {:style {:color "red"}}
+       name])])}

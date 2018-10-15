@@ -33,6 +33,6 @@
            (blocks/parse {} {} (list 'let ['{a :a} {:a 1}] ['test {} 'a]))))))
 
 (deftest let-block-resolution
-  (is (= ['test {} 1] (blocks/let-block {:env {'a 1}} ['test {} 'a])))
+  (is (= [identity {} 1] (blocks/let-block {:env {'a 1}} [identity {} 'a])))
   #_
   (is (= ['test {} 1] (blocks/let-block {:env '{{a :a} [:aa]}} '[test {} a]))))

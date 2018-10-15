@@ -21,6 +21,7 @@
                    ::missing-keys
                    ::unknown-reference
                    ::unknown-reference-type
+                   ::missing-reference-arguments
                    ::unknown-component
                    ::unknown-component-property
                    ::unknown-query
