@@ -4,6 +4,7 @@ goog.require('cljs.core');
 goog.require('cljs.core.constants');
 goog.require('clojure.string');
 goog.require('clojure.walk');
+goog.require('cljs.spec.alpha');
 goog.require('re_frame.core');
 goog.require('pluto.reader.destructuring');
 goog.require('pluto.reader.errors');
@@ -239,22 +240,31 @@ var first__2130__$1 = cljs.core.first(seq__2129__$1);
 var seq__2129__$2 = cljs.core.next(seq__2129__$1);
 var test = first__2130__$1;
 var body = seq__2129__$2;
-if((test instanceof cljs.core.Symbol)){
-return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,cljs.core.apply.cljs$core$IFn$_invoke$arity$3(cljs.core.conj,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.blocks.when_block,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$test,test], null)], null),body)], null);
+var parts = vec__2128;
+var errors = (function (){var G__2131 = null;
+var G__2131__$1 = ((!((test instanceof cljs.core.Symbol)))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__2131,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)):G__2131);
+if(cljs.core.empty_QMARK_(body)){
+return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__2131__$1,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_when_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$empty_DASH_body_DASH_clause,body], null)));
 } else {
-return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)], null)], null);
+return G__2131__$1;
+}
+})();
+if(cljs.core.truth_(cljs.core.not_empty(errors))){
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,errors], null);
+} else {
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,cljs.core.apply.cljs$core$IFn$_invoke$arity$3(cljs.core.conj,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.blocks.when_block,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$test,test], null)], null),body)], null);
 }
 }));
 pluto.reader.blocks.if_block = (function pluto$reader$blocks$if_block(var_args){
 var args__4534__auto__ = [];
-var len__4531__auto___2136 = arguments.length;
-var i__4532__auto___2137 = (0);
+var len__4531__auto___2137 = arguments.length;
+var i__4532__auto___2138 = (0);
 while(true){
-if((i__4532__auto___2137 < len__4531__auto___2136)){
-args__4534__auto__.push((arguments[i__4532__auto___2137]));
+if((i__4532__auto___2138 < len__4531__auto___2137)){
+args__4534__auto__.push((arguments[i__4532__auto___2138]));
 
-var G__2138 = (i__4532__auto___2137 + (1));
-i__4532__auto___2137 = G__2138;
+var G__2139 = (i__4532__auto___2138 + (1));
+i__4532__auto___2138 = G__2139;
 continue;
 } else {
 }
@@ -265,10 +275,10 @@ var argseq__4535__auto__ = ((((1) < args__4534__auto__.length))?(new cljs.core.I
 return pluto.reader.blocks.if_block.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__4535__auto__);
 });
 
-pluto.reader.blocks.if_block.cljs$core$IFn$_invoke$arity$variadic = (function (p__2133,body){
-var map__2134 = p__2133;
-var map__2134__$1 = ((((!((map__2134 == null)))?(((((map__2134.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2134.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2134):map__2134);
-var test = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2134__$1,cljs.core.cst$kw$test);
+pluto.reader.blocks.if_block.cljs$core$IFn$_invoke$arity$variadic = (function (p__2134,body){
+var map__2135 = p__2134;
+var map__2135__$1 = ((((!((map__2135 == null)))?(((((map__2135.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2135.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2135):map__2135);
+var test = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2135__$1,cljs.core.cst$kw$test);
 if(cljs.core.truth_(test)){
 return cljs.core.first(body);
 } else {
@@ -279,23 +289,34 @@ return cljs.core.second(body);
 pluto.reader.blocks.if_block.cljs$lang$maxFixedArity = (1);
 
 /** @this {Function} */
-pluto.reader.blocks.if_block.cljs$lang$applyTo = (function (seq2131){
-var G__2132 = cljs.core.first(seq2131);
-var seq2131__$1 = cljs.core.next(seq2131);
+pluto.reader.blocks.if_block.cljs$lang$applyTo = (function (seq2132){
+var G__2133 = cljs.core.first(seq2132);
+var seq2132__$1 = cljs.core.next(seq2132);
 var self__4518__auto__ = this;
-return self__4518__auto__.cljs$core$IFn$_invoke$arity$variadic(G__2132,seq2131__$1);
+return self__4518__auto__.cljs$core$IFn$_invoke$arity$variadic(G__2133,seq2132__$1);
 });
 
-pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$if,(function (_,___$1,p__2139){
-var vec__2140 = p__2139;
-var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2140,(0),null);
-var test = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2140,(1),null);
-var then = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2140,(2),null);
-var else$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2140,(3),null);
-if((test instanceof cljs.core.Symbol)){
-return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,cljs.core.apply.cljs$core$IFn$_invoke$arity$3(cljs.core.conj,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.blocks.if_block,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$test,test], null)], null),(new cljs.core.List(null,then,(new cljs.core.List(null,else$,null,(1),null)),(2),null)))], null);
+pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$if,(function (_,___$1,p__2140){
+var vec__2141 = p__2140;
+var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2141,(0),null);
+var test = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2141,(1),null);
+var then = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2141,(2),null);
+var else$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2141,(3),null);
+var parts = vec__2141;
+var parts_count = cljs.core.count(cljs.core.rest(parts));
+var errors = (function (){var G__2144 = null;
+var G__2144__$1 = ((!((test instanceof cljs.core.Symbol)))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__2144,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)):G__2144);
+var G__2144__$2 = ((((3) < parts_count))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__2144__$1,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_if_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$too_DASH_many_DASH_clauses,cljs.core.cst$kw$clause_DASH_count,parts_count], null))):G__2144__$1);
+if(((3) > parts_count)){
+return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__2144__$2,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_if_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$three_DASH_clauses_DASH_required,cljs.core.cst$kw$clause_DASH_count,parts_count], null)));
 } else {
-return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)], null)], null);
+return G__2144__$2;
+}
+})();
+if(cljs.core.truth_(cljs.core.not_empty(errors))){
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,errors], null);
+} else {
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,cljs.core.apply.cljs$core$IFn$_invoke$arity$3(cljs.core.conj,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.blocks.if_block,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$test,test], null)], null),(new cljs.core.List(null,then,(new cljs.core.List(null,else$,null,(1),null)),(2),null)))], null);
 }
 }));
 pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$kw$default,(function (ctx,ext,block){
