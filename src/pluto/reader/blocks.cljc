@@ -33,7 +33,8 @@
       (merge m o))))
 
 (defn interpolate [values s]
-  (reduce-kv #(string/replace %1 (str "${" %2 "}") %3) s values))
+  (reduce-kv #(string/replace %1 (str "${" (str %2) "}") (str %3))
+             s values))
 
 (defn replace-atom [values o]
   (cond (contains? values o) (get values o)
