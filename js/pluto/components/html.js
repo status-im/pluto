@@ -39,14 +39,14 @@ return self__4518__auto__.cljs$core$IFn$_invoke$arity$variadic(G__1996,seq1995__
 
 pluto.components.html.button = (function pluto$components$html$button(var_args){
 var args__4534__auto__ = [];
-var len__4531__auto___2005 = arguments.length;
-var i__4532__auto___2006 = (0);
+var len__4531__auto___2007 = arguments.length;
+var i__4532__auto___2008 = (0);
 while(true){
-if((i__4532__auto___2006 < len__4531__auto___2005)){
-args__4534__auto__.push((arguments[i__4532__auto___2006]));
+if((i__4532__auto___2008 < len__4531__auto___2007)){
+args__4534__auto__.push((arguments[i__4532__auto___2008]));
 
-var G__2007 = (i__4532__auto___2006 + (1));
-i__4532__auto___2006 = G__2007;
+var G__2009 = (i__4532__auto___2008 + (1));
+i__4532__auto___2008 = G__2009;
 continue;
 } else {
 }
@@ -63,7 +63,10 @@ var map__2003__$1 = ((((!((map__2003 == null)))?(((((map__2003.cljs$lang$protoco
 var on_click = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2003__$1,cljs.core.cst$kw$on_DASH_click);
 return cljs.core.into.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$button,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$on_DASH_click,((function (map__2003,map__2003__$1,on_click){
 return (function (){
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(on_click) : re_frame.core.dispatch.call(null,on_click));
+var G__2005 = (function (){var G__2006 = cljs.core.PersistentArrayMap.EMPTY;
+return (on_click.cljs$core$IFn$_invoke$arity$1 ? on_click.cljs$core$IFn$_invoke$arity$1(G__2006) : on_click.call(null,G__2006));
+})();
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__2005) : re_frame.core.dispatch.call(null,G__2005));
 });})(map__2003,map__2003__$1,on_click))
 ], null)], null),content);
 });
@@ -80,14 +83,14 @@ return self__4518__auto__.cljs$core$IFn$_invoke$arity$variadic(G__2001,seq2000__
 
 pluto.components.html.text = (function pluto$components$html$text(var_args){
 var args__4534__auto__ = [];
-var len__4531__auto___2010 = arguments.length;
-var i__4532__auto___2011 = (0);
+var len__4531__auto___2012 = arguments.length;
+var i__4532__auto___2013 = (0);
 while(true){
-if((i__4532__auto___2011 < len__4531__auto___2010)){
-args__4534__auto__.push((arguments[i__4532__auto___2011]));
+if((i__4532__auto___2013 < len__4531__auto___2012)){
+args__4534__auto__.push((arguments[i__4532__auto___2013]));
 
-var G__2012 = (i__4532__auto___2011 + (1));
-i__4532__auto___2011 = G__2012;
+var G__2014 = (i__4532__auto___2013 + (1));
+i__4532__auto___2013 = G__2014;
 continue;
 } else {
 }
@@ -105,11 +108,11 @@ return cljs.core.into.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVect
 pluto.components.html.text.cljs$lang$maxFixedArity = (1);
 
 /** @this {Function} */
-pluto.components.html.text.cljs$lang$applyTo = (function (seq2008){
-var G__2009 = cljs.core.first(seq2008);
-var seq2008__$1 = cljs.core.next(seq2008);
+pluto.components.html.text.cljs$lang$applyTo = (function (seq2010){
+var G__2011 = cljs.core.first(seq2010);
+var seq2010__$1 = cljs.core.next(seq2010);
 var self__4518__auto__ = this;
-return self__4518__auto__.cljs$core$IFn$_invoke$arity$variadic(G__2009,seq2008__$1);
+return self__4518__auto__.cljs$core$IFn$_invoke$arity$variadic(G__2011,seq2010__$1);
 });
 
 pluto.components.html.components = new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$sym$view,new cljs.core.PersistentArrayMap(null, 4, [cljs.core.cst$kw$properties,cljs.core.PersistentArrayMap.EMPTY,cljs.core.cst$kw$value,pluto.components.html.view,cljs.core.cst$kw$description,"",cljs.core.cst$kw$examples,cljs.core.PersistentVector.EMPTY], null),cljs.core.cst$sym$button,new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$properties,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$on_DASH_click,cljs.core.cst$kw$event], null),cljs.core.cst$kw$value,pluto.components.html.button,cljs.core.cst$kw$examples,cljs.core.PersistentVector.EMPTY], null),cljs.core.cst$sym$text,new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$properties,cljs.core.PersistentArrayMap.EMPTY,cljs.core.cst$kw$value,pluto.components.html.text,cljs.core.cst$kw$examples,cljs.core.PersistentVector.EMPTY], null)], null);
