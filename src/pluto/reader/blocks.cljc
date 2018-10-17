@@ -32,19 +32,16 @@
       (assoc m o resolved-value)
       (merge m o))))
 
-(defn interpolate [values s]
-  (reduce-kv #(string/replace %1 (str "${" (str %2) "}") (str %3))
-             s values))
-
 (defn replace-atom [values o]
   (cond (contains? values o) (get values o)
         (symbol? o) nil
-        (string? o) (interpolate values o)
+        (string? o) (utils/interpolate values o)
+        (and (fn? o) (= :event (meta o))) #(o % values) ;; Intercept events and inject the env. TODO remove this hack
         :else o))
 
 (defn let-block [{:keys [env]} children]
   ;; TODO nested let block should accumulate the env
-  (let [values (reduce-kv assoc-binding {} env)]    ;
+  (let [values (reduce-kv assoc-binding {} env)]
     (walk/prewalk #(replace-atom values %) children)))
 
 (defn properties? [o]

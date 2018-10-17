@@ -2,10 +2,12 @@
   "Resolve values based on provided types.
    Handles primitives, references and composed values."
   (:refer-clojure :exclude [resolve])
-  (:require [clojure.string         :as string]
-            [clojure.set            :as set]
-            [pluto.reader.errors    :as errors]
-            [pluto.reader.reference :as reference]))
+  (:require [clojure.string             :as string]
+            [clojure.set                :as set]
+            [pluto.reader.destructuring :as destructuring]
+            [pluto.reader.errors        :as errors]
+            [pluto.reader.reference     :as reference]
+            [pluto.utils                :as utils]))
 
 (def reference-types #{:view :event :query})
 
@@ -80,28 +82,80 @@
                {} type)
     {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
 
-(defn- resolve-arguments [ctx ext key data arguments]
-  (if-let [type (get-in ctx [:capacities key data :arguments])]
+(defn- resolve-arguments [ctx ext event arguments]
+  (if-let [type (get-in ctx [:capacities :events event :arguments])]
     (resolve ctx ext type arguments)
-    {:errors [(errors/error ::errors/missing-reference-arguments {:type key :value data})]}))
+    {:errors [(errors/error ::errors/missing-reference-arguments {:type :events :value event})]}))
 
-(defn- reference-with-arguments [ctx ext ref key name arguments]
+;; TODO part of this is duplicated from blocks/let
+
+(defn replace-atom [env o]
+  (cond (contains? env o) (get env o)
+        (symbol? o) nil
+        (string? o) (utils/interpolate env o)
+        :else o))
+
+(defn event-after-env [ref data args bindings]
+  (fn [o env]
+    (let [env (merge env (:data (destructuring/destructure bindings args)))
+          dic (reduce-kv #(assoc %1 %2 (if (contains? env %3) (get env %3) %3)) {} env)]
+      [ref (merge o (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data))])))
+
+(defn- reference-with-arguments [ctx ext ref event arguments args bindings]
   (if arguments
-    (let [{:keys [data errors]} (resolve-arguments ctx ext key name arguments)]
-      (errors/merge-errors {:data [ref data]} errors))
-    {:data [ref]}))
+    (let [{:keys [data errors]} (resolve-arguments ctx ext event arguments)]
+      (errors/merge-errors {:data (event-after-env ref data args bindings)} errors))
+    {:data (fn [o v] [ref o])}))
 
-(defn resolve-reference [ctx ext type [name arguments :as value] key error]
-  (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
-     (merge (when data (reference-with-arguments ctx ext data key name arguments))
-            (when errors
-              {:errors (apply conj [(errors/error error name)] errors)}))))
+(defn- reference-symbol [value]
+  (nth value 2))
+
+(defn local-event?
+  "A local event must define a let block and have a single destructuring binding accessing 'properties."
+  [data]
+  (when (list? data)
+    (let [[form bindings] data]
+      (and (= 3 (count data))
+           (= 'let form)
+           (= 2 (count bindings))
+           (map? (first bindings))
+           (= 'properties (second bindings))
+           (vector? (reference-symbol data))))))
+
+(defn resolve-local-reference
+  "References local references defining let blocks"
+  [ctx ext type [name :as value]]
+  (let [{:keys [data errors] :as m} (reference/resolve ctx ext type value)]
+    ;; resolve returns either data or errors
+    (if data
+      (cond
+        (local-event? data)
+        (let [[event args :as reference] (reference-symbol data)
+              bindings (first (second data))
+              {:keys [data errors]} (reference/resolve ctx ext type reference)]
+          (errors/merge-errors {:data {:ref data :event event :args args :bindings bindings}} errors))
+        (keyword? data)
+        {:data {:ref data :event name}}
+        :else
+        {:errors [(errors/error ::errors/invalid-local-event data)]})
+      m)))
+
+(defn resolve-event [ctx ext type [symbol arguments :as value]]
+  (let [{:keys [data errors]}   (resolve-local-reference ctx ext type value)
+        {event :event ref :ref args :args bindings :bindings} data]
+    ;; TODO better separate local event handling
+    (merge (when data (reference-with-arguments ctx ext ref event (or args arguments) arguments bindings))
+           (when errors
+             {:errors (apply conj [(errors/error ::errors/unknown-event symbol)] errors)}))))
 
 (defmethod resolve :event [ctx ext type [name arguments :as value]]
-  (resolve-reference ctx ext type value :events ::errors/unknown-event))
+  (resolve-event ctx ext type value))
 
 (defmethod resolve :query [ctx ext type [name arguments :as value]]
-  (resolve-reference ctx ext type value :queries ::errors/unknown-query))
+  (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
+    (merge (when data {:data (if arguments [data arguments] [data])})
+           (when errors
+             {:errors (apply conj [(errors/error ::errors/unknown-query name)] errors)}))))
 
 (defmethod resolve :default [_ _ type value]
   {:errors [(errors/error ::errors/invalid-type (merge {:type type} (when value {:value value})))]})

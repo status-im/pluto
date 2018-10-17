@@ -38,7 +38,7 @@
     (catch #?(:clj Exception :cljs :default) ex
       {:errors [(reader-error ex)]})))
 
-;; Element validation
+;; Validation
 
 (def mandatory-keys #{'meta})
 (def valid-keys mandatory-keys)
@@ -46,14 +46,6 @@
 (defn capacity? [m s]
   (let [keys (set (map name (keys m)))]
     (keys (name s))))
-
-(defn valid-capacity? [m k v spec]
-  (if (capacity? m k)
-    (when-not (spec/valid? spec v)
-      [(errors/error ::errors/invalid-value k)])
-    [(errors/error ::errors/invalid-key k)]))
-
-;; validation
 
 (defmulti valid-element? (fn [_ k _] (or (namespace k) (name k))))
 
@@ -67,21 +59,13 @@
       [(errors/error ::errors/invalid-value k)])
     [(errors/error ::errors/invalid-key k)]))
 
-(spec/def ::queries map?)
+(defmethod valid-element? "queries" [{:keys [queries]} k v])
 
-(defmethod valid-element? "queries" [{:keys [queries]} k v]
-  (valid-capacity? queries k v ::queries))
+(defmethod valid-element? "events" [{:keys [events]} k v])
 
-(spec/def ::events map?)
+(defmethod valid-element? "events" [{:keys [events]} k v])
 
-(defmethod valid-element? "events" [{:keys [events]} k v]
-  (valid-capacity? events k v ::events))
-
-(defmethod valid-element? "events" [{:keys [events]} k v]
-  (valid-capacity? events k v ::events))
-
-(defmethod valid-element? "views" [_ _ _]
-  [])
+(defmethod valid-element? "views" [_ _ _])
 
 (defmethod valid-element? :default [_ k _]
   [(errors/error ::errors/invalid-key k)])

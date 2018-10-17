@@ -32,7 +32,8 @@
                    ::invalid-block
                    ::invalid-if-block
                    ::invalid-when-block                   
-                   ::unsupported-test-type})
+                   ::unsupported-test-type
+                   ::invalid-local-event})
 
 (spec/def ::value any?)
 

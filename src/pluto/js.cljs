@@ -11,6 +11,8 @@
 
 (defn component [])
 
+;; TODO find a syntax so that :event can define associated types they will be injected
+
 (def ctx
   {:capacities {:components {'button {:value component :properties {:on-click :event}}
                              'text-input         {:value component}
@@ -34,10 +36,10 @@
                              'http/get
                              {:permissions [:read]
                               :value       :http/get
-                              :arguments   {:url        :string
-                                            :timeout    :string
-                                            :on-success :event
-                                            :on-failure :event}}
+                              :arguments   {:url         :string
+                                            :on-success  :event
+                                            :on-failure? :event
+                                            :timeout?    :string}}
                              'browser/open {:value  :browser/open :arguments {:url :string}}
                              'chat/open {:value  :chat/open :arguments {:url :string}}
                              'ethereum/sign

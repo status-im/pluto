@@ -6,11 +6,15 @@
  hooks/main.demo
  {:view [main]}
 
+ events/my-alert
+ (let [{you :arg} properties]
+   [alert {:value "Eh! ${you}"}])
+
  views/main
  (let [{name :name}   properties
        {cond? :cond?} [random-boolean]]
-   [view {}
-    [button {:on-click [alert {:value name}]}
+   [view
+    [button {:on-click [my-alert {:arg name}]}
      "Hello ${name}"]
     (if cond?
       [text {:style {:color "green"}}

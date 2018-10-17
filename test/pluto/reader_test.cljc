@@ -50,14 +50,6 @@
          (reader/validate {:capacities {:hooks {:main {}}}}
                           (extension {'hooks/main    {:hook-id :a}
                                       'hooks/unknown {:hook-id :b}}))))
-  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'events/unknown}]
-         (reader/validate {:capacities {:events {'main {}}}}
-                          (extension {'events/main {}
-                                      'events/unknown {}}))))
-  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'queries/unknown}]
-         (reader/validate {:capacities {:queries {'main {}}}}
-                          (extension {'queries/main {}
-                                      'queries/unknown {}}))))
   (is (= [{::errors/type ::errors/invalid-key ::errors/value 'unknown/unknown}]
          (reader/validate {} (extension {'unknown/unknown {}})))))
 

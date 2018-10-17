@@ -1,5 +1,6 @@
 (ns pluto.utils
-  (:refer-clojure :exclude [ex-cause ex-message]))
+  (:refer-clojure :exclude [ex-cause ex-message])
+  (:require [clojure.string :as string]))
 
 (defn ex-cause
   [ex]
@@ -23,6 +24,10 @@
       (int? o)
       (float? o)
       (string? o)))
+
+(defn interpolate [values s]
+  (reduce-kv #(string/replace %1 (str "${" (str %2) "}") (str %3))
+             s values))
 
 (defn- update-db [cofx {:keys [db] :as fx}]
   (if db (assoc cofx :db db) cofx))

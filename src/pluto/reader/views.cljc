@@ -54,7 +54,10 @@
   (if-let [type (get-in ctx [:capacities :components component :properties k])]
     (if-not (and (types/reference-types type) (not= :event type))
       ;; TODO Infer symbol types and fail if type does not match
-      (if (symbol? v) v (types/resolve ctx ext type v))
+      (if-not (symbol? v)
+        (let [{:keys [data errors]} (types/resolve ctx ext type v)]
+          (errors/merge-errors (when data {:data (with-meta (fn [env o] (data env o)) :event)}) errors))
+        v)
       {:errors [(errors/error ::errors/invalid-component-property-type {:component component :property k :type type})]})
     {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]}))
 
