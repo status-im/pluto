@@ -24,13 +24,22 @@
     ;; TODO handle errors
     (:data (destructuring/destructure k v))))
 
+(defn substitute-query-values [m v]
+  (if (vector? v)
+    (walk/prewalk #(or (get m %) %) v)
+    v))
+
 (defn assoc-binding
   [m k v]
-  (let [resolved-value (resolve-binding-value v)
+  (let [resolved-value (resolve-binding-value
+                        (substitute-query-values m v))
         o (resolve-binding-key k resolved-value)]
     (if (symbol? o)
       (assoc m o resolved-value)
       (merge m o))))
+
+(defn interpolate [values s]
+  (reduce-kv #(string/replace %1 (str "${" (str %2) "}") (str %3)) s values))
 
 (defn replace-atom [values o]
   (cond (contains? values o) (get values o)
@@ -39,10 +48,31 @@
         (and (fn? o) (= :event (meta o))) #(o % values) ;; Intercept events and inject the env. TODO remove this hack
         :else o))
 
-(defn let-block [{:keys [env]} children]
-  ;; TODO nested let block should accumulate the env
-  (let [values (reduce-kv assoc-binding {} env)]
-    (walk/prewalk #(replace-atom values %) children)))
+(defn walkup-upto-leaf [f lp? lf tree]
+  (if (lp? tree)
+    (lf tree)
+    (let [res (f tree)
+          f2 (partial walkup-upto-leaf f lp? lf)]
+      (cond (list? res) (apply list (map f2 res))
+            (map-entry? res) (vec (map f2 res))
+            (seq? res) (doall (map f2 res))
+            (coll? res) (into (empty res) (map f2 res))
+            :else res))))
+
+(declare let-block bindings->env)
+
+(defn let-block [{:keys [prev-env ctx ext bindings env]} children]
+  ;; env here is always a destructured set of properties
+  (let [env' (merge env prev-env)
+        {:keys [data errors]} (bindings->env env' ctx ext bindings)
+        ;; this can be moved to into bindings->env now
+        
+        values (reduce-kv assoc-binding env' data)]
+    (walkup-upto-leaf #(replace-atom values %)
+                      #(and (vector? %) (= let-block (first %)))
+                      (fn [[_ props children]]
+                        [let-block (assoc props :prev-env values) children])
+                      children)))
 
 (defn properties? [o]
   (= 'properties o))
@@ -55,7 +85,7 @@
 
 (defn valid-bindings? [k v]
   (and (or (symbol? k) (map? k))
-       (or (symbol? v) (static-value? v) (query? v) (query? v))))
+       (or (symbol? v) (static-value? v) (query? v))))
 
 (defn- resolve-symbol [m s]
   (if (and (symbol? s) (not= 'properties s))
@@ -90,18 +120,52 @@
 (defn- valid-bindings-form? [bindings]
   (even? (count bindings)))
 
-(defn bindings->env [ctx ext bindings]
+;; errors are a problem here we shouldn't be returning data errors anymore
+(defn bindings->env [prev-env ctx ext bindings]
+  (doall
+   (reduce (fn [accum [k v]]
+             (resolve-env ctx ext accum k
+                          (resolve-symbol (:data accum) v)))
+           {:data prev-env}
+           (partition 2 bindings))))
+
+;; we also need a set of available symbols bound at this point
+(defn validate-bindings [bindings]
   (if (valid-bindings-form? bindings)
-    (reduce-kv #(resolve-env ctx ext %1 %2 (resolve-symbol (:data %1) %3)) {} (apply hash-map bindings))
-    {:errors [(errors/error ::errors/invalid-bindings-format bindings)]}))
+    (not-empty
+     (let [binding-pairs (partition 2 bindings)]
+       (concat
+        (->> binding-pairs
+             (filter #(not (apply valid-bindings? %)))
+             (mapv #(errors/error ::errors/invalid-bindings %)))
+        (->> binding-pairs
+             (map first)
+             (filter (some-fn sequential? map?))
+             (mapcat destructuring/validate-destructure-bindings))
+        )))
+    [(errors/error ::errors/invalid-bindings-format bindings)]))
+
+;; shouldn't need to do this really should inject props
+;; into the initial map from the top
+(defn prop-env-from-bindings [bindings]
+  (some->> bindings
+           (partition 2)
+           (filter #(= (second %) 'properties))
+           first
+           reverse
+           (apply hash-map)))
 
 (defmethod parse 'let [ctx ext [_ bindings & body]]
-  (let [{:keys [data errors] :as m} (bindings->env ctx ext bindings)]
+  (if-let [errors (validate-bindings bindings)]
+    {:errors errors}
     ;; TODO fail if some symbol are not defined in the env
     (if (= 1 (count body))
-      (merge {:data [let-block {:env data} (last body)]}
-             (when errors
-               {:errors errors}))
+      (let [prop-env (prop-env-from-bindings bindings)]
+        {:data [let-block (cond-> {:ctx ctx
+                                 :ext ext
+                                 :bindings bindings}
+                            prop-env (assoc :env prop-env))
+              (last body)]})
       {:errors [(errors/error ::errors/invalid-let-body {:value body})]})))
 
 (defn when-block [{:keys [test]} body]

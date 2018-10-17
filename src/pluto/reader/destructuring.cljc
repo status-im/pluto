@@ -53,6 +53,23 @@
     (reduce-kv #(merge-assoc-bindings s %1 %2 %3) {} bindings)
     {:errors [(errors/error ::errors/invalid-destructuring-format {:type :assoc :data bindings})]}))
 
+;; recursively validate destructure bindings form
+(defn validate-destructure-bindings [bindings]
+  (not-empty
+   (cond
+    (map? bindings)
+    (if (valid-assoc-format? bindings)
+      (mapcat
+       validate-destructure-bindings
+       (filter (some-fn sequential? map?) (keys bindings)))
+      [(errors/error ::errors/invalid-destructuring-format {:type :assoc :data bindings})])
+    (sequential? bindings)
+    (if (every? valid-bindings-form? bindings)
+      (mapcat
+       validate-destructure-bindings
+       (filter (some-fn sequential? map?) bindings))
+      [(errors/error ::errors/invalid-destructuring-format {:type :assoc :data bindings})]))))
+
 (defn destructure
   "Given a pattern and an associated data structure, return a map of either:
    * :data, a map of extracted symbol / value pairs

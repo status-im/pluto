@@ -61,7 +61,14 @@
   ((get-in m [:data :hooks :main :a :parsed :view]) {}))
 
 (deftest parse-blocks
-  (is (= [blocks/let-block {:env {'s "Hello"}} '[text {} s]]
+  (is (= [blocks/let-block
+          '{:bindings [s "Hello"],
+           :ctx {:capacities {:components {text :text, view :view},
+                              :hooks {:main {:properties {:view :view}}}}},
+           :ext {meta {:description "", :documentation "", :name ""},
+                 hooks/main.a {:view [views/main]},
+                 views/main (let [s "Hello"] [text {} s])}}
+          '[text {} s]]
          (view (reader/parse default-capacities
                              (extension {'views/main   (list 'let ['s "Hello"] ['text {} 's])
                                          'hooks/main.a {:view ['views/main]}})))))
