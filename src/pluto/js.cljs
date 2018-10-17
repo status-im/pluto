@@ -19,7 +19,7 @@
                              'text {:value component} 'view {:value component} 'token-selector {:value component} 'asset-selector {:value component}
                              'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
                              'nft-token-viewer {:value component :properties {:token :string}}}
-                :queries {'get-collectible-token {:value :get-collectible-token :arguments {:token :string :symbol :string}}
+                :queries {'wallet/collectibles {:value :get-collectible-token :arguments {:token :string :symbol :string}}
                           'store/get {:value :store/get :arguments {:key :string}}}
                 :events     {'alert
                              {:permissions [:read]
@@ -75,7 +75,6 @@
                                :value?     :string
                                :data?      :string
                                :block      :string}}
-
                              'ethereum/logs
                              {:arguments
                               {:from?     :string
