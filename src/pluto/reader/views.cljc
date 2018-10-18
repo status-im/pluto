@@ -53,7 +53,7 @@
 (defn wrap-data [type data env o]
   (if (types/reference-types type)
     (if (= :event type)
-      (with-meta (fn [env o] (data env o)) :event)
+      (with-meta (fn [env o] (data env o)) {:event true})
       data)
     data))
 

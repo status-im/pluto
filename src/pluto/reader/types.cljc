@@ -116,11 +116,13 @@
         :else o))
 
 (defn event-after-env [ref data args bindings]
-  (fn [o env]
-    (let [env (merge env (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} o)
-                     (:data (destructuring/destructure bindings (merge o args))))
-          dic (reduce-kv #(assoc %1 %2 (if (contains? env %3) (get env %3) %3)) {} env)]
-      [ref (merge o (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data))])))
+  (with-meta
+    (fn [o env]
+      (let [env (merge env (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} o)
+                       (:data (destructuring/destructure bindings (merge o args))))
+            dic (reduce-kv #(assoc %1 %2 (if (contains? env %3) (get env %3) %3)) {} env)]
+        [ref (merge o (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data))]))
+    {:event true}))
 
 (defn- reference-with-arguments [ctx ext ref event arguments args bindings]
   (if arguments
