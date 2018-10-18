@@ -62,12 +62,8 @@
 
 (deftest parse-blocks
   (is (= [blocks/let-block
-          '{:bindings [s "Hello"],
-           :ctx {:capacities {:components {text :text, view :view},
-                              :hooks {:main {:properties {:view :view}}}}},
-           :ext {meta {:description "", :documentation "", :name ""},
-                 hooks/main.a {:view [views/main]},
-                 views/main (let [s "Hello"] [text {} s])}}
+          '{:bindings [s "Hello"]
+            :prev-env {:pluto.reader/properties {}}}
           '[text {} s]]
          (view (reader/parse default-capacities
                              (extension {'views/main   (list 'let ['s "Hello"] ['text {} 's])

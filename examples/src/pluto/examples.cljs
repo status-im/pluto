@@ -38,7 +38,9 @@
   :random)
 
 (defn render [h el]
-  (reagent/render (h {:name "Test Extension"}) el))
+  (reagent/render (h {:name "Test Extension"
+                      :users [{:nm "Jane"}
+                              {:nm "Sue"}]}) el))
 
 (defn errors-list [v]
   (fn []

@@ -132,24 +132,15 @@
        errors))
     (parse-hiccup-element ctx ext o)))
 
-(defn- inject-properties [m properties]
-  (if-let [ps (get-in m [:env 'properties])]
-    (let [{:keys [data errors]} (destructuring/destructure ps properties)]
-      (errors/merge-errors
-        {:data
-         (-> m
-             (update :env dissoc 'properties)
-             (update :env merge data))}
-        errors))
-    {:data m}))
-
 (defn- hiccup-with-properties [h properties]
   (if (vector? h)
     (let [[tag & properties-children] h
           [props children]            (resolve-properties-children properties-children)
-          {:keys [data]}              (when properties
-                                        (inject-properties props properties))]
-      (apply conj (if data [tag data] [tag])
+          ;; really only need to add this to the first let block but no harm really
+          props (if (and properties (= tag blocks/let-block))
+                  (assoc-in props [:prev-env :pluto.reader/properties] properties)
+                  props)]
+      (apply conj (if props [tag props] [tag])
              (map #(hiccup-with-properties % properties) children)))
     h))
 

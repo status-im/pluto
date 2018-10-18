@@ -15,6 +15,8 @@
                    ::invalid-reference
                    ::invalid-destructuring-format
                    ::invalid-let-body
+                   ::invalid-for-body
+                   ::invalid-for-binding                  
                    ::invalid-bindings
                    ::invalid-bindings-format
                    ::missing-property

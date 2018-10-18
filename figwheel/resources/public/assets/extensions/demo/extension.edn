@@ -11,7 +11,7 @@
    [alert {:value "Eh! ${you}"}])
 
  views/main
- (let [{name :name}   properties
+ (let [{name :name users :users}   properties
        {cond? :cond?} [random-boolean]]
    [view
     [button {:on-click [my-alert {:arg name}]}
@@ -20,4 +20,8 @@
       [text {:style {:color "green"}}
        name]
       [text {:style {:color "red"}}
-       name])])}
+       name])
+    [view "Nested for block"]
+    (for [{nm :nm} users]
+      (for [{nm2 :nm} users]
+        [view nm " and " nm2]))])}
