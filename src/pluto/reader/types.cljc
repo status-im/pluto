@@ -33,6 +33,16 @@
 (defn invalid-type-value [type value]
   (errors/error ::errors/invalid-type-value {:type type :value value}))
 
+(defmethod resolve :boolean [_ _ _ value]
+  (if (boolean? value)
+    {:data value}
+    {:errors [(invalid-type-value :boolean value)]}))
+
+(defmethod resolve :number [_ _ _ value]
+  (if (number? value)
+    {:data value}
+    {:errors [(invalid-type-value :number value)]}))
+
 (defmethod resolve :string [_ _ _ value]
   (if (string? value)
     {:data value}
@@ -42,6 +52,16 @@
   (if (keyword? value)
     {:data value}
     {:errors [(invalid-type-value :keyword value)]}))
+
+(defmethod resolve :vector [_ _ _ value]
+  (if (vector? value)
+    {:data value}
+    {:errors [(invalid-type-value :vector value)]}))
+
+(defmethod resolve :map [_ _ _ value]
+  (if (map? value)
+    {:data value}
+    {:errors [(invalid-type-value :map value)]}))
 
 (defmethod resolve :subset [_ _ type value]
   (if (and (not (nil? value)) (set/subset? value type))

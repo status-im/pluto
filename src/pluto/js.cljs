@@ -14,11 +14,19 @@
 ;; TODO find a syntax so that :event can define associated types they will be injected
 
 (def ctx
-  {:capacities {:components {'button {:value component :properties {:on-click :event}}
-                             'text-input         {:value component}
-                             'text {:value component} 'view {:value component} 'token-selector {:value component} 'asset-selector {:value component}
+  {:capacities {:components {'view               {:value component}
+                             'text               {:value component}
+                             'touchable-opacity  {:value component :properties {:on-press :event}}
+                             'image              {:value component :properties {:uri :string}}
+                             'input              {:value component :properties {:on-change :event :placeholder :string}}
+                             'button             {:value component :properties {:on-click :event}}
+                             'link               {:value component :properties {:uri :string}}
+                             'list               {:value component :properties {:data :vector :item-view :view}}
+                             'checkbox           {:value component :properties {:on-change? :event :checked? :boolean}}
+                             'nft-token-viewer   {:value component :properties {:token :string}}
                              'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
-                             'nft-token-viewer {:value component :properties {:token :string}}}
+                             'asset-selector     {:value component}
+                             'token-selector     {:value component}}
                 :queries {'wallet/collectibles {:value :get-collectible-token :arguments {:token :string :symbol :string}}
                           'store/get {:value :store/get :arguments {:key :string}}}
                 :events     {'alert
@@ -33,34 +41,44 @@
                              {:permissions [:read]
                               :value       :store/put
                               :arguments   {:key :string :value :string}}
+                             'store/append
+                             {:permissions [:read]
+                              :value       :store/append
+                              :arguments   {:key :string :value :string}}
+                             'store/clear
+                             {:permissions [:read]
+                              :value       :store/put
+                              :arguments   {:key :string}}
                              'http/get
                              {:permissions [:read]
                               :value       :http/get
                               :arguments   {:url         :string
+                                            :timeout?    :string
                                             :on-success  :event
-                                            :on-failure? :event
-                                            :timeout?    :string}}
-                             'browser/open {:value  :browser/open :arguments {:url :string}}
-                             'chat/open {:value  :chat/open :arguments {:url :string}}
+                                            :on-failure? :event}}
+                             'http/post
+                             {:permissions [:read]
+                              :value       :http/post
+                              :arguments   {:url         :string
+                                            :body        :string
+                                            :timeout?    :string
+                                            :on-success  :event
+                                            :on-failure? :event}}
+                             'ipfs/cat
+                             {:permissions [:read]
+                              :value       :ipfs/cat
+                              :arguments   {:hash        :string
+                                            :on-success  :event
+                                            :on-failure? :event}}
                              'ethereum/sign
                              {:arguments
                               {:account   :string
                                :message   :string
                                :on-result :event}}
-                             'ethereum/send-raw-transaction
-                             {:arguments {:data :string}}
                              'ethereum/send-transaction
                              {:arguments
                               {:from       :string
                                :to         :string
-                               :gas?       :string
-                               :gas-price? :string
-                               :value?     :string
-                               :data?      :string
-                               :nonce?     :string}}
-                             'ethereum/new-contract
-                             {:arguments
-                              {:from       :string
                                :gas?       :string
                                :gas-price? :string
                                :value?     :string

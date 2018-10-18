@@ -52,7 +52,7 @@
 
 (defn resolve-custom-component-properties [ctx ext component k v]
   (if-let [type (get-in ctx [:capacities :components component :properties k])]
-    (if-not (and (types/reference-types type) (not= :event type))
+    (if-not (and (types/reference-types type) (not (#{:event :view} type)))
       ;; TODO Infer symbol types and fail if type does not match
       (if-not (symbol? v)
         (let [{:keys [data errors]} (types/resolve ctx ext type v)]

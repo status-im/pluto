@@ -26,6 +26,44 @@
            (types/resolve {} {} :keyword "value")))
     (is (= {:data :value}
            (types/resolve {} {} :keyword :value))))
+  (testing "Boolean"
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :boolean :value nil}}]}
+           (types/resolve {} {} :boolean nil)))
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :boolean :value "value"}}]}
+           (types/resolve {} {} :boolean "value")))
+    (is (= {:data true}
+           (types/resolve {} {} :boolean true))))
+  (testing "Number"
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :number :value nil}}]}
+           (types/resolve {} {} :number nil)))
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :number :value "value"}}]}
+           (types/resolve {} {} :number "value")))
+    (is (= {:data 1}
+           (types/resolve {} {} :number 1)))
+    (is (= {:data 1.0}
+           (types/resolve {} {} :number 1.0))))
+  (testing "Map"
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :map :value nil}}]}
+           (types/resolve {} {} :map nil)))
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :map :value "value"}}]}
+           (types/resolve {} {} :map "value")))
+    (is (= {:data {}}
+           (types/resolve {} {} :map {}))))
+  (testing "Vector"
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :vector :value nil}}]}
+           (types/resolve {} {} :vector nil)))
+    (is (= {:errors [{::errors/type  ::errors/invalid-type-value
+                      ::errors/value {:type :vector :value "value"}}]}
+           (types/resolve {} {} :vector "value")))
+    (is (= {:data []}
+           (types/resolve {} {} :vector []))))
   (testing "Subset"
     (is (= {:errors [{::errors/type  ::errors/invalid-type-value
                       ::errors/value {:type :subset :value nil}}]}
