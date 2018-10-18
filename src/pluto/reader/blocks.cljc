@@ -38,9 +38,6 @@
       (assoc m o resolved-value)
       (merge m o))))
 
-(defn interpolate [values s]
-  (reduce-kv #(string/replace %1 (str "${" (str %2) "}") (str %3)) s values))
-
 (defn replace-atom [values o]
   (cond (contains? values o) (get values o)
         (symbol? o) nil
@@ -141,8 +138,8 @@
         (->> binding-pairs
              (map first)
              (filter (some-fn sequential? map?))
-             (mapcat destructuring/validate-destructure-bindings))
-        )))
+             (mapcat destructuring/validate-destructure-bindings)))))
+
     [(errors/error ::errors/invalid-bindings-format bindings)]))
 
 ;; shouldn't need to do this really should inject props
@@ -162,10 +159,10 @@
     (if (= 1 (count body))
       (let [prop-env (prop-env-from-bindings bindings)]
         {:data [let-block (cond-> {:ctx ctx
-                                 :ext ext
-                                 :bindings bindings}
+                                   :ext ext
+                                   :bindings bindings}
                             prop-env (assoc :env prop-env))
-              (last body)]})
+                (last body)]})
       {:errors [(errors/error ::errors/invalid-let-body {:value body})]})))
 
 (defn when-block [{:keys [test]} body]
