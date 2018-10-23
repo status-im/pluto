@@ -21,7 +21,6 @@
                              'input              {:value component :properties {:on-change :event :placeholder :string}}
                              'button             {:value component :properties {:on-click :event}}
                              'link               {:value component :properties {:uri :string}}
-                             'list               {:value component :properties {:data :vector :item-view :view}}
                              'checkbox           {:value component :properties {:on-change? :event :checked? :boolean}}
                              'nft-token-viewer   {:value component :properties {:token :string}}
                              'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
@@ -70,36 +69,24 @@
                               :arguments   {:hash        :string
                                             :on-success  :event
                                             :on-failure? :event}}
-                             'ethereum/sign
-                             {:arguments
-                              {:account   :string
-                               :message   :string
-                               :on-result :event}}
                              'ethereum/send-transaction
-                             {:arguments
-                              {:from       :string
-                               :to         :string
-                               :gas?       :string
-                               :gas-price? :string
-                               :value?     :string
-                               :data?      :string
-                               :nonce?     :string}}
+                             {:permissions [:read]
+                              :value       :extensions/ethereum-send-transaction
+                              :arguments   {:to         :string
+                                            :gas?       :string
+                                            :gas-price? :string
+                                            :value?     :string
+                                            :method?    :string
+                                            :params?    :vector
+                                            :nonce?     :string
+                                            :on-result? :event}}
                              'ethereum/call
-                             {:arguments
-                              {:from?      :string
-                               :to         :string
-                               :gas?       :string
-                               :gas-price? :string
-                               :value?     :string
-                               :data?      :string
-                               :block      :string}}
-                             'ethereum/logs
-                             {:arguments
-                              {:from?     :string
-                               :to        :string
-                               :address   :string
-                               :topics    :string
-                               :blockhash :string}}}
+                             {:permissions [:read]
+                              :value       :extensions/ethereum-call
+                              :arguments   {:to         :string
+                                            :method     :string
+                                            :params?    :vector
+                                            :on-result? :event}}}
                 :hooks {:commands {:properties {:description?  :string
                                                 :scope         #{:personal-chats :public-chats}
                                                 :short-preview :view
