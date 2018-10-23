@@ -4,41 +4,87 @@
     "next": "Next",
     "previous": "Previous",
     "tagline": "A grammar for data manipulation",
-    "build/Deployment": "Deployment",
-    "Deployment": "Deployment",
-    "build/FirstExtension": "My first extension",
-    "My first extension": "My first extension",
-    "build/Packaging": "Packaging",
-    "Packaging": "Packaging",
-    "concepts/Anatomy": "Anatomy",
-    "Anatomy of an extension": "Anatomy of an extension",
-    "concepts/Event": "Event",
-    "Event": "Event",
-    "concepts/Hook": "Hook",
-    "Hook": "Hook",
-    "concepts/Query": "Query",
-    "Query": "Query",
-    "concepts/Registry": "Registry",
-    "Registry": "Registry",
-    "concepts/View": "View",
-    "View": "View",
-    "decisions/0001-record-decisions": "decisions/0001-record-decisions",
-    "decisions/0002-reader-errors": "decisions/0002-reader-errors",
-    "decisions/README": "decisions/README",
-    "decisions/templates/template": "decisions/templates/template",
-    "Development": "Development",
-    "Manifesto": "Manifesto",
-    "Principles": "Principles",
-    "principles/Privacy": "principles/Privacy",
-    "principles/Security": "principles/Security",
-    "principles/Simplicity": "principles/Simplicity",
-    "Roadmap": "Roadmap",
-    "Docs": "Docs",
-    "Examples": "Examples",
-    "Getting Started": "Getting Started",
-    "Concepts": "Concepts",
-    "Build": "Build",
-    "Contributing": "Contributing"
+    "docs": {
+      "build/Deployment": {
+        "title": "Deployment",
+        "sidebar_label": "Deployment"
+      },
+      "build/FirstExtension": {
+        "title": "My first extension",
+        "sidebar_label": "My first extension"
+      },
+      "build/Packaging": {
+        "title": "Packaging",
+        "sidebar_label": "Packaging"
+      },
+      "concepts/Anatomy": {
+        "title": "Anatomy",
+        "sidebar_label": "Anatomy of an extension"
+      },
+      "concepts/Block": {
+        "title": "Block",
+        "sidebar_label": "Block"
+      },
+      "concepts/Event": {
+        "title": "Event",
+        "sidebar_label": "Event"
+      },
+      "concepts/Hook": {
+        "title": "Hook",
+        "sidebar_label": "Hook"
+      },
+      "concepts/Query": {
+        "title": "Query",
+        "sidebar_label": "Query"
+      },
+      "concepts/Reference": {
+        "title": "Reference",
+        "sidebar_label": "Reference"
+      },
+      "concepts/Registry": {
+        "title": "Registry",
+        "sidebar_label": "Registry"
+      },
+      "concepts/View": {
+        "title": "View",
+        "sidebar_label": "View"
+      },
+      "decisions/0001-record-decisions": {
+        "title": "decisions/0001-record-decisions"
+      },
+      "decisions/0002-reader-errors": {
+        "title": "decisions/0002-reader-errors"
+      },
+      "decisions/README": {
+        "title": "decisions/README"
+      },
+      "decisions/templates/template": {
+        "title": "decisions/templates/template"
+      },
+      "Development": {
+        "title": "Development"
+      },
+      "Manifesto": {
+        "title": "Manifesto"
+      },
+      "Principles": {
+        "title": "Principles"
+      },
+      "Roadmap": {
+        "title": "Roadmap"
+      }
+    },
+    "links": {
+      "Docs": "Docs",
+      "Examples": "Examples",
+      "Try": "Try"
+    },
+    "categories": {
+      "Getting Started": "Getting Started",
+      "Concepts": "Concepts",
+      "Build": "Build",
+      "Contributing": "Contributing"
+    }
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

@@ -16,13 +16,15 @@
   <script>
     const ipfs = new window.Ipfs();
 
-    async function load() {
-      const buffer = await loadIPFS(ipfs, "QmYoa8CBcYmzm6Kd1NbPNLYQtbwMpwR7YBiywaAyST5gtH");
+    async function load(hash) {
+      const buffer = await loadIPFS(ipfs, hash);
       return buffer.toString();
     }
 
     ipfs.once("ready", async () => {
-      const content = await load();
+      let params = (new URL(document.location)).searchParams;
+      let hash = params.get("hash");
+      const content = await load(hash || "QmYoa8CBcYmzm6Kd1NbPNLYQtbwMpwR7YBiywaAyST5gtH");
       codeMirror.setValue(content);
     });
 
