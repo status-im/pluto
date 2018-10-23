@@ -23,9 +23,10 @@
 
     ipfs.once("ready", async () => {
       let params = (new URL(document.location)).searchParams;
-      let hash = params.get("hash");
-      const content = await load(hash || "QmYoa8CBcYmzm6Kd1NbPNLYQtbwMpwR7YBiywaAyST5gtH");
+      let hash = params.get("hash") || "QmYoa8CBcYmzm6Kd1NbPNLYQtbwMpwR7YBiywaAyST5gtH";
+      const content = await load(hash);
       codeMirror.setValue(content);
+      history.replaceState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
     });
 
     function extensionLink(hash) {
@@ -39,7 +40,9 @@
     async function publish() {
       const content = codeMirror.getValue();
       const filesAdded = await uploadIPFS(ipfs, content);
-      displayQR(extensionLink(filesAdded[0].hash));
+      const hash = filesAdded[0].hash;
+      history.pushState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
+      displayQR(extensionLink(hash));
     }
 
     function clearErrors() {
