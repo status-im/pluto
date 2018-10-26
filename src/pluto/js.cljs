@@ -36,6 +36,10 @@
                              {:permissions [:read]
                               :value       :log
                               :arguments   {:value :string}}
+                            'json/parse
+                             {:permissions [:read]
+                              :value       :log
+                              :arguments   {:value :string}}
                              'store/put
                              {:permissions [:read]
                               :value       :store/put
