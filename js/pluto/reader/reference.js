@@ -48,11 +48,11 @@ return or__3949__auto__;
 return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(ctx,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$capacities,cljs.core.get.cljs$core$IFn$_invoke$arity$2(pluto.reader.reference.type__GT_capacity,type),s,cljs.core.cst$kw$value], null));
 }
 });
-pluto.reader.reference.valid_reference_QMARK_ = (function pluto$reader$reference$valid_reference_QMARK_(p__2072){
-var vec__2073 = p__2072;
-var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2073,(0),null);
-var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2073,(1),null);
-var value = vec__2073;
+pluto.reader.reference.valid_reference_QMARK_ = (function pluto$reader$reference$valid_reference_QMARK_(p__2094){
+var vec__2095 = p__2094;
+var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2095,(0),null);
+var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2095,(1),null);
+var value = vec__2095;
 return (((name instanceof cljs.core.Symbol)) && (((2) >= cljs.core.count(value))) && ((((arguments$ == null)) || (cljs.core.map_QMARK_(arguments$)) || ((arguments$ instanceof cljs.core.Symbol)))));
 });
 /**

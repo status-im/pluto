@@ -33,11 +33,11 @@ return ((cljs.core.every_QMARK_(cljs.core.identity,matches)) && (cljs.core._EQ_.
  *   If given path (first argument) is matched by any of the include paths and none
  *   of the exclude paths, the function returns true, false/nil otherwise.
  */
-pluto.reader.permissions.allowed_path_QMARK_ = (function pluto$reader$permissions$allowed_path_QMARK_(path,p__2070){
-var map__2071 = p__2070;
-var map__2071__$1 = ((((!((map__2071 == null)))?(((((map__2071.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2071.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2071):map__2071);
-var include_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2071__$1,cljs.core.cst$kw$include_DASH_paths);
-var exclude_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2071__$1,cljs.core.cst$kw$exclude_DASH_paths);
+pluto.reader.permissions.allowed_path_QMARK_ = (function pluto$reader$permissions$allowed_path_QMARK_(path,p__2072){
+var map__2073 = p__2072;
+var map__2073__$1 = ((((!((map__2073 == null)))?(((((map__2073.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2073.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2073):map__2073);
+var include_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2073__$1,cljs.core.cst$kw$include_DASH_paths);
+var exclude_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2073__$1,cljs.core.cst$kw$exclude_DASH_paths);
 var and__3938__auto__ = cljs.core.some(cljs.core.partial.cljs$core$IFn$_invoke$arity$2(pluto.reader.permissions.matches_QMARK_,path),include_paths);
 if(cljs.core.truth_(and__3938__auto__)){
 return cljs.core.not(cljs.core.some(cljs.core.partial.cljs$core$IFn$_invoke$arity$2(pluto.reader.permissions.matches_QMARK_,path),exclude_paths));
