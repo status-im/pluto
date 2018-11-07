@@ -3,10 +3,11 @@
             [pluto.storage  :as storage]))
 
 (defn result [xhr]
-  (let [status (.-status xhr)]
-    (if (= 404 status)
-      {:type :error :value status}
-      {:type :success :value [{:content (.-responseText xhr)}]})))
+  (let [status  (.-status xhr)
+        content (.-responseText xhr) ]
+       (if (= 200 status)
+         {:type :success :value {:content content}}
+         {:type :error :value {:status status :content content}})))
 
 ;; TODO Handle all edn files types, not only extension.edn
 
@@ -17,6 +18,7 @@
   storage/Storage
   (fetch [_ {:keys [value]} callback]
     (let [xhr (js/XMLHttpRequest.)]
+      (set! (.-timeout xhr) 5000)
       (.open xhr "GET" (infura-url value) true)
       (.send xhr nil)
       (set! (.-onreadystatechange xhr)
