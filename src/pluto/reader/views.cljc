@@ -50,13 +50,6 @@
 (defmethod resolve-default-component-properties :default [_ value]
   nil)
 
-(defn wrap-data [type data env o]
-  (if (types/reference-types type)
-    (if (= :event type)
-      (with-meta (fn [env o] (data env o)) {:event true})
-      data)
-    data))
-
 (defn resolve-custom-component-properties [ctx ext component k v]
   (if-let [type (get-in ctx [:capacities :components component :properties k])]
     (if-not (and (types/reference-types type) (not (#{:event :view} type)))

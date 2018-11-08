@@ -39,7 +39,7 @@
   (cond (contains? values o) (get values o)
         (symbol? o) nil
         (string? o) (utils/interpolate values o)
-        (and (fn? o) (:event (meta o))) #(o % values) ;; Intercept events and inject the env. TODO remove this hack
+        (and (fn? o) (:event (meta o))) #(o % (dissoc values :pluto.reader/properties)) ;; Intercept events and inject the env. TODO remove this hack
         :else o))
 
 (defn walkup-upto-leaf [f lp? lf tree]

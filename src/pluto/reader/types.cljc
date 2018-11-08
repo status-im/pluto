@@ -4,6 +4,7 @@
   (:refer-clojure :exclude [resolve])
   (:require [clojure.string             :as string]
             [clojure.set                :as set]
+            [clojure.walk               :as walk]
             [pluto.reader.destructuring :as destructuring]
             [pluto.reader.errors        :as errors]
             [pluto.reader.reference     :as reference]
@@ -113,13 +114,13 @@
   (cond (contains? env o) (get env o)
         (symbol? o) nil
         (string? o) (utils/interpolate env o)
-        :else o))
+        :else (walk/postwalk-replace env o)))
 
 (defn event-after-env [ref data args bindings]
   (with-meta
     (fn [o env]
       (let [env (merge env (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} o)
-                       (:data (destructuring/destructure bindings (merge o args))))
+                       (:data (destructuring/destructure bindings (merge o args (reduce-kv #(assoc %1 (keyword (name %2)) %3) {} env)))))
             dic (reduce-kv #(assoc %1 %2 (if (contains? env %3) (get env %3) %3)) {} env)]
         [ref (merge o (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data))]))
     {:event true}))

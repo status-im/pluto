@@ -42,7 +42,7 @@
       const filesAdded = await uploadIPFS(ipfs, content);
       const hash = filesAdded[0].hash;
       history.pushState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
-      displayQR(extensionLink(hash));
+      displayQR(hash);
     }
 
     function clearErrors() {
@@ -85,9 +85,10 @@
       qel.innerHTML = '';
     }
 
-    function displayQR(s) {
+    function displayQR(hash) {
       const qel = document.getElementById("qr-wrapper");
-      qel.innerHTML = '<canvas id="qr"></canvas><a href="' + s + '">Universal link</a>';
+      const s = extensionLink(hash);
+      qel.innerHTML = '<canvas id="qr"></canvas><a href="' + s + '">Universal link</a><a href="https://ipfs.infura.io/ipfs/' + hash + '/">IPFS link</a>';
       new QRious({
             element: document.getElementById('qr'),
             value: s,

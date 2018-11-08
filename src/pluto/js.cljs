@@ -43,11 +43,11 @@
                              'store/put
                              {:permissions [:read]
                               :value       :store/put
-                              :arguments   {:key :string :value :string}}
+                              :arguments   {:key :string :value :map}}
                              'store/append
                              {:permissions [:read]
                               :value       :store/append
-                              :arguments   {:key :string :value :string}}
+                              :arguments   {:key :string :value :map}}
                              'store/clear
                              {:permissions [:read]
                               :value       :store/put
@@ -95,10 +95,10 @@
                                                 :scope         #{:personal-chats :public-chats}
                                                 :short-preview :view
                                                 :preview       :view
-                                                :parameters    [{:id           :keyword
-                                                                  :type         {:one-of #{:text :phone :password :number}}
-                                                                  :placeholder  :string
-                                                                  :suggestions? :view}]
+                                                :parameters?    [{:id           :keyword
+                                                                   :type         {:one-of #{:text :phone :password :number}}
+                                                                   :placeholder  :string
+                                                                   :suggestions? :view}]
                                                 :on-send?      :event
                                                 :on-receive?   :event}}}}})
 
