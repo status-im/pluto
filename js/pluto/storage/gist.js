@@ -1,4 +1,4 @@
-// Compiled by ClojureScript 1.10.339 {:static-fns true, :optimize-constants true}
+// Compiled by ClojureScript 1.10.439 {:static-fns true, :optimize-constants true}
 goog.provide('pluto.storage.gist');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
@@ -8,7 +8,7 @@ var status = xhr.status;
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((404),status)){
 return new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$error,cljs.core.cst$kw$value,status], null);
 } else {
-return new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$success,cljs.core.cst$kw$value,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$content,xhr.responseText], null)], null)], null);
+return new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$success,cljs.core.cst$kw$value,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$content,xhr.responseText], null)], null);
 }
 });
 pluto.storage.gist.gist_url = (function pluto$storage$gist$gist_url(id){
@@ -23,26 +23,26 @@ pluto.storage.gist.GistStorage = (function (){
 });
 pluto.storage.gist.GistStorage.prototype.pluto$storage$Storage$ = cljs.core.PROTOCOL_SENTINEL;
 
-pluto.storage.gist.GistStorage.prototype.pluto$storage$Storage$fetch$arity$3 = (function (_,p__2327,callback){
+pluto.storage.gist.GistStorage.prototype.pluto$storage$Storage$fetch$arity$3 = (function (_,p__6666,callback){
 var self__ = this;
-var map__2328 = p__2327;
-var map__2328__$1 = ((((!((map__2328 == null)))?(((((map__2328.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2328.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2328):map__2328);
-var value = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2328__$1,cljs.core.cst$kw$value);
+var map__6667 = p__6666;
+var map__6667__$1 = (((((!((map__6667 == null))))?(((((map__6667.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__6667.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__6667):map__6667);
+var value = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__6667__$1,cljs.core.cst$kw$value);
 var ___$1 = this;
 var xhr = (new XMLHttpRequest());
 xhr.open("GET",pluto.storage.gist.gist_url(value),true);
 
 xhr.send(null);
 
-return xhr.onreadystatechange = ((function (xhr,___$1,map__2328,map__2328__$1,value){
+return xhr.onreadystatechange = ((function (xhr,___$1,map__6667,map__6667__$1,value){
 return (function (){
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(xhr.readyState,(4))){
-var G__2330 = pluto.storage.gist.result(xhr);
-return (callback.cljs$core$IFn$_invoke$arity$1 ? callback.cljs$core$IFn$_invoke$arity$1(G__2330) : callback.call(null,G__2330));
+var G__6669 = pluto.storage.gist.result(xhr);
+return (callback.cljs$core$IFn$_invoke$arity$1 ? callback.cljs$core$IFn$_invoke$arity$1(G__6669) : callback.call(null,G__6669));
 } else {
 return null;
 }
-});})(xhr,___$1,map__2328,map__2328__$1,value))
+});})(xhr,___$1,map__6667,map__6667__$1,value))
 ;
 });
 
@@ -54,8 +54,8 @@ pluto.storage.gist.GistStorage.cljs$lang$type = true;
 
 pluto.storage.gist.GistStorage.cljs$lang$ctorStr = "pluto.storage.gist/GistStorage";
 
-pluto.storage.gist.GistStorage.cljs$lang$ctorPrWriter = (function (this__4192__auto__,writer__4193__auto__,opt__4194__auto__){
-return cljs.core._write(writer__4193__auto__,"pluto.storage.gist/GistStorage");
+pluto.storage.gist.GistStorage.cljs$lang$ctorPrWriter = (function (this__4290__auto__,writer__4291__auto__,opt__4292__auto__){
+return cljs.core._write(writer__4291__auto__,"pluto.storage.gist/GistStorage");
 });
 
 /**

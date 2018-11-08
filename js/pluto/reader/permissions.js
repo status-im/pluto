@@ -1,4 +1,4 @@
-// Compiled by ClojureScript 1.10.339 {:static-fns true, :optimize-constants true}
+// Compiled by ClojureScript 1.10.439 {:static-fns true, :optimize-constants true}
 goog.provide('pluto.reader.permissions');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
@@ -33,15 +33,15 @@ return ((cljs.core.every_QMARK_(cljs.core.identity,matches)) && (cljs.core._EQ_.
  *   If given path (first argument) is matched by any of the include paths and none
  *   of the exclude paths, the function returns true, false/nil otherwise.
  */
-pluto.reader.permissions.allowed_path_QMARK_ = (function pluto$reader$permissions$allowed_path_QMARK_(path,p__2072){
-var map__2073 = p__2072;
-var map__2073__$1 = ((((!((map__2073 == null)))?(((((map__2073.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__2073.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__2073):map__2073);
-var include_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2073__$1,cljs.core.cst$kw$include_DASH_paths);
-var exclude_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__2073__$1,cljs.core.cst$kw$exclude_DASH_paths);
-var and__3938__auto__ = cljs.core.some(cljs.core.partial.cljs$core$IFn$_invoke$arity$2(pluto.reader.permissions.matches_QMARK_,path),include_paths);
-if(cljs.core.truth_(and__3938__auto__)){
+pluto.reader.permissions.allowed_path_QMARK_ = (function pluto$reader$permissions$allowed_path_QMARK_(path,p__6398){
+var map__6399 = p__6398;
+var map__6399__$1 = (((((!((map__6399 == null))))?(((((map__6399.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__6399.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__6399):map__6399);
+var include_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__6399__$1,cljs.core.cst$kw$include_DASH_paths);
+var exclude_paths = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__6399__$1,cljs.core.cst$kw$exclude_DASH_paths);
+var and__4036__auto__ = cljs.core.some(cljs.core.partial.cljs$core$IFn$_invoke$arity$2(pluto.reader.permissions.matches_QMARK_,path),include_paths);
+if(cljs.core.truth_(and__4036__auto__)){
 return cljs.core.not(cljs.core.some(cljs.core.partial.cljs$core$IFn$_invoke$arity$2(pluto.reader.permissions.matches_QMARK_,path),exclude_paths));
 } else {
-return and__3938__auto__;
+return and__4036__auto__;
 }
 });

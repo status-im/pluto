@@ -1,4 +1,4 @@
-// Compiled by ClojureScript 1.10.339 {:static-fns true, :optimize-constants true}
+// Compiled by ClojureScript 1.10.439 {:static-fns true, :optimize-constants true}
 goog.provide('pluto.reader.reference');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
@@ -7,18 +7,18 @@ goog.require('pluto.reader.errors');
  * Return true if argument is a reference
  */
 pluto.reader.reference.reference_QMARK_ = (function pluto$reader$reference$reference_QMARK_(o){
-var and__3938__auto__ = cljs.core.vector_QMARK_(o);
-if(and__3938__auto__){
-var and__3938__auto____$1 = (function (){var c = cljs.core.count(o);
+var and__4036__auto__ = cljs.core.vector_QMARK_(o);
+if(and__4036__auto__){
+var and__4036__auto____$1 = (function (){var c = cljs.core.count(o);
 return ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((1),c)) || (cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((2),c)));
 })();
-if(and__3938__auto____$1){
+if(and__4036__auto____$1){
 return (cljs.core.first(o) instanceof cljs.core.Symbol);
 } else {
-return and__3938__auto____$1;
+return and__4036__auto____$1;
 }
 } else {
-return and__3938__auto__;
+return and__4036__auto__;
 }
 });
 /**
@@ -29,7 +29,7 @@ return and__3938__auto__;
  * ```
  */
 pluto.reader.reference.reference__GT_symbol = (function pluto$reader$reference$reference__GT_symbol(o){
-if(cljs.core.truth_(pluto.reader.reference.reference_QMARK_(o))){
+if(pluto.reader.reference.reference_QMARK_(o)){
 return cljs.core.first(o);
 } else {
 return null;
@@ -41,18 +41,18 @@ pluto.reader.reference.type__GT_capacity = new cljs.core.PersistentArrayMap(null
  * Resolve a symbol first via the extension definition then via the host ctx.
  */
 pluto.reader.reference.resolve_symbol = (function pluto$reader$reference$resolve_symbol(ctx,ext,type,ns,s){
-var or__3949__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(ext,cljs.core.symbol.cljs$core$IFn$_invoke$arity$2(ns,cljs.core.name(s)));
-if(cljs.core.truth_(or__3949__auto__)){
-return or__3949__auto__;
+var or__4047__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(ext,cljs.core.symbol.cljs$core$IFn$_invoke$arity$2(ns,cljs.core.name(s)));
+if(cljs.core.truth_(or__4047__auto__)){
+return or__4047__auto__;
 } else {
 return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(ctx,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$capacities,cljs.core.get.cljs$core$IFn$_invoke$arity$2(pluto.reader.reference.type__GT_capacity,type),s,cljs.core.cst$kw$value], null));
 }
 });
-pluto.reader.reference.valid_reference_QMARK_ = (function pluto$reader$reference$valid_reference_QMARK_(p__2094){
-var vec__2095 = p__2094;
-var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2095,(0),null);
-var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__2095,(1),null);
-var value = vec__2095;
+pluto.reader.reference.valid_reference_QMARK_ = (function pluto$reader$reference$valid_reference_QMARK_(p__6420){
+var vec__6421 = p__6420;
+var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6421,(0),null);
+var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__6421,(1),null);
+var value = vec__6421;
 return (((name instanceof cljs.core.Symbol)) && (((2) >= cljs.core.count(value))) && ((((arguments$ == null)) || (cljs.core.map_QMARK_(arguments$)) || ((arguments$ instanceof cljs.core.Symbol)))));
 });
 /**
@@ -63,7 +63,7 @@ return (((name instanceof cljs.core.Symbol)) && (((2) >= cljs.core.count(value))
  * ```
  */
 pluto.reader.reference.resolve = (function pluto$reader$reference$resolve(ctx,ext,type,value){
-if(cljs.core.truth_(pluto.reader.reference.valid_reference_QMARK_(value))){
+if(pluto.reader.reference.valid_reference_QMARK_(value)){
 var s = pluto.reader.reference.reference__GT_symbol(value);
 var temp__5455__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(pluto.reader.reference.type__GT_ns,type);
 if(cljs.core.truth_(temp__5455__auto__)){
