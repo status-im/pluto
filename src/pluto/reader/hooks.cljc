@@ -18,7 +18,7 @@
   (keyword (string/join "." (rest (string/split (name s) #"\.")))))
 
 (defn root-id [s]
-  (keyword (first (string/split (name s) #"\."))))
+  (keyword (string/join "." (butlast (string/split (name s) #"\.")))))
 
 (defn parse [ctx ext]
   (reduce-kv (fn [acc hook-key data]

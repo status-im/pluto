@@ -41,17 +41,19 @@
          (reader/validate {} {})))
   (is (= nil
          (reader/validate {} {'meta default-meta})))
-  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/test}]
-         (reader/validate {} (extension {'hooks/test {:hook-id :a}}))))
+  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/test.id}]
+         (reader/validate {} (extension {'hooks/test.id {:hook-id :a}}))))
   (is (= nil
          (reader/validate {:capacities {:hooks {:main {}}}}
-                          (extension {'hooks/main {:hook-id :a}}))))
-  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/unknown}]
+                          (extension {'hooks/main.id {:hook-id :a}}))))
+  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'hooks/unknown.id}]
          (reader/validate {:capacities {:hooks {:main {}}}}
-                          (extension {'hooks/main    {:hook-id :a}
-                                      'hooks/unknown {:hook-id :b}}))))
-  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'unknown/unknown}]
-         (reader/validate {} (extension {'unknown/unknown {}})))))
+                          (extension {'hooks/main.id    {:hook-id :a}
+                                      'hooks/unknown.id {:hook-id :b}}))))
+  (is (= [{::errors/type ::errors/invalid-key ::errors/value 'unknown/unknown.id}]
+         (reader/validate {} (extension {'unknown/unknown.id {}}))))
+  (is (= nil
+         (reader/validate {:capacities {:hooks {:some.ns {}}}} (extension {'hooks/some.ns.id {}})))))
 
 (def default-hooks {:main {:properties {:view :view}}})
 (def default-components {'text :text 'view :view})
