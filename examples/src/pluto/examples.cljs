@@ -37,6 +37,9 @@
   :random-boolean
   :random)
 
+(re-frame/reg-sub :extensions/identity
+                  (fn [_ [_ {:keys [value]}]] value))
+
 (defn render [h el]
   (reagent/render (h {:name "Test Extension"
                       :users [{:nm "Jane"}
@@ -59,7 +62,8 @@
 (defn parse [m]
   (reader/parse {:capacities {:components html/components
                               :queries    {'random-boolean
-                                           {:value :random-boolean}}
+                                           {:value :random-boolean}
+                                           'identity            {:value :extensions/identity :arguments {:value :map}}}
                               :hooks      {:main
                                            {:hook       hook
                                             :properties {:view :view}}}
@@ -76,7 +80,7 @@
     (render (get-in data [:hooks :main :demo :parsed :view]) el)))
 
 (defn read-extension [o el el-errors]
-  (let [{:keys [data errors]} (reader/read (:content (first o)))]
+  (let [{:keys [data errors]} (reader/read (:content o))]
     (render-extension data el el-errors)))
 
 (defn render-result [{:keys [type value]} el el-errors]
