@@ -9,40 +9,74 @@
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.40.2/mode/clojure/clojure.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/parinfer@3.12.0/parinfer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/parinfer-codemirror@1.4.2/parinfer-codemirror.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/ipfs/dist/index.min.js"></script>
   <script src="https://cdn.rawgit.com/neocotic/qrious/master/dist/qrious.js"></script>
 </head>
 <body>
   <script>
-    const ipfs = new window.Ipfs();
 
-    async function load(hash) {
-      const buffer = await loadIPFS(ipfs, hash);
-      return buffer.toString();
+    const TIMEOUT = 5; // seconds
+    const timeout = new Promise((resolve, reject) => {
+      return setTimeout(() => reject(new Error('request timeout')), TIMEOUT * 1000);
+    });
+
+    async function cat(hash) {
+      try {
+        const response = await Promise.race([timeout, fetch("https://ipfs.infura.io:5001/api/v0/cat?arg=" + hash)]);
+        if (response.status === 200) {
+          return response.text();
+        }
+        return null;
+      } catch {
+        return null;
+      }
     }
 
-    ipfs.once("ready", async () => {
-      let params = (new URL(document.location)).searchParams;
-      let hash = params.get("hash") || "QmYoa8CBcYmzm6Kd1NbPNLYQtbwMpwR7YBiywaAyST5gtH";
-      const content = await load(hash);
-      codeMirror.setValue(content);
-      history.replaceState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
-    });
+    async function add(content) {
+      const formData  = new FormData();
+      formData.append("extension.edn", content);
+      const response = await fetch("https://ipfs.infura.io:5001/api/v0/add", {
+        method: 'post',
+        body: formData
+      });
+      if (response.status === 200) {
+        return response.json();
+      }
+      return null;
+    }
+
+   const defaultHash = "QmYoa8CBcYmzm6Kd1NbPNLYQtbwMpwR7YBiywaAyST5gtH";
+
+    async function main () {
+      const params = (new URL(document.location)).searchParams;
+      const hash = params.get("hash") || defaultHash;
+      const content = await cat(hash);
+      if (content != null) {
+        codeMirror.setValue(content);
+        history.replaceState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
+      } else {
+        codeMirror.setValue("Failed to load the extension");
+        history.replaceState({hash: null}, null, document.location.href.split('?')[0]);
+      }
+    }
 
     function extensionLink(hash) {
       return "https://get.status.im/extension/ipfs@" + hash;
     }
 
-    async function loadIPFS(ipfs, hash) {
-      return ipfs.files.cat(hash);
-    }
-
     async function publish() {
       const content = codeMirror.getValue();
-      const filesAdded = await uploadIPFS(ipfs, content);
-      const hash = filesAdded[0].hash;
-      history.pushState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
-      displayQR(hash);
+      const bel = document.getElementById("publish");
+      bel.disabled = true;
+      const object = await add(content);
+      if (object !== null) {
+        const hash = object.Hash;
+        history.pushState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
+        displayQR(hash);
+      } else {
+        const qel = document.getElementById("qr-wrapper");
+        qel.innerHTML = "Failed to publish the extension";
+      }
+      bel.disabled = false;
     }
 
     function clearErrors() {
@@ -59,7 +93,7 @@
       } else {
         elErrors.classList.add("errors");
 
-        let names = errors.map( (error, i) => {
+        const names = errors.map( (error, i) => {
           return [error.type, error.value]
         })
         var s = '<div>Errors</div><ul>';
@@ -73,11 +107,6 @@
         s = s.concat("</ul>")
         elErrors.innerHTML = s;
       }
-    }
-
-    function uploadIPFS(ipfs, s) {
-      return ipfs.files.add({path: 'extension.edn',
-                            content: ipfs.types.Buffer.from(s, 'utf8')})
     }
 
     function clearQR() {
@@ -95,6 +124,8 @@
             size: 250
       });
     }
+
+    main();
   </script>
   <div id="wrapper">
     <main>
@@ -105,7 +136,7 @@
       <div id="panel">
       <p>A playground to experiment with extensions and easily publish them on IPFS. Go ahead, modify the default extension on the left side!</p>
       <p>Find more details about building your own extension in this <a href="https://docs.status.im/docs/extensions_tutorial_chat_command.html">tutorial</a></p>
-      <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="publish()">Publish</button>
+      <button id="publish" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="publish()">Publish</button>
       <div id="qr-wrapper"></div>
       </div>
       <div id="docs">

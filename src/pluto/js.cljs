@@ -91,7 +91,10 @@
                                             :method     :string
                                             :params?    :vector
                                             :on-result? :event}}}
-                :hooks {:commands {:properties {:description?  :string
+                :hooks {:wallet.settings {:properties {:title     :string
+                                                       :view      :view
+                                                       :on-click? :event}}
+                        :commands {:properties {:description?  :string
                                                 :scope         #{:personal-chats :public-chats}
                                                 :short-preview :view
                                                 :preview       :view
