@@ -5,6 +5,14 @@
             [pluto.reader.hooks  :as hooks]
             [pluto.reader.views  :as views]))
 
+(deftest local-id
+  (is (= :id (hooks/local-id 'hooks/type.id)))
+  (is (= :id (hooks/local-id 'hooks/ns.type.id))))
+
+(deftest root-id
+  (is (= :type (hooks/root-id 'hooks/type.id)))
+  (is (= :ns.type (hooks/root-id 'hooks/ns.type.id))))
+
 (defn- hooks [properties]
   {:main {:properties properties}})
 

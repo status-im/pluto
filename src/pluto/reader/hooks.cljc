@@ -15,7 +15,7 @@
   (filter hook? (keys ext)))
 
 (defn local-id [s]
-  (keyword (string/join "." (rest (string/split (name s) #"\.")))))
+  (keyword (last (string/split (name s) #"\."))))
 
 (defn root-id [s]
   (keyword (string/join "." (butlast (string/split (name s) #"\.")))))
