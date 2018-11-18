@@ -86,6 +86,8 @@
   "Parse an extension definition map as encapsulated in :data key of the map returned by read.
    `ctx` is a map defining:
    * `capacities` a map of valid supported capacities (hooks, queries, events)
+   * `env` [optional] a map of extension environment, may contain for example id of extension {:id 'id'}, will be
+   * provided as second parameter into event and query handlers
 
    Returns a map defining:
    * :data a map of meta and parsed hooks

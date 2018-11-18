@@ -30,15 +30,15 @@
 
 (re-frame/reg-event-fx
   :alert
-  (fn [cofx [_ {:keys [value]}]]
-    {::alert value}))
+  (fn [cofx [_ env {:keys [value]}]]
+    {::alert (str (:id env) value)}))
 
 (re-frame/reg-sub
   :random-boolean
   :random)
 
 (re-frame/reg-sub :extensions/identity
-                  (fn [_ [_ {:keys [value]}]] value))
+                  (fn [_ [_ _ {:keys [value]}]] value))
 
 (defn render [h el]
   (reagent/render (h {:name "Test Extension"
@@ -60,17 +60,19 @@
     (unhook [_ id {:keys [scope]} {:keys [db] :as cofx}])))
 
 (defn parse [m]
-  (reader/parse {:capacities {:components html/components
+  (reader/parse {:env        {:id "Extension ID"}
+                 :capacities {:components html/components
                               :queries    {'random-boolean
                                            {:value :random-boolean}
-                                           'identity            {:value :extensions/identity :arguments {:value :map}}}
+                                           'identity
+                                           {:value :extensions/identity :arguments {:value :map}}}
                               :hooks      {:main
                                            {:hook       hook
                                             :properties {:view :view}}}
                               :events     {'alert
                                            {:permissions [:read]
                                             :value       :alert
-                                            :arguments {:value :string}}}}}
+                                            :arguments   {:value :string}}}}}
                 m))
 
 (defn render-extension [m el el-errors]

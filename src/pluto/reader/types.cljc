@@ -116,19 +116,19 @@
         (string? o) (utils/interpolate env o)
         :else (walk/postwalk-replace env o)))
 
-(defn event-after-env [ref data args bindings]
+(defn event-after-env [ctx ref data args bindings]
   (with-meta
     (fn [o env]
       (let [env (merge env (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} o)
                        (:data (destructuring/destructure bindings (merge o args (reduce-kv #(assoc %1 (keyword (name %2)) %3) {} env)))))
             dic (reduce-kv #(assoc %1 %2 (if (contains? env %3) (get env %3) %3)) {} env)]
-        [ref (merge o (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data))]))
+        [ref (:env ctx) (merge o (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data))]))
     {:event true}))
 
-(defn- reference-with-arguments [ctx ext ref event arguments args bindings]
+(defn- event-reference-with-arguments [ctx ext ref event arguments args bindings]
   (if arguments
     (let [{:keys [data errors]} (resolve-arguments ctx ext event arguments)]
-      (errors/merge-errors {:data (event-after-env ref data args bindings)} errors))
+      (errors/merge-errors {:data (event-after-env ctx ref data args bindings)} errors))
     {:data (fn [o v] [ref o])}))
 
 (defn- reference-symbol [value]
@@ -168,16 +168,16 @@
   (let [{:keys [data errors]}   (resolve-local-reference ctx ext type value)
         {event :event ref :ref args :args bindings :bindings} data]
     ;; TODO better separate local event handling
-    (merge (when data (reference-with-arguments ctx ext ref event (or args arguments) arguments bindings))
+    (merge (when data (event-reference-with-arguments ctx ext ref event (or args arguments) arguments bindings))
            (when errors
              {:errors (apply conj [(errors/error ::errors/unknown-event symbol)] errors)}))))
 
 (defmethod resolve :event [ctx ext type [name arguments :as value]]
   (resolve-event ctx ext type value))
 
-(defmethod resolve :query [ctx ext type [name arguments :as value]]
+(defmethod resolve :query [{:keys [env] :as ctx} ext type [name arguments :as value]]
   (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
-    (merge (when data {:data (if arguments [data arguments] [data])})
+    (merge (when data {:data (if arguments [data env arguments] [data env])})
            (when errors
              {:errors (apply conj [(errors/error ::errors/unknown-query name)] errors)}))))
 
