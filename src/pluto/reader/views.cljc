@@ -94,7 +94,6 @@
           (spec/explain-data ::element o)
           (spec/explain-data ::form o))]
     (cond
-      ;; TODO Validate views, not hiccup
       (not (nil? explain))
       {:errors [(errors/error ::errors/invalid-view o {:explain-data explain})]}
 
@@ -116,13 +115,26 @@
                 (seq errors)     (errors/accumulate-errors errors)))
       :else {:errors [(errors/error ::errors/unknown-component o)]})))
 
+(defn unresolved-properties [acc o]
+  (cond
+    (symbol? o) (conj acc o)
+    (vector? o)
+    (let [[component properties & children] o]
+      (reduce #(apply conj %1 (unresolved-properties acc %2)) acc children))
+    :else acc))
+
 (defn parse [ctx ext o]
   (if (list? o) ;; TODO introduce a block? fn
-    (let [{:keys [data errors] :as m} (blocks/parse ctx ext o)]
-      (errors/merge-errors
-       (when data
-         (parse ctx ext data))
-       errors))
+    (let [{:keys [data errors] :as m} (blocks/parse ctx ext o)
+          ]
+      (if data
+        (let [d (parse ctx ext data)
+              props (reduce unresolved-properties #{} d)]
+          (errors/merge-errors
+            d
+            (concat errors (when (seq props)
+                             {:errors [(errors/error ::errors/unresolved-properties props)]}))))
+        {:errors errors}))
     (parse-hiccup-element ctx ext o)))
 
 (defn- hiccup-with-properties [h properties]

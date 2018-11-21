@@ -90,20 +90,20 @@
                               :arguments   {:to         :string
                                             :method     :string
                                             :params?    :vector
-                                            :on-result? :event}}}
-                :hooks {:wallet.settings {:properties {:title     :string
+                                            :on-result  :event}}}
+                :hooks {:wallet.settings {:properties {:label     :string
                                                        :view      :view
                                                        :on-click? :event}}
-                        :commands {:properties {:description?  :string
-                                                :scope         #{:personal-chats :public-chats}
-                                                :short-preview :view
-                                                :preview       :view
-                                                :parameters?    [{:id           :keyword
-                                                                   :type         {:one-of #{:text :phone :password :number}}
-                                                                   :placeholder  :string
-                                                                   :suggestions? :view}]
-                                                :on-send?      :event
-                                                :on-receive?   :event}}}}})
+                        :chat.command {:properties {:description?  :string
+                                                    :scope         #{:personal-chats :public-chats}
+                                                    :short-preview :view
+                                                    :preview       :view
+                                                    :parameters?    [{:id           :keyword
+                                                                      :type         {:one-of #{:text :phone :password :number}}
+                                                                      :placeholder  :string
+                                                                      :suggestions? :view}]
+                                                    :on-send?      :event
+                                                    :on-receive?   :event}}}}})
 
 (defn ^:export parse [m]
   (reader/parse ctx (:data m)))
