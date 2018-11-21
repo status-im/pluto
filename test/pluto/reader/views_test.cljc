@@ -30,8 +30,8 @@
          (views/parse {} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
          (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
-  (is (= {:data [:text {} "Hello"]}
-         (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
+  (is (= {:errors [(errors/error ::errors/unresolved-properties #{'a})]}
+         (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} 'a])))
   (is (empty?
         (:errors (views/parse {:capacities {:queries {'random-boolean {:value :value}}
                                             :components {'text {:value :text}
@@ -72,3 +72,8 @@
     (is (= (first-error-type (p '[text {asdf "asdf"}]))
            :pluto.reader.errors/invalid-property-map))))
 
+(deftest unresolved-properties
+  (is (= #{} (views/unresolved-properties #{} [:view {} ""])))
+  (is (= #{'a} (views/unresolved-properties #{} [:view {} 'a])))
+  (is (= #{'a} (views/unresolved-properties #{} [:view {:style {:key 'a}} ""])))
+  (is (= #{'a} (views/unresolved-properties #{} [:view {} [:view {} 'a]]))))
