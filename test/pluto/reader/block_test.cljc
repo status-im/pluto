@@ -80,16 +80,13 @@
          (blocks/resolve-rhs '{a "asdfg"} '[::identity-query {:x a}])))
   
   (is (= '{a "asdf", b "asdf", c "asdf" :hey 1}
-         (blocks/resolve-bindings-into {:hey 1} '[a "asdf" b a c b])))
-  
-
-  )
+         (blocks/resolve-bindings-into {:hey 1} '[a "asdf" b a c b]))))
 
 (deftest resolve-and-validate-queries
   (is (= {:data
-          '[a [:pluto.reader.block-test/identity-query {:x "asdf"}]
+          '[a [:pluto.reader.block-test/identity-query nil {:x "asdf"}]
             g "asdf"
-            b [:pluto.reader.block-test/identity-map {:x "asdf"}]]}
+            b [:pluto.reader.block-test/identity-map nil {:x "asdf"}]]}
 
          (blocks/resolve-and-validate-queries
           {:capacities let-test-capacities} {}
@@ -103,9 +100,7 @@
   
   (is (empty? (:errors (blocks/resolve-and-validate-queries
                         {:capacities let-test-capacities} {}
-                        '[a [identity-query {:x a}]]))))
-  
-  )
+                        '[a [identity-query {:x a}]])))))
 
 ;; The following is all set up so that we can fake "render" the blocks
 ;; in the resulting view tree
@@ -341,7 +336,7 @@
 (deftest for-block-parse
   (is (= {:data
           [blocks/for-block
-           {:bindings '(a [:pluto.reader.block-test/identity-query {:x a}])
+           {:bindings '(a [:pluto.reader.block-test/identity-query nil {:x a}])
             :wrapper-component view-component}
            'asdf]}
          (blocks/parse {:capacities let-test-capacities} {}
