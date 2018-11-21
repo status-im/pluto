@@ -19,7 +19,7 @@
                              'touchable-opacity  {:value component :properties {:on-press :event}}
                              'image              {:value component :properties {:uri :string}}
                              'input              {:value component :properties {:on-change :event :placeholder :string}}
-                             'button             {:value component :properties {:on-click :event}}
+                             'button             {:value component :properties {:disabled :boolean :on-click :event}}
                              'link               {:value component :properties {:uri :string}}
                              'checkbox           {:value component :properties {:on-change? :event :checked? :boolean}}
                              'nft-token-viewer   {:value component :properties {:token :string}}
