@@ -53,6 +53,7 @@
       if (content != null) {
         codeMirror.setValue(content);
         history.replaceState({hash: hash}, null, document.location.href.split('?')[0] + "?hash=" + hash);
+        displayQR(hash);
       } else {
         codeMirror.setValue("Failed to load the extension");
         history.replaceState({hash: null}, null, document.location.href.split('?')[0]);
