@@ -8,6 +8,9 @@
   (is (= {:errors [{::errors/type  ::errors/invalid-type
                     ::errors/value {:type :unknown}}]}
          (types/resolve {} {} :unknown nil)))
+  (testing "Any"
+           (is (= {:data "value"} (types/resolve {} {} :any "value")))
+           (is (= {:data 1} (types/resolve {} {} :any 1))))
   (testing "String"
     (is (= {:errors [{::errors/type  ::errors/invalid-type-value
                       ::errors/value {:type :string :value nil}}]}

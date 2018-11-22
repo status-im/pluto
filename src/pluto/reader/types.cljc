@@ -34,6 +34,9 @@
 (defn invalid-type-value [type value]
   (errors/error ::errors/invalid-type-value {:type type :value value}))
 
+(defmethod resolve :any [_ _ _ value]
+  {:data value})
+
 (defmethod resolve :boolean [_ _ _ value]
   (if (boolean? value)
     {:data value}
