@@ -44,7 +44,11 @@
       return null;
     }
 
-   const defaultHash = "Qmaznq6qZWPTjzh1ZcKJrwSQKt6VF3UL2tUSDkvAUYDRk2";
+    const defaultHash = "Qmaznq6qZWPTjzh1ZcKJrwSQKt6VF3UL2tUSDkvAUYDRk2";
+
+    function clearHash() {
+      history.replaceState({hash: null}, null, document.location.href.split('?')[0]);
+    }
 
     async function main () {
       const params = (new URL(document.location)).searchParams;
@@ -56,7 +60,7 @@
         displayQR(hash);
       } else {
         codeMirror.setValue("Failed to load the extension");
-        history.replaceState({hash: null}, null, document.location.href.split('?')[0]);
+        clearHash();
       }
     }
 
@@ -263,6 +267,7 @@
     codeMirror.on("change", function(c, change) {
       clearErrors();
       clearQR();
+      clearHash();
       const read = pluto.reader.read(codeMirror.getValue());
       const readJS = pluto.js.from_clj(read);
       displayErrors(readJS.errors);
