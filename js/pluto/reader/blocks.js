@@ -20,25 +20,25 @@ pluto.reader.blocks.parse = (function (){var method_table__4524__auto__ = cljs.c
 var prefer_table__4525__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
 var method_cache__4526__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
 var cached_hierarchy__4527__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
-var hierarchy__4528__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$3(cljs.core.PersistentArrayMap.EMPTY,cljs.core.cst$kw$hierarchy,(function (){var fexpr__1299 = cljs.core.get_global_hierarchy;
-return (fexpr__1299.cljs$core$IFn$_invoke$arity$0 ? fexpr__1299.cljs$core$IFn$_invoke$arity$0() : fexpr__1299.call(null));
+var hierarchy__4528__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$3(cljs.core.PersistentArrayMap.EMPTY,cljs.core.cst$kw$hierarchy,(function (){var fexpr__1253 = cljs.core.get_global_hierarchy;
+return (fexpr__1253.cljs$core$IFn$_invoke$arity$0 ? fexpr__1253.cljs$core$IFn$_invoke$arity$0() : fexpr__1253.call(null));
 })());
 return (new cljs.core.MultiFn(cljs.core.symbol.cljs$core$IFn$_invoke$arity$2("pluto.reader.blocks","parse"),((function (method_table__4524__auto__,prefer_table__4525__auto__,method_cache__4526__auto__,cached_hierarchy__4527__auto__,hierarchy__4528__auto__){
-return (function (ctx,ext,p__1300){
-var vec__1301 = p__1300;
-var type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1301,(0),null);
+return (function (ctx,ext,p__1254){
+var vec__1255 = p__1254;
+var type = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1255,(0),null);
 return type;
 });})(method_table__4524__auto__,prefer_table__4525__auto__,method_cache__4526__auto__,cached_hierarchy__4527__auto__,hierarchy__4528__auto__))
 ,cljs.core.cst$kw$default,hierarchy__4528__auto__,method_table__4524__auto__,prefer_table__4525__auto__,method_cache__4526__auto__,cached_hierarchy__4527__auto__));
 })();
 }
 pluto.reader.blocks.substitute_query_values = (function pluto$reader$blocks$substitute_query_values(m,v){
-return clojure.walk.prewalk((function (p1__1304_SHARP_){
-var or__4047__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(m,p1__1304_SHARP_);
+return clojure.walk.prewalk((function (p1__1258_SHARP_){
+var or__4047__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(m,p1__1258_SHARP_);
 if(cljs.core.truth_(or__4047__auto__)){
 return or__4047__auto__;
 } else {
-return p1__1304_SHARP_;
+return p1__1258_SHARP_;
 }
 }),v);
 });
@@ -50,13 +50,13 @@ if((v instanceof cljs.core.Symbol)){
 return cljs.core.get.cljs$core$IFn$_invoke$arity$2(env,v);
 } else {
 if(cljs.core.vector_QMARK_(v)){
-var G__1305 = (function (){var G__1306 = pluto.reader.blocks.substitute_query_values(env,v);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__1306) : re_frame.core.subscribe.call(null,G__1306));
+var G__1259 = (function (){var G__1260 = pluto.reader.blocks.substitute_query_values(env,v);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__1260) : re_frame.core.subscribe.call(null,G__1260));
 })();
-if((G__1305 == null)){
+if((G__1259 == null)){
 return null;
 } else {
-return cljs.core.deref(G__1305);
+return cljs.core.deref(G__1259);
 }
 } else {
 return v;
@@ -77,8 +77,8 @@ var v_SINGLEQUOTE_ = pluto.reader.blocks.resolve_rhs(env,v);
 return pluto.reader.blocks.destructure_into(env,k,v_SINGLEQUOTE_);
 });
 pluto.reader.blocks.resolve_bindings_into = (function pluto$reader$blocks$resolve_bindings_into(env,bindings){
-return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (p1__1307_SHARP_,p2__1308_SHARP_){
-return cljs.core.apply.cljs$core$IFn$_invoke$arity$3(pluto.reader.blocks.resolve_binding,p1__1307_SHARP_,p2__1308_SHARP_);
+return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (p1__1261_SHARP_,p2__1262_SHARP_){
+return cljs.core.apply.cljs$core$IFn$_invoke$arity$3(pluto.reader.blocks.resolve_binding,p1__1261_SHARP_,p2__1262_SHARP_);
 }),(function (){var or__4047__auto__ = env;
 if(cljs.core.truth_(or__4047__auto__)){
 return or__4047__auto__;
@@ -104,10 +104,10 @@ return cljs.core.cst$kw$event.cljs$core$IFn$_invoke$arity$1(cljs.core.meta(o));
 return and__4036__auto__;
 }
 })())){
-return (function (p1__1309_SHARP_){
-var G__1310 = p1__1309_SHARP_;
-var G__1311 = cljs.core.dissoc.cljs$core$IFn$_invoke$arity$2(values,cljs.core.cst$kw$pluto$reader_SLASH_properties);
-return (o.cljs$core$IFn$_invoke$arity$2 ? o.cljs$core$IFn$_invoke$arity$2(G__1310,G__1311) : o.call(null,G__1310,G__1311));
+return (function (p1__1263_SHARP_){
+var G__1264 = p1__1263_SHARP_;
+var G__1265 = cljs.core.dissoc.cljs$core$IFn$_invoke$arity$2(values,cljs.core.cst$kw$pluto$reader_SLASH_properties);
+return (o.cljs$core$IFn$_invoke$arity$2 ? o.cljs$core$IFn$_invoke$arity$2(G__1264,G__1265) : o.call(null,G__1264,G__1265));
 });
 } else {
 return o;
@@ -144,69 +144,69 @@ return res;
 }
 });
 
-pluto.reader.blocks.let_block = (function pluto$reader$blocks$let_block(p__1314,children){
-var map__1315 = p__1314;
-var map__1315__$1 = (((((!((map__1315 == null))))?(((((map__1315.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1315.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1315):map__1315);
-var prev_env = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1315__$1,cljs.core.cst$kw$prev_DASH_env);
-var bindings = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1315__$1,cljs.core.cst$kw$bindings);
+pluto.reader.blocks.let_block = (function pluto$reader$blocks$let_block(p__1268,children){
+var map__1269 = p__1268;
+var map__1269__$1 = (((((!((map__1269 == null))))?(((((map__1269.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1269.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1269):map__1269);
+var prev_env = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1269__$1,cljs.core.cst$kw$prev_DASH_env);
+var bindings = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1269__$1,cljs.core.cst$kw$bindings);
 var new_env = pluto.reader.blocks.resolve_bindings_into(prev_env,bindings);
-return pluto.reader.blocks.walkup_upto_leaf(((function (new_env,map__1315,map__1315__$1,prev_env,bindings){
-return (function (p1__1312_SHARP_){
-return pluto.reader.blocks.replace_atom(new_env,p1__1312_SHARP_);
-});})(new_env,map__1315,map__1315__$1,prev_env,bindings))
-,((function (new_env,map__1315,map__1315__$1,prev_env,bindings){
-return (function (p1__1313_SHARP_){
-var and__4036__auto__ = cljs.core.vector_QMARK_(p1__1313_SHARP_);
+return pluto.reader.blocks.walkup_upto_leaf(((function (new_env,map__1269,map__1269__$1,prev_env,bindings){
+return (function (p1__1266_SHARP_){
+return pluto.reader.blocks.replace_atom(new_env,p1__1266_SHARP_);
+});})(new_env,map__1269,map__1269__$1,prev_env,bindings))
+,((function (new_env,map__1269,map__1269__$1,prev_env,bindings){
+return (function (p1__1267_SHARP_){
+var and__4036__auto__ = cljs.core.vector_QMARK_(p1__1267_SHARP_);
 if(and__4036__auto__){
-var G__1320 = cljs.core.first(p1__1313_SHARP_);
-var fexpr__1319 = cljs.core.PersistentHashSet.createAsIfByAssoc([pluto.reader.blocks.for_block,pluto.reader.blocks.let_block]);
-return (fexpr__1319.cljs$core$IFn$_invoke$arity$1 ? fexpr__1319.cljs$core$IFn$_invoke$arity$1(G__1320) : fexpr__1319.call(null,G__1320));
+var G__1274 = cljs.core.first(p1__1267_SHARP_);
+var fexpr__1273 = cljs.core.PersistentHashSet.createAsIfByAssoc([pluto.reader.blocks.for_block,pluto.reader.blocks.let_block]);
+return (fexpr__1273.cljs$core$IFn$_invoke$arity$1 ? fexpr__1273.cljs$core$IFn$_invoke$arity$1(G__1274) : fexpr__1273.call(null,G__1274));
 } else {
 return and__4036__auto__;
 }
-});})(new_env,map__1315,map__1315__$1,prev_env,bindings))
-,((function (new_env,map__1315,map__1315__$1,prev_env,bindings){
-return (function (p__1321){
-var vec__1322 = p__1321;
-var x = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1322,(0),null);
-var props = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1322,(1),null);
-var children__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1322,(2),null);
+});})(new_env,map__1269,map__1269__$1,prev_env,bindings))
+,((function (new_env,map__1269,map__1269__$1,prev_env,bindings){
+return (function (p__1275){
+var vec__1276 = p__1275;
+var x = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1276,(0),null);
+var props = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1276,(1),null);
+var children__$1 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1276,(2),null);
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [x,cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(props,cljs.core.cst$kw$prev_DASH_env,new_env),children__$1], null);
-});})(new_env,map__1315,map__1315__$1,prev_env,bindings))
+});})(new_env,map__1269,map__1269__$1,prev_env,bindings))
 ,children);
 });
-pluto.reader.blocks.for_block = (function pluto$reader$blocks$for_block(p__1325,children){
-var map__1326 = p__1325;
-var map__1326__$1 = (((((!((map__1326 == null))))?(((((map__1326.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1326.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1326):map__1326);
-var wrapper_component = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1326__$1,cljs.core.cst$kw$wrapper_DASH_component);
-var prev_env = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1326__$1,cljs.core.cst$kw$prev_DASH_env);
-var bindings = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1326__$1,cljs.core.cst$kw$bindings);
-var vec__1328 = bindings;
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1328,(0),null);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1328,(1),null);
+pluto.reader.blocks.for_block = (function pluto$reader$blocks$for_block(p__1279,children){
+var map__1280 = p__1279;
+var map__1280__$1 = (((((!((map__1280 == null))))?(((((map__1280.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1280.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1280):map__1280);
+var wrapper_component = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1280__$1,cljs.core.cst$kw$wrapper_DASH_component);
+var prev_env = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1280__$1,cljs.core.cst$kw$prev_DASH_env);
+var bindings = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1280__$1,cljs.core.cst$kw$bindings);
+var vec__1282 = bindings;
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1282,(0),null);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1282,(1),null);
 var for_values = pluto.reader.blocks.resolve_rhs(prev_env,v);
 if(cljs.core.sequential_QMARK_(for_values)){
-return cljs.core.into.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [wrapper_component,cljs.core.PersistentArrayMap.EMPTY], null),(function (){var iter__4434__auto__ = ((function (vec__1328,k,v,for_values,map__1326,map__1326__$1,wrapper_component,prev_env,bindings){
-return (function pluto$reader$blocks$for_block_$_iter__1331(s__1332){
-return (new cljs.core.LazySeq(null,((function (vec__1328,k,v,for_values,map__1326,map__1326__$1,wrapper_component,prev_env,bindings){
+return cljs.core.into.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [wrapper_component,cljs.core.PersistentArrayMap.EMPTY], null),(function (){var iter__4434__auto__ = ((function (vec__1282,k,v,for_values,map__1280,map__1280__$1,wrapper_component,prev_env,bindings){
+return (function pluto$reader$blocks$for_block_$_iter__1285(s__1286){
+return (new cljs.core.LazySeq(null,((function (vec__1282,k,v,for_values,map__1280,map__1280__$1,wrapper_component,prev_env,bindings){
 return (function (){
-var s__1332__$1 = s__1332;
+var s__1286__$1 = s__1286;
 while(true){
-var temp__5457__auto__ = cljs.core.seq(s__1332__$1);
+var temp__5457__auto__ = cljs.core.seq(s__1286__$1);
 if(temp__5457__auto__){
-var s__1332__$2 = temp__5457__auto__;
-if(cljs.core.chunked_seq_QMARK_(s__1332__$2)){
-var c__4432__auto__ = cljs.core.chunk_first(s__1332__$2);
+var s__1286__$2 = temp__5457__auto__;
+if(cljs.core.chunked_seq_QMARK_(s__1286__$2)){
+var c__4432__auto__ = cljs.core.chunk_first(s__1286__$2);
 var size__4433__auto__ = cljs.core.count(c__4432__auto__);
-var b__1334 = cljs.core.chunk_buffer(size__4433__auto__);
-if((function (){var i__1333 = (0);
+var b__1288 = cljs.core.chunk_buffer(size__4433__auto__);
+if((function (){var i__1287 = (0);
 while(true){
-if((i__1333 < size__4433__auto__)){
-var val = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__4432__auto__,i__1333);
-cljs.core.chunk_append(b__1334,pluto.reader.blocks.let_block(new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$prev_DASH_env,prev_env,cljs.core.cst$kw$bindings,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,val], null)], null),children));
+if((i__1287 < size__4433__auto__)){
+var val = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__4432__auto__,i__1287);
+cljs.core.chunk_append(b__1288,pluto.reader.blocks.let_block(new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$prev_DASH_env,prev_env,cljs.core.cst$kw$bindings,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,val], null)], null),children));
 
-var G__1335 = (i__1333 + (1));
-i__1333 = G__1335;
+var G__1289 = (i__1287 + (1));
+i__1287 = G__1289;
 continue;
 } else {
 return true;
@@ -214,22 +214,22 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__1334),pluto$reader$blocks$for_block_$_iter__1331(cljs.core.chunk_rest(s__1332__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__1288),pluto$reader$blocks$for_block_$_iter__1285(cljs.core.chunk_rest(s__1286__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__1334),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__1288),null);
 }
 } else {
-var val = cljs.core.first(s__1332__$2);
-return cljs.core.cons(pluto.reader.blocks.let_block(new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$prev_DASH_env,prev_env,cljs.core.cst$kw$bindings,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,val], null)], null),children),pluto$reader$blocks$for_block_$_iter__1331(cljs.core.rest(s__1332__$2)));
+var val = cljs.core.first(s__1286__$2);
+return cljs.core.cons(pluto.reader.blocks.let_block(new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$prev_DASH_env,prev_env,cljs.core.cst$kw$bindings,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,val], null)], null),children),pluto$reader$blocks$for_block_$_iter__1285(cljs.core.rest(s__1286__$2)));
 }
 } else {
 return null;
 }
 break;
 }
-});})(vec__1328,k,v,for_values,map__1326,map__1326__$1,wrapper_component,prev_env,bindings))
+});})(vec__1282,k,v,for_values,map__1280,map__1280__$1,wrapper_component,prev_env,bindings))
 ,null,null));
-});})(vec__1328,k,v,for_values,map__1326,map__1326__$1,wrapper_component,prev_env,bindings))
+});})(vec__1282,k,v,for_values,map__1280,map__1280__$1,wrapper_component,prev_env,bindings))
 ;
 return iter__4434__auto__(for_values);
 })());
@@ -250,20 +250,20 @@ pluto.reader.blocks.valid_bindings_form_QMARK_ = (function pluto$reader$blocks$v
 return cljs.core.even_QMARK_(cljs.core.count(bindings));
 });
 pluto.reader.blocks.resolve_and_validate_queries = (function pluto$reader$blocks$resolve_and_validate_queries(ctx,ext,bindings){
-return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (accum,p__1336){
-var vec__1337 = p__1336;
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1337,(0),null);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1337,(1),null);
+return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (accum,p__1290){
+var vec__1291 = p__1290;
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1291,(0),null);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1291,(1),null);
 if(cljs.core.vector_QMARK_(v)){
-var map__1340 = (function (){var G__1341 = ctx;
-var G__1342 = ext;
-var G__1343 = cljs.core.cst$kw$query;
-var G__1344 = v;
-return (pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4 ? pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4(G__1341,G__1342,G__1343,G__1344) : pluto.reader.types.resolve.call(null,G__1341,G__1342,G__1343,G__1344));
+var map__1294 = (function (){var G__1295 = ctx;
+var G__1296 = ext;
+var G__1297 = cljs.core.cst$kw$query;
+var G__1298 = v;
+return (pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4 ? pluto.reader.types.resolve.cljs$core$IFn$_invoke$arity$4(G__1295,G__1296,G__1297,G__1298) : pluto.reader.types.resolve.call(null,G__1295,G__1296,G__1297,G__1298));
 })();
-var map__1340__$1 = (((((!((map__1340 == null))))?(((((map__1340.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1340.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1340):map__1340);
-var data = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1340__$1,cljs.core.cst$kw$data);
-var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1340__$1,cljs.core.cst$kw$errors);
+var map__1294__$1 = (((((!((map__1294 == null))))?(((((map__1294.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1294.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1294):map__1294);
+var data = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1294__$1,cljs.core.cst$kw$data);
+var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1294__$1,cljs.core.cst$kw$errors);
 if(cljs.core.truth_(cljs.core.not_empty(errors))){
 return cljs.core.update.cljs$core$IFn$_invoke$arity$4(accum,cljs.core.cst$kw$errors,cljs.core.concat,errors);
 } else {
@@ -278,12 +278,12 @@ pluto.reader.blocks.validate_bindings = (function pluto$reader$blocks$validate_b
 if(pluto.reader.blocks.valid_bindings_form_QMARK_(bindings)){
 return cljs.core.not_empty((function (){var binding_pairs = cljs.core.partition.cljs$core$IFn$_invoke$arity$2((2),bindings);
 return cljs.core.concat.cljs$core$IFn$_invoke$arity$2(cljs.core.mapv.cljs$core$IFn$_invoke$arity$2(((function (binding_pairs){
-return (function (p1__1347_SHARP_){
-return pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_bindings,p1__1347_SHARP_);
+return (function (p1__1301_SHARP_){
+return pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_bindings,p1__1301_SHARP_);
 });})(binding_pairs))
 ,cljs.core.filter.cljs$core$IFn$_invoke$arity$2(((function (binding_pairs){
-return (function (p1__1346_SHARP_){
-return cljs.core.not(cljs.core.apply.cljs$core$IFn$_invoke$arity$2(pluto.reader.blocks.valid_bindings_QMARK_,p1__1346_SHARP_));
+return (function (p1__1300_SHARP_){
+return cljs.core.not(cljs.core.apply.cljs$core$IFn$_invoke$arity$2(pluto.reader.blocks.valid_bindings_QMARK_,p1__1300_SHARP_));
 });})(binding_pairs))
 ,binding_pairs)),cljs.core.mapcat.cljs$core$IFn$_invoke$arity$variadic(pluto.reader.destructuring.validate_destructure_bindings,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([cljs.core.filter.cljs$core$IFn$_invoke$arity$2(cljs.core.some_fn.cljs$core$IFn$_invoke$arity$2(cljs.core.sequential_QMARK_,cljs.core.map_QMARK_),cljs.core.map.cljs$core$IFn$_invoke$arity$2(cljs.core.first,binding_pairs))], 0)));
 })());
@@ -291,16 +291,16 @@ return cljs.core.not(cljs.core.apply.cljs$core$IFn$_invoke$arity$2(pluto.reader.
 return new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_bindings_DASH_format,bindings)], null);
 }
 });
-pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$let,(function (ctx,ext,p__1348){
-var vec__1349 = p__1348;
-var seq__1350 = cljs.core.seq(vec__1349);
-var first__1351 = cljs.core.first(seq__1350);
-var seq__1350__$1 = cljs.core.next(seq__1350);
-var _ = first__1351;
-var first__1351__$1 = cljs.core.first(seq__1350__$1);
-var seq__1350__$2 = cljs.core.next(seq__1350__$1);
-var bindings = first__1351__$1;
-var body = seq__1350__$2;
+pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$let,(function (ctx,ext,p__1302){
+var vec__1303 = p__1302;
+var seq__1304 = cljs.core.seq(vec__1303);
+var first__1305 = cljs.core.first(seq__1304);
+var seq__1304__$1 = cljs.core.next(seq__1304);
+var _ = first__1305;
+var first__1305__$1 = cljs.core.first(seq__1304__$1);
+var seq__1304__$2 = cljs.core.next(seq__1304__$1);
+var bindings = first__1305__$1;
+var body = seq__1304__$2;
 if(cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2((1),cljs.core.count(body))){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_let_DASH_body,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$value,body], null))], null)], null);
 } else {
@@ -308,10 +308,10 @@ var binding_errors = pluto.reader.blocks.validate_bindings(bindings);
 if(cljs.core.truth_(cljs.core.not_empty(binding_errors))){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,binding_errors], null);
 } else {
-var map__1352 = pluto.reader.blocks.resolve_and_validate_queries(ctx,ext,bindings);
-var map__1352__$1 = (((((!((map__1352 == null))))?(((((map__1352.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1352.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1352):map__1352);
-var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1352__$1,cljs.core.cst$kw$errors);
-var data = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1352__$1,cljs.core.cst$kw$data);
+var map__1306 = pluto.reader.blocks.resolve_and_validate_queries(ctx,ext,bindings);
+var map__1306__$1 = (((((!((map__1306 == null))))?(((((map__1306.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1306.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1306):map__1306);
+var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1306__$1,cljs.core.cst$kw$errors);
+var data = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1306__$1,cljs.core.cst$kw$data);
 if(cljs.core.truth_(cljs.core.not_empty(errors))){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,errors], null);
 } else {
@@ -320,36 +320,36 @@ return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,new cljs
 }
 }
 }));
-pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$for,(function (ctx,ext,p__1354){
-var vec__1355 = p__1354;
-var seq__1356 = cljs.core.seq(vec__1355);
-var first__1357 = cljs.core.first(seq__1356);
-var seq__1356__$1 = cljs.core.next(seq__1356);
-var _ = first__1357;
-var first__1357__$1 = cljs.core.first(seq__1356__$1);
-var seq__1356__$2 = cljs.core.next(seq__1356__$1);
-var binding = first__1357__$1;
-var body = seq__1356__$2;
+pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$for,(function (ctx,ext,p__1308){
+var vec__1309 = p__1308;
+var seq__1310 = cljs.core.seq(vec__1309);
+var first__1311 = cljs.core.first(seq__1310);
+var seq__1310__$1 = cljs.core.next(seq__1310);
+var _ = first__1311;
+var first__1311__$1 = cljs.core.first(seq__1310__$1);
+var seq__1310__$2 = cljs.core.next(seq__1310__$1);
+var binding = first__1311__$1;
+var body = seq__1310__$2;
 if(cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2((1),cljs.core.count(body))){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_for_DASH_body,body)], null)], null);
 } else {
-if(((cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2((2),cljs.core.count(binding))) || (cljs.core.not((function (){var G__1361 = cljs.core.first(binding);
-var fexpr__1360 = cljs.core.some_fn.cljs$core$IFn$_invoke$arity$2(cljs.core.symbol_QMARK_,cljs.core.map_QMARK_);
-return (fexpr__1360.cljs$core$IFn$_invoke$arity$1 ? fexpr__1360.cljs$core$IFn$_invoke$arity$1(G__1361) : fexpr__1360.call(null,G__1361));
+if(((cljs.core.not_EQ_.cljs$core$IFn$_invoke$arity$2((2),cljs.core.count(binding))) || (cljs.core.not((function (){var G__1315 = cljs.core.first(binding);
+var fexpr__1314 = cljs.core.some_fn.cljs$core$IFn$_invoke$arity$2(cljs.core.symbol_QMARK_,cljs.core.map_QMARK_);
+return (fexpr__1314.cljs$core$IFn$_invoke$arity$1 ? fexpr__1314.cljs$core$IFn$_invoke$arity$1(G__1315) : fexpr__1314.call(null,G__1315));
 })())))){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_for_DASH_binding,binding)], null)], null);
 } else {
 var wrapper_component = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(ctx,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$capacities,cljs.core.cst$kw$components,cljs.core.cst$sym$view,cljs.core.cst$kw$value], null));
-var map__1362 = pluto.reader.blocks.resolve_and_validate_queries(ctx,ext,binding);
-var map__1362__$1 = (((((!((map__1362 == null))))?(((((map__1362.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1362.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1362):map__1362);
-var result = map__1362__$1;
-var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1362__$1,cljs.core.cst$kw$errors);
-var data = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1362__$1,cljs.core.cst$kw$data);
-var errors__$1 = (function (){var G__1364 = errors;
+var map__1316 = pluto.reader.blocks.resolve_and_validate_queries(ctx,ext,binding);
+var map__1316__$1 = (((((!((map__1316 == null))))?(((((map__1316.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1316.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1316):map__1316);
+var result = map__1316__$1;
+var errors = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1316__$1,cljs.core.cst$kw$errors);
+var data = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1316__$1,cljs.core.cst$kw$data);
+var errors__$1 = (function (){var G__1318 = errors;
 if((wrapper_component == null)){
-return cljs.core.conj.cljs$core$IFn$_invoke$arity$variadic(G__1364,errors,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unknown_DASH_component,cljs.core.cst$sym$wrapper_DASH_component)], 0));
+return cljs.core.conj.cljs$core$IFn$_invoke$arity$variadic(G__1318,errors,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unknown_DASH_component,cljs.core.cst$sym$wrapper_DASH_component)], 0));
 } else {
-return G__1364;
+return G__1318;
 }
 })();
 if(cljs.core.truth_(cljs.core.not_empty(errors__$1))){
@@ -362,33 +362,33 @@ return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,new cljs
 }
 }
 }));
-pluto.reader.blocks.when_block = (function pluto$reader$blocks$when_block(p__1365,body){
-var map__1366 = p__1365;
-var map__1366__$1 = (((((!((map__1366 == null))))?(((((map__1366.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1366.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1366):map__1366);
-var test = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1366__$1,cljs.core.cst$kw$test);
+pluto.reader.blocks.when_block = (function pluto$reader$blocks$when_block(p__1319,body){
+var map__1320 = p__1319;
+var map__1320__$1 = (((((!((map__1320 == null))))?(((((map__1320.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1320.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1320):map__1320);
+var test = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1320__$1,cljs.core.cst$kw$test);
 if(cljs.core.truth_(test)){
 return body;
 } else {
 return null;
 }
 });
-pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$when,(function (_,___$1,p__1368){
-var vec__1369 = p__1368;
-var seq__1370 = cljs.core.seq(vec__1369);
-var first__1371 = cljs.core.first(seq__1370);
-var seq__1370__$1 = cljs.core.next(seq__1370);
-var ___$2 = first__1371;
-var first__1371__$1 = cljs.core.first(seq__1370__$1);
-var seq__1370__$2 = cljs.core.next(seq__1370__$1);
-var test = first__1371__$1;
-var body = seq__1370__$2;
-var parts = vec__1369;
-var errors = (function (){var G__1372 = null;
-var G__1372__$1 = (((!((test instanceof cljs.core.Symbol))))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1372,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)):G__1372);
+pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$when,(function (_,___$1,p__1322){
+var vec__1323 = p__1322;
+var seq__1324 = cljs.core.seq(vec__1323);
+var first__1325 = cljs.core.first(seq__1324);
+var seq__1324__$1 = cljs.core.next(seq__1324);
+var ___$2 = first__1325;
+var first__1325__$1 = cljs.core.first(seq__1324__$1);
+var seq__1324__$2 = cljs.core.next(seq__1324__$1);
+var test = first__1325__$1;
+var body = seq__1324__$2;
+var parts = vec__1323;
+var errors = (function (){var G__1326 = null;
+var G__1326__$1 = (((!((test instanceof cljs.core.Symbol))))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1326,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)):G__1326);
 if(cljs.core.empty_QMARK_(body)){
-return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1372__$1,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_when_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$empty_DASH_body_DASH_clause,body], null)));
+return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1326__$1,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_when_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$empty_DASH_body_DASH_clause,body], null)));
 } else {
-return G__1372__$1;
+return G__1326__$1;
 }
 })();
 if(cljs.core.truth_(cljs.core.not_empty(errors))){
@@ -399,14 +399,14 @@ return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,cljs.cor
 }));
 pluto.reader.blocks.if_block = (function pluto$reader$blocks$if_block(var_args){
 var args__4647__auto__ = [];
-var len__4641__auto___1378 = arguments.length;
-var i__4642__auto___1379 = (0);
+var len__4641__auto___1332 = arguments.length;
+var i__4642__auto___1333 = (0);
 while(true){
-if((i__4642__auto___1379 < len__4641__auto___1378)){
-args__4647__auto__.push((arguments[i__4642__auto___1379]));
+if((i__4642__auto___1333 < len__4641__auto___1332)){
+args__4647__auto__.push((arguments[i__4642__auto___1333]));
 
-var G__1380 = (i__4642__auto___1379 + (1));
-i__4642__auto___1379 = G__1380;
+var G__1334 = (i__4642__auto___1333 + (1));
+i__4642__auto___1333 = G__1334;
 continue;
 } else {
 }
@@ -417,10 +417,10 @@ var argseq__4648__auto__ = ((((1) < args__4647__auto__.length))?(new cljs.core.I
 return pluto.reader.blocks.if_block.cljs$core$IFn$_invoke$arity$variadic((arguments[(0)]),argseq__4648__auto__);
 });
 
-pluto.reader.blocks.if_block.cljs$core$IFn$_invoke$arity$variadic = (function (p__1375,body){
-var map__1376 = p__1375;
-var map__1376__$1 = (((((!((map__1376 == null))))?(((((map__1376.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1376.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1376):map__1376);
-var test = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1376__$1,cljs.core.cst$kw$test);
+pluto.reader.blocks.if_block.cljs$core$IFn$_invoke$arity$variadic = (function (p__1329,body){
+var map__1330 = p__1329;
+var map__1330__$1 = (((((!((map__1330 == null))))?(((((map__1330.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__1330.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__1330):map__1330);
+var test = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__1330__$1,cljs.core.cst$kw$test);
 if(cljs.core.truth_(test)){
 return cljs.core.first(body);
 } else {
@@ -431,28 +431,28 @@ return cljs.core.second(body);
 pluto.reader.blocks.if_block.cljs$lang$maxFixedArity = (1);
 
 /** @this {Function} */
-pluto.reader.blocks.if_block.cljs$lang$applyTo = (function (seq1373){
-var G__1374 = cljs.core.first(seq1373);
-var seq1373__$1 = cljs.core.next(seq1373);
+pluto.reader.blocks.if_block.cljs$lang$applyTo = (function (seq1327){
+var G__1328 = cljs.core.first(seq1327);
+var seq1327__$1 = cljs.core.next(seq1327);
 var self__4628__auto__ = this;
-return self__4628__auto__.cljs$core$IFn$_invoke$arity$variadic(G__1374,seq1373__$1);
+return self__4628__auto__.cljs$core$IFn$_invoke$arity$variadic(G__1328,seq1327__$1);
 });
 
-pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$if,(function (_,___$1,p__1381){
-var vec__1382 = p__1381;
-var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1382,(0),null);
-var test = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1382,(1),null);
-var then = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1382,(2),null);
-var else$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1382,(3),null);
-var parts = vec__1382;
+pluto.reader.blocks.parse.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$sym$if,(function (_,___$1,p__1335){
+var vec__1336 = p__1335;
+var ___$2 = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1336,(0),null);
+var test = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1336,(1),null);
+var then = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1336,(2),null);
+var else$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1336,(3),null);
+var parts = vec__1336;
 var parts_count = cljs.core.count(cljs.core.rest(parts));
-var errors = (function (){var G__1385 = null;
-var G__1385__$1 = (((!((test instanceof cljs.core.Symbol))))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1385,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)):G__1385);
-var G__1385__$2 = ((((3) < parts_count))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1385__$1,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_if_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$too_DASH_many_DASH_clauses,cljs.core.cst$kw$clause_DASH_count,parts_count], null))):G__1385__$1);
+var errors = (function (){var G__1339 = null;
+var G__1339__$1 = (((!((test instanceof cljs.core.Symbol))))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1339,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unsupported_DASH_test_DASH_type,test)):G__1339);
+var G__1339__$2 = ((((3) < parts_count))?cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1339__$1,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_if_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$too_DASH_many_DASH_clauses,cljs.core.cst$kw$clause_DASH_count,parts_count], null))):G__1339__$1);
 if(((3) > parts_count)){
-return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1385__$2,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_if_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$three_DASH_clauses_DASH_required,cljs.core.cst$kw$clause_DASH_count,parts_count], null)));
+return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(G__1339__$2,pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_if_DASH_block,parts,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$type,cljs.core.cst$kw$three_DASH_clauses_DASH_required,cljs.core.cst$kw$clause_DASH_count,parts_count], null)));
 } else {
-return G__1385__$2;
+return G__1339__$2;
 }
 })();
 if(cljs.core.truth_(cljs.core.not_empty(errors))){
