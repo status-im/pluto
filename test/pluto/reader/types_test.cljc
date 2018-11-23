@@ -155,4 +155,4 @@
   (let [{:keys [data errors]} (types/resolve {:capacities {:events {'event {:value :event :arguments {:on-finished? :event}}}}}
                                              {} :event ['event {:on-finished ['event]}])]
     (is (not errors))
-    (is (fn? (:on-finished (second (data {} {})))))))
+    (is (fn? (:on-finished (last (data {} {})))))))

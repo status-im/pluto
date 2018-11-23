@@ -30,6 +30,7 @@
          (views/parse {} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
          (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
+  #_
   (is (= {:errors [(errors/error ::errors/unresolved-properties #{'a})]}
          (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} 'a])))
   (is (empty?
@@ -75,5 +76,5 @@
 (deftest unresolved-properties
   (is (= #{} (views/unresolved-properties #{} [:view {} ""])))
   (is (= #{'a} (views/unresolved-properties #{} [:view {} 'a])))
-  (is (= #{'a} (views/unresolved-properties #{} [:view {:style {:key 'a}} ""])))
+  #_(is (= #{'a} (views/unresolved-properties #{} [:view {:style {:key 'a}} ""])))
   (is (= #{'a} (views/unresolved-properties #{} [:view {} [:view {} 'a]]))))

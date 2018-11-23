@@ -74,10 +74,10 @@
          (blocks/resolve-binding
           '{:pluto.reader/properties {:asdf "foo"}} '{asdf :asdf} 'properties)))
   (is (= "asdfg"
-         (blocks/resolve-rhs {} '[::identity-query {:x "asdfg"}])))
+         (blocks/resolve-rhs {} '[::identity-query nil {:x "asdfg"}])))
 
   (is (= "asdfg"
-         (blocks/resolve-rhs '{a "asdfg"} '[::identity-query {:x a}])))
+         (blocks/resolve-rhs '{a "asdfg"} '[::identity-query nil {:x a}])))
   
   (is (= '{a "asdf", b "asdf", c "asdf" :hey 1}
          (blocks/resolve-bindings-into {:hey 1} '[a "asdf" b a c b]))))
@@ -112,23 +112,23 @@
 (defn button-component [& args] [:button args])
 
 (re-frame/reg-sub ::identity-query
-                  (fn [db [_ {:keys [x]}]] x))
+                  (fn [db [_ _ {:keys [x]}]] x))
 
 (re-frame/reg-sub ::bool-query
-                  (fn [db [_ {:keys [x]}]] (= x "true")))
+                  (fn [db [_ _ {:keys [x]}]] (= x "true")))
 
 (re-frame/reg-sub ::array-query
-                  (fn [db [_ {:keys [x y]}]] (cond-> []
+                  (fn [db [_ _ {:keys [x y]}]] (cond-> []
                                                x (conj x)
                                                y (conj y))))
 
 (re-frame/reg-sub ::identity-map
-                  (fn [db [_ {:keys [x]}]] {:asdf x}))
+                  (fn [db [_ _ {:keys [x]}]] {:asdf x}))
 
 (def fetch-data (atom {}))
 
 (re-frame/reg-sub ::fetch-data
-                  (fn [db [_ {:keys [id]}]] (get @fetch-data id)))
+                  (fn [db [_ _ {:keys [id]}]] (get @fetch-data id)))
 
 #?(:clj (defmacro with-fetch-data [data & body]
           `(do (swap! fetch-data merge ~data)
