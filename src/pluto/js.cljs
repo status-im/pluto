@@ -40,6 +40,14 @@
                              {:permissions [:read]
                               :value       :log
                               :arguments   {:value :string}}
+                             'chat.command/set-parameter
+                             {:permissions [:read]
+                              :value       :store/put
+                              :arguments   {:value :string}}
+                             'chat.command/set-custom-parameter
+                             {:permissions [:read]
+                              :value       :store/put
+                              :arguments   {:key :keyword :value :string}}
                              'store/put
                              {:permissions [:read]
                               :value       :store/put
