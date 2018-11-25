@@ -156,3 +156,6 @@
                                              {} :event ['event {:on-finished ['event]}])]
     (is (not errors))
     (is (fn? (:on-finished (last (data {} {})))))))
+
+(deftest local-event?
+  (is (types/local-event? '(let [{} properties] [alert {}]))))

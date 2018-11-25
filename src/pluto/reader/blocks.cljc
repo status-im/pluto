@@ -14,13 +14,18 @@
   (fn [ctx ext [type]] type))
 
 (defn substitute-query-values [m v]
-  (walk/prewalk #(or (get m %) %) v))
+  (walk/prewalk #(or (get m %) (when (string? %) (utils/interpolate m %)) %) v))
+
+(defn- query? [binding-value]
+  (and (vector? binding-value)
+       (let [s (first binding-value)]
+         (or (symbol? s) (keyword? s)))))
 
 (defn resolve-rhs [env v]
   (cond
     (= v 'properties) (get env :pluto.reader/properties)
     (symbol? v) (get env v)
-    (vector? v) (some-> (re-frame/subscribe (substitute-query-values env v)) deref)
+    (query? v) (some-> (re-frame/subscribe (substitute-query-values env v)) deref)
     :else v))
 
 (defn destructure-into [env k v]
@@ -39,8 +44,8 @@
   (cond (contains? values o) (get values o)
         (symbol? o) nil
         (string? o) (utils/interpolate values o)
-        (and (fn? o) (:event (meta o))) #(o % (dissoc values :pluto.reader/properties)) ;; Intercept events and inject the env. TODO remove this hack
-        :else o))
+        (and (fn? o) (:event (meta o))) #(o % values) ;; Intercept events and inject the env. TODO remove this hack
+        :else (walk/postwalk-replace values o)))
 
 (defn walkup-upto-leaf [f lp? lf tree]
   (if (lp? tree)
@@ -74,9 +79,6 @@
 
 (defn static-value? [v]
   (or (utils/primitive? v) (map? v)))
-
-(defn- query? [binding-value]
-  (vector? binding-value))
 
 (defn valid-bindings? [k v]
   (and (or (symbol? k) (map? k))

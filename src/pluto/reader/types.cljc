@@ -117,15 +117,22 @@
   (cond (contains? env o) (get env o)
         (symbol? o) nil
         (string? o) (utils/interpolate env o)
+        (fn? o) #(o % env)
         :else (walk/postwalk-replace env o)))
+
+(defn symbol-map->keyword-map [m]
+  (reduce-kv #(assoc %1 (keyword (name %2)) %3) {} m))
+
+(defn keyword-map->symbol-map [m]
+  (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} m))
 
 (defn event-after-env [ctx ref data args bindings]
   (with-meta
     (fn [o env]
-      (let [env (merge env (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} o)
-                       (:data (destructuring/destructure bindings (merge o args (reduce-kv #(assoc %1 (keyword (name %2)) %3) {} env)))))
+      (let [env (merge env (keyword-map->symbol-map o)
+                       (:data (destructuring/destructure bindings (merge o args (symbol-map->keyword-map env)))))
             dic (reduce-kv #(assoc %1 %2 (if (contains? env %3) (get env %3) %3)) {} env)]
-        [ref (:env ctx) (merge o (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data))]))
+        [ref (:env ctx) (merge (symbol-map->keyword-map dic) (reduce-kv #(assoc %1 %2 (replace-atom dic  %3)) {} data) o)]))
     {:event true}))
 
 (defn- event-reference-with-arguments [ctx ext ref event arguments args bindings]
@@ -147,7 +154,18 @@
            (= 2 (count bindings))
            (map? (first bindings))
            (= 'properties (second bindings))
-           (vector? (reference-symbol data))))))
+           (let [s (reference-symbol data)]
+             (or (vector? s)
+                 (and (list? s) (= 'if (first s)))))))))
+
+(defn resolve-local-event [ctx ext type data]
+  (let [a (reference-symbol data)]
+    (cond
+      (vector? a)
+      (let [[event args :as reference] a
+            bindings (first (second data))
+            {:keys [data errors]} (reference/resolve ctx ext type reference)]
+        (errors/merge-errors {:data {:ref data :event event :args args :bindings bindings}} errors)))))
 
 (defn resolve-local-reference
   "References local references defining let blocks"
@@ -157,10 +175,7 @@
     (if data
       (cond
         (local-event? data)
-        (let [[event args :as reference] (reference-symbol data)
-              bindings (first (second data))
-              {:keys [data errors]} (reference/resolve ctx ext type reference)]
-          (errors/merge-errors {:data {:ref data :event event :args args :bindings bindings}} errors))
+        (resolve-local-event ctx ext type data)
         (keyword? data)
         {:data {:ref data :event name}}
         :else
