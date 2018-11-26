@@ -140,7 +140,7 @@
     <aside id="side-column">
       <div id="panel">
       <p>A playground to experiment with extensions and easily publish them on IPFS. Go ahead, modify the default extension on the left side!</p>
-      <p>Find more details about building your own extension in this <a href="https://docs.status.im/docs/extensions_tutorial_chat_command.html">tutorial</a></p>
+      <p>Find more details about building your own extension in this <a href="https://status.im/extensions/">tutorial</a></p>
       <button id="publish" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" onclick="publish()">Publish</button>
       <div id="qr-wrapper"></div>
       </div>
@@ -170,11 +170,19 @@
 	  </li>
 	  <li>
 	    <code>checkbox</code>
-	    <pre class="inline-args">{:uri String}</pre>
+	    <pre class="inline-args">{:on-change Event :checked Bool}</pre>
 	  </li>
 	  <li>
-	    <code>checkbox</code>
-	    <pre class="inline-args">{:on-change Event :checked Bool}</pre>
+		<code>list</code>
+		<pre class="inline-args">{:data Vector :item-view View :key Keyword}</pre>
+	  </li>
+	  <li>
+		<code>picker</code>
+		<pre class="inline-args">{:on-change Event :selected String :enabled Boolean :data Vector}</pre>
+	  </li>
+	  <li>
+		<code>activity-indicator</code>
+		<pre class="inline-args">{:animating Boolean :color String :size Keyword :hides-when-stopped Boolean}</pre>
 	  </li>
 	  <li>
 	    <code>nft-token-viewer</code>
@@ -250,6 +258,15 @@
  :nonce?     String
  :on-result? Event}</pre>
 	  </li>
+	  <li>
+		<code>ethereum/logs</code>
+		<pre>{:fromBlock? String
+:toBlock?   String
+:address?   Vector
+:topics?    Vector
+:blockhash? String
+:on-result Event}</pre>
+   	  </li>
 	  <li>
 	    <code>ethereum/call</code>
 	    <pre>{:to String

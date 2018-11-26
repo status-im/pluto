@@ -22,6 +22,9 @@
                              'button             {:value component :properties {:disabled :boolean :on-click :event}}
                              'link               {:value component :properties {:uri :string}}
                              'checkbox           {:value component :properties {:on-change? :event :checked? :boolean}}
+                             'activity-indicator {:value component :properties {:animating :boolean :color :string :size :keyword :hides-when-stopped :boolean}}
+                             'list               {:value component :properties {:data :vector :item-view :view :key? :keyword}}
+                             'picker             {:value component :properties {:on-change :event :selected :string :enabled :boolean :data :vector}}
                              'nft-token-viewer   {:value component :properties {:token :string}}
                              'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
                              'asset-selector     {:value component}
@@ -92,6 +95,15 @@
                                             :params?    :vector
                                             :nonce?     :string
                                             :on-result? :event}}
+                             'ethereum/logs
+                             {:permissions [:read]
+                              :value       :extensions/ethereum-logs
+                              :arguments   {:fromBlock? :string
+                                            :toBlock?   :string
+                                            :address?   :vector
+                                            :topics?    :vector
+                                            :blockhash? :string
+                                            :on-result :event}}
                              'ethereum/call
                              {:permissions [:read]
                               :value       :extensions/ethereum-call
