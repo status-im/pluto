@@ -29,7 +29,9 @@
                              'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
                              'asset-selector     {:value component}
                              'token-selector     {:value component}}
-                :queries {'wallet/collectibles {:value :get-collectible-token :arguments {:token :string :symbol :string}}
+                :queries {'wallet/token {:value :wallet/token :arguments {:token :string}}
+                          'wallet/balance {:value :wallet/balance :arguments {:token :string}}
+                          'wallet/collectibles {:value :get-collectible-token :arguments {:token :string :symbol :string}}
                           'store/get {:value :store/get :arguments {:key :string}}}
                 :events     {'alert
                              {:permissions [:read]
@@ -51,6 +53,18 @@
                              {:permissions [:read]
                               :value       :store/put
                               :arguments   {:key :keyword :value :string}}
+                             'chat.command/set-parameter-with-custom-params
+                             {:permissions [:read]
+                              :value       :store/put
+                              :arguments   {:key :keyword :value :string}}
+                             'chat.command/send-message
+                             {:permissions [:read]
+                              :value       :chat.command/send-message
+                              :arguments   {:params :map}}
+                             'chat.command/send-plain-text-message
+                             {:permissions [:read]
+                              :value       :chat.command/send-message
+                              :arguments   {:value :string}}
                              'store/put
                              {:permissions [:read]
                               :value       :store/put
@@ -123,6 +137,7 @@
                                                                       :placeholder  :string
                                                                       :suggestions? :view}]
                                                     :on-send?      :event
+                                                    :on-send-sync? :event
                                                     :on-receive?   :event}}}}})
 
 (defn ^:export parse [m]
