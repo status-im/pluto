@@ -26,7 +26,7 @@
                      hook-root                     (root-id hook-key)
                      ctx-with-hook-id              (assoc-in ctx [:env :hook-id] hook-id)
                      {:keys [properties] :as hook} (get-in ctx [:capacities :hooks hook-root])
-                     {:keys [data errors]}   (types/resolve ctx-with-hook-id properties data)]
+                     {:keys [data errors]}         (types/resolve ctx-with-hook-id ext properties data)]
                  (errors/merge-errors
                   (-> acc
                       (assoc-in [:data :hooks hook-root hook-id :parsed] data)
