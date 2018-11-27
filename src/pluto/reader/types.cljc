@@ -139,7 +139,7 @@
   (if arguments
     (let [{:keys [data errors]} (resolve-arguments ctx ext event arguments)]
       (errors/merge-errors {:data (event-after-env ctx ref data args bindings)} errors))
-    {:data (fn [o v] [ref o])}))
+    {:data (fn [o v] [ref (:env ctx) o])}))
 
 (defn- reference-symbol [value]
   (nth value 2))

@@ -24,8 +24,9 @@
   (reduce-kv (fn [acc hook-key data]
                (let [hook-id                       (local-id hook-key)
                      hook-root                     (root-id hook-key)
+                     ctx-with-hook-id              (assoc-in ctx [:env :hook-id] hook-id)
                      {:keys [properties] :as hook} (get-in ctx [:capacities :hooks hook-root])
-                     {:keys [data errors] :as m}   (types/resolve ctx ext properties data)]
+                     {:keys [data errors]}   (types/resolve ctx-with-hook-id properties data)]
                  (errors/merge-errors
                   (-> acc
                       (assoc-in [:data :hooks hook-root hook-id :parsed] data)
