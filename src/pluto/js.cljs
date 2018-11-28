@@ -18,8 +18,8 @@
                              'text               {:value component}
                              'touchable-opacity  {:value component :properties {:on-press :event}}
                              'image              {:value component :properties {:uri :string}}
-                             'input              {:value component :properties {:on-change :event :placeholder :string}}
-                             'button             {:value component :properties {:disabled :boolean :on-click :event}}
+                             'input              {:value component :properties {:on-change :event :placeholder :string :keyboard-type :keyword}}
+                             'button             {:value component :properties {:enabled :boolean :disabled :boolean :on-click :event}}
                              'link               {:value component :properties {:uri :string}}
                              'checkbox           {:value component :properties {:on-change? :event :checked? :boolean}}
                              'activity-indicator {:value component :properties {:animating :boolean :color :string :size :keyword :hides-when-stopped :boolean}}
@@ -41,6 +41,23 @@
                              {:permissions [:read]
                               :value       :log
                               :arguments   {:value :string}}
+                             'arithmetic
+                             {:permissions [:read]
+                              :value       :extensions/arithmetic
+                              :arguments   {:values    #{:plus :minus :times :divide}
+                                            :operation :keyword
+                                            :on-result :event}}
+                             'schedule/start
+                             {:permissions [:read]
+                              :value       :extensions/json-parse
+                              :arguments   {:value      :event
+                                            :interval   :number
+                                            :on-created :event
+                                            :on-result  :event}}
+                             'schedule/cancel
+                             {:permissions [:read]
+                              :value       :extensions/json-parse
+                              :arguments   {:value      :number}}
                             'json/parse
                              {:permissions [:read]
                               :value       :log
@@ -56,7 +73,7 @@
                              'chat.command/set-parameter-with-custom-params
                              {:permissions [:read]
                               :value       :store/put
-                              :arguments   {:key :keyword :value :string}}
+                              :arguments   {:value :string :params :map}}
                              'chat.command/send-message
                              {:permissions [:read]
                               :value       :chat.command/send-message
@@ -68,11 +85,11 @@
                              'store/put
                              {:permissions [:read]
                               :value       :store/put
-                              :arguments   {:key :string :value :map}}
+                              :arguments   {:key :string :value :any}}
                              'store/append
                              {:permissions [:read]
                               :value       :store/append
-                              :arguments   {:key :string :value :map}}
+                              :arguments   {:key :string :value :any}}
                              'store/clear
                              {:permissions [:read]
                               :value       :store/put
@@ -98,6 +115,11 @@
                               :arguments   {:hash        :string
                                             :on-success  :event
                                             :on-failure? :event}}
+                             'ethereum/transaction-receipt
+                             {:permissions [:read]
+                              :value       :extensions/ethereum-transaction-receipt
+                              :arguments   {:value     :string
+                                            :on-result :event}}
                              'ethereum/send-transaction
                              {:permissions [:read]
                               :value       :extensions/ethereum-send-transaction
