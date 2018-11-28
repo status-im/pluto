@@ -31,7 +31,7 @@
 (re-frame/reg-event-fx
   :alert
   (fn [cofx [_ env {:keys [value]}]]
-    {::alert (str (:id env) value)}))
+    {::alert (str "id = " (:id env) " value = " value)}))
 
 (re-frame/reg-sub
   :random-boolean
@@ -56,8 +56,8 @@
 
 (def hook 
   (reify hooks/Hook
-    (hook-in [_ id {:keys [description scope parameters preview short-preview]} cofx])
-    (unhook [_ id {:keys [scope]} {:keys [db] :as cofx}])))
+    (hook-in [_ id env {:keys [description scope parameters preview short-preview]} cofx])
+    (unhook [_ id env {:keys [scope]} {:keys [db] :as cofx}])))
 
 (defn parse [m]
   (reader/parse {:env        {:id "Extension ID"}

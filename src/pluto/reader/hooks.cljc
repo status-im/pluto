@@ -5,8 +5,8 @@
 
 (defprotocol Hook
   "Encapsulate hook lifecycle."
-  (hook-in [this id properties cofx] "Hook it into host app.")
-  (unhook [this id properties cofx] "Remove extension hook from app."))
+  (hook-in [this id env properties cofx] "Hook it into host app.")
+  (unhook [this id env properties cofx] "Remove extension hook from app."))
 
 (defn hook? [s]
   (= "hooks" (namespace s)))
