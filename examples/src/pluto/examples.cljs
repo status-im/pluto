@@ -33,6 +33,15 @@
   (fn [cofx [_ env {:keys [value]}]]
     {::alert (str "id = " (:id env) " value = " value)}))
 
+(re-frame/reg-fx
+  ::identity
+  (fn [{:keys [cb]}] (re-frame/dispatch (cb {}))))
+
+(re-frame/reg-event-fx
+  :identity
+  (fn [cofx [_ env m]]
+    {::identity m}))
+
 (re-frame/reg-sub
   :random-boolean
   :random)
@@ -69,7 +78,11 @@
                               :hooks      {:main
                                            {:hook       hook
                                             :properties {:view :view}}}
-                              :events     {'alert
+                              :events     {'identity
+                                           {:permissions [:read]
+                                            :value       :identity
+                                            :arguments   {:cb :event}}
+                                           'alert
                                            {:permissions [:read]
                                             :value       :alert
                                             :arguments   {:value :string}}}}}

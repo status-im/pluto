@@ -10,11 +10,15 @@
  (let [{you :arg} properties]
    [alert {:value "Eh! ${you}"}])
 
+ events/cb
+ (let [{value :arg cond? :cond?} properties]
+   [identity {:cb [my-alert {:arg cond? :value "%%"}]}])
+
  views/main
  (let [{name :name users :users}   properties
        {cond? :cond?} [random-boolean]]
    [view
-    [button {:on-click [my-alert {:arg name}]}
+    [button {:on-click [cb {:arg name :cond? cond? :value "AA"}]}
      "Hello ${name}"]
     (if cond?
       [text {:style {:color "green"}}
