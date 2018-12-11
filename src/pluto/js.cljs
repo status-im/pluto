@@ -30,6 +30,7 @@
                              'asset-selector     {:value component}
                              'token-selector     {:value component}}
                 :queries {'wallet/token {:value :wallet/token :arguments {:token :string}}
+                          'wallet/tokens {:value :wallet/tokens :arguments {:filter :vector}}
                           'wallet/balance {:value :wallet/balance :arguments {:token :string}}
                           'wallet/collectibles {:value :get-collectible-token :arguments {:token :string :symbol :string}}
                           'store/get {:value :store/get :arguments {:key :string}}}
@@ -86,6 +87,10 @@
                              {:permissions [:read]
                               :value       :store/put
                               :arguments   {:key :string :value :any}}
+                             'store/puts
+                             {:permissions [:read]
+                              :value       :store/puts
+                              :arguments   {:value :vector}}
                              'store/append
                              {:permissions [:read]
                               :value       :store/append
