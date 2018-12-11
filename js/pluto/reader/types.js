@@ -108,7 +108,7 @@ return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cl
 }
 }));
 pluto.reader.types.resolve.cljs$core$IMultiFn$_add_method$arity$3(null,cljs.core.cst$kw$subset,(function (_,___$1,type,value){
-if((((!((value == null)))) && (clojure.set.subset_QMARK_(value,type)))){
+if(((cljs.core.set_QMARK_(value)) && (clojure.set.subset_QMARK_(value,type)))){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,value], null);
 } else {
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.types.invalid_type_value(cljs.core.cst$kw$subset,value)], null)], null);
