@@ -14,21 +14,24 @@
 ;; TODO find a syntax so that :event can define associated types they will be injected
 
 (def ctx
-  {:capacities {:components {'view               {:value component}
-                             'text               {:value component}
-                             'touchable-opacity  {:value component :properties {:on-press :event}}
-                             'image              {:value component :properties {:uri :string}}
-                             'input              {:value component :properties {:on-change :event :placeholder :string :keyboard-type :keyword}}
-                             'button             {:value component :properties {:enabled :boolean :disabled :boolean :on-click :event}}
-                             'link               {:value component :properties {:uri :string}}
-                             'checkbox           {:value component :properties {:on-change? :event :checked? :boolean}}
-                             'activity-indicator {:value component :properties {:animating :boolean :color :string :size :keyword :hides-when-stopped :boolean}}
-                             'list               {:value component :properties {:data :vector :item-view :view :key? :keyword}}
-                             'picker             {:value component :properties {:on-change :event :selected :string :enabled :boolean :data :vector}}
-                             'nft-token-viewer   {:value component :properties {:token :string}}
-                             'transaction-status {:value component :properties {:outgoing :string :tx-hash :string}}
-                             'asset-selector     {:value component}
-                             'token-selector     {:value component}}
+  {:capacities {:components {'view                   {:value component}
+                             'scroll-view            {:value component}
+                             'keyboard-avoiding-view {:value component}
+                             'text                   {:value component}
+                             'touchable-opacity      {:value component :properties {:on-press :event}}
+                             'icon                   {:value component :properties {:key :keyword :color :any}}
+                             'image                  {:value component :properties {:uri :string  :source :number}}
+                             'input                  {:value component :properties {:on-change :event :placeholder :string :keyboard-type :keyword :change-delay? :number :placeholder-text-color :any}}
+                             'button                 {:value component :properties {:enabled :boolean :disabled :boolean :on-click :event}}
+                             'link                   {:value component :properties {:uri :string}}
+                             'checkbox               {:value component :properties {:on-change? :event :checked? :boolean}}
+                             'activity-indicator     {:value component :properties {:animating :boolean :color :string :size :keyword :hides-when-stopped :boolean}}
+                             'list                   {:value component :properties {:data :vector :item-view :view :key? :keyword}}
+                             'picker                 {:value component :properties {:on-change :event :selected :string :enabled :boolean :data :vector}}
+                             'nft-token-viewer       {:value component :properties {:token :string}}
+                             'transaction-status     {:value component :properties {:outgoing :string :tx-hash :string}}
+                             'asset-selector         {:value component}
+                             'token-selector         {:value component}}
                 :queries {'wallet/token {:value :wallet/token :arguments {:token :string}}
                           'wallet/tokens {:value :wallet/tokens :arguments {:filter :vector}}
                           'wallet/balance {:value :wallet/balance :arguments {:token :string}}
@@ -38,6 +41,10 @@
                              {:permissions [:read]
                               :value       :alert
                               :arguments   {:value :string}}
+                             'selection-screen
+                             {:permissions [:read]
+                              :value       :extensions/show-selection-screen
+                              :arguments   {:items :vector :on-select :event :render :view :title :string :extractor-key :keyword}}
                              'log
                              {:permissions [:read]
                               :value       :log
