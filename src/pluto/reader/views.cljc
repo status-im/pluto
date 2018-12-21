@@ -49,7 +49,7 @@
 (defmethod resolve-default-component-properties :style [_ value]
   {:data value})
 
-(defmethod resolve-default-component-properties :default [_ value]
+(defmethod resolve-default-component-properties :default [_ _]
   nil)
 
 (defn resolve-custom-component-properties [ctx ext component k v]
@@ -59,9 +59,11 @@
       (if-not (symbol? v)
         (let [{:keys [data errors]} (types/resolve ctx ext type v)]
           (errors/merge-errors (when data {:data data}) errors))
-          {:data v})
+        {:data v})
       {:errors [(errors/error ::errors/invalid-component-property-type {:component component :property k :type type})]})
-    {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]}))
+    (if (types/resolve ctx ext :view v)
+      {:data v}
+      {:errors [(errors/error ::errors/unknown-component-property {:component component :property k})]})))
 
 (defn- resolve-component-property [ctx ext component k v]
   (or (resolve-default-component-properties k v)
@@ -103,16 +105,14 @@
 
       (vector? o)
       (let [[element & properties-children]  o
-            [properties children]            (resolve-properties-children properties-children)
             component                        (resolve-component ctx ext o)
+            [properties children]            (resolve-properties-children properties-children)
             {:keys [data errors]}            (when properties
                                                (resolve-component-properties ctx ext element properties))]
         (cond-> (let [m (parse-hiccup-children ctx ext children)]
                   ;; Reduce parsed children to a single map and wrap them in a hiccup element
                   ;; whose component has been translated to the local platform
-                  (update m :data #(apply conj (if data [(or component element) data]
-                                                   [(or component element)])
-                                          %)))
+                  (if component (update m :data #(apply conj (if data [component data] [component]) %)) m))
                 (nil? component) (errors/accumulate-errors [(errors/error ::errors/unknown-component element)])
                 (seq errors)     (errors/accumulate-errors errors)))
       :else {:errors [(errors/error ::errors/unknown-component o)]})))
@@ -121,15 +121,15 @@
   (cond
     (symbol? o) (conj acc o)
     (vector? o)
-    (let [[component properties & children] o]
+    (let [[_ _ & children] o]
       (reduce #(apply conj %1 (unresolved-properties acc %2)) acc children))
     :else acc))
 
 (defn parse [ctx ext o]
-  (if (list? o) ;; TODO introduce a block? fn
-    (let [{:keys [data errors] :as m} (blocks/parse ctx ext o)]
+  (if (list? o)
+    (let [{:keys [data errors]} (blocks/parse ctx ext o)]
       (if data
-        (let [d (parse ctx ext data)
+        (let [d     (parse ctx ext data)
               props (reduce unresolved-properties #{} d)]
           (errors/merge-errors
             d

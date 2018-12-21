@@ -65,7 +65,9 @@
 
 (defmethod valid-element? "events" [{:keys [events]} k v])
 
-(defmethod valid-element? "views" [_ _ _])
+(defmethod valid-element? "views" [{:keys [components]} k _]
+  (when ((set (map str (keys components))) (name k))
+    [(errors/error ::errors/invalid-key k)]))
 
 (defmethod valid-element? :default [_ k _]
   [(errors/error ::errors/invalid-key k)])

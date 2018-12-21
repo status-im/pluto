@@ -14,10 +14,15 @@
  (let [{value :arg cond? :cond? v :value} properties]
    [identity {:cb [my-alert {:arg value :value "%% ${v}"}]}])
 
+ views/local-view
+ (let [{name :name} properties]
+   [text name])
+
  views/main
  (let [{name :name users :users}   properties
        {cond? :cond?} [random-boolean]]
    [view
+    [local-view {:name "Hey!! ${name}"}]
     [button {:on-click [cb {:arg name :cond? cond? :value "AA"}]}
      "Hello ${name}"]
     (if cond?

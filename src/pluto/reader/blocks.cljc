@@ -9,6 +9,11 @@
             [pluto.reader.types         :as types]
             [pluto.utils                :as utils]))
 
+(defn block? [o]
+      (and (list? o)
+           (symbol? (first o))
+           (map? (second o))))
+
 (defmulti parse
   "Parse a block element. Return hiccup data."
   (fn [ctx ext [type]] type))
@@ -68,11 +73,11 @@
                         [x (assoc props :prev-env new-env) children])
                       children)))
 
-(defn for-block [{:keys [wrapper-component prev-env bindings]} children]
+(defn for-block [{:keys [wrapper-component prev-env bindings wrap?]} children]
   (let [[k v] bindings
         for-values (resolve-rhs prev-env v)]
     (when (sequential? for-values)
-      (into [wrapper-component {}]
+      (into (if true [wrapper-component {}] (list))
             (for [val for-values]
               (let-block {:prev-env prev-env :bindings [k val]}
                 children))))))
@@ -134,16 +139,16 @@
     {:errors [(errors/error ::errors/invalid-for-binding binding)]}
     :else
     (let [wrapper-component (get-in ctx [:capacities :components 'view :value])
-          {:keys [errors data] :as result} (resolve-and-validate-queries ctx ext binding)
+          {:keys [errors data]} (resolve-and-validate-queries ctx ext binding)
           errors (cond-> errors
                    (nil? wrapper-component)
                    (conj errors (errors/error ::errors/unknown-component 'wrapper-component)))]
       (if (not-empty errors)
         {:errors errors}
-        (let [binding' data]
-          {:data [for-block {:bindings data
-                             :wrapper-component wrapper-component}
-                  (last body)]})))))
+        {:data [for-block {:bindings data
+                           :wrapper-component wrapper-component
+                           :wrap? (list? (last body))}
+                (last body)]}))))
 
 (defn when-block [{:keys [test]} body]
   (when test body))
