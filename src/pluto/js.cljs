@@ -131,7 +131,8 @@
                              {:permissions [:read]
                               :value       :extensions/ethereum-transaction-receipt
                               :arguments   {:value     :string
-                                            :on-result :event}}
+                                            :on-success  :event
+                                            :on-failure? :event}}
                              'ethereum/send-transaction
                              {:permissions [:read]
                               :value       :extensions/ethereum-send-transaction
@@ -142,7 +143,8 @@
                                             :method?    :string
                                             :params?    :vector
                                             :nonce?     :string
-                                            :on-result? :event}}
+                                            :on-success  :event
+                                            :on-failure? :event}}
                              'ethereum/logs
                              {:permissions [:read]
                               :value       :extensions/ethereum-logs
@@ -151,14 +153,16 @@
                                             :address?   :vector
                                             :topics?    :vector
                                             :blockhash? :string
-                                            :on-result :event}}
+                                            :on-success  :event
+                                            :on-failure? :event}}
                              'ethereum/call
                              {:permissions [:read]
                               :value       :extensions/ethereum-call
                               :arguments   {:to         :string
                                             :method     :string
                                             :params?    :vector
-                                            :on-result  :event}}}
+                                            :on-success  :event
+                                            :on-failure? :event}}}
                 :hooks {:wallet.settings {:properties {:label     :string
                                                        :view      :view
                                                        :on-click? :event}}
