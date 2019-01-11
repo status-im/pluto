@@ -49,14 +49,14 @@ var n__4518__auto__ = a.length;
 var i = (0);
 while(true){
 if((i < n__4518__auto__)){
-var c_3496 = (a[i]);
-if((c_3496["cljsIsDirty"]) === true){
-(c_3496["forceUpdate"])();
+var c_3553 = (a[i]);
+if((c_3553["cljsIsDirty"]) === true){
+(c_3553["forceUpdate"])();
 } else {
 }
 
-var G__3497 = (i + (1));
-i = G__3497;
+var G__3554 = (i + (1));
+i = G__3554;
 continue;
 } else {
 return null;
@@ -81,22 +81,22 @@ this.scheduled_QMARK_ = scheduled_QMARK_;
 reagent.impl.batching.RenderQueue.prototype.run_funs = (function (k){
 var self__ = this;
 var this$ = this;
-var temp__5461__auto__ = (this$[k]);
-if((temp__5461__auto__ == null)){
+var temp__5724__auto__ = (this$[k]);
+if((temp__5724__auto__ == null)){
 return null;
 } else {
-var fs = temp__5461__auto__;
+var fs = temp__5724__auto__;
 (this$[k] = null);
 
 var n__4518__auto__ = fs.length;
 var i = (0);
 while(true){
 if((i < n__4518__auto__)){
-var fexpr__3498_3500 = (fs[i]);
-(fexpr__3498_3500.cljs$core$IFn$_invoke$arity$0 ? fexpr__3498_3500.cljs$core$IFn$_invoke$arity$0() : fexpr__3498_3500.call(null));
+var fexpr__3555_3557 = (fs[i]);
+(fexpr__3555_3557.cljs$core$IFn$_invoke$arity$0 ? fexpr__3555_3557.cljs$core$IFn$_invoke$arity$0() : fexpr__3555_3557.call(null));
 
-var G__3501 = (i + (1));
-i = G__3501;
+var G__3558 = (i + (1));
+i = G__3558;
 continue;
 } else {
 return null;
@@ -126,12 +126,12 @@ return null;
 } else {
 self__.scheduled_QMARK_ = true;
 
-var G__3499 = ((function (this$){
+var G__3556 = ((function (this$){
 return (function (){
 return this$.run_queues();
 });})(this$))
 ;
-return (reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1 ? reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1(G__3499) : reagent.impl.batching.next_tick.call(null,G__3499));
+return (reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1 ? reagent.impl.batching.next_tick.cljs$core$IFn$_invoke$arity$1(G__3556) : reagent.impl.batching.next_tick.call(null,G__3556));
 }
 });
 
@@ -142,13 +142,13 @@ this$.run_funs("beforeFlush");
 
 reagent.impl.batching.ratom_flush();
 
-var temp__5461__auto___3502 = (this$["componentQueue"]);
-if((temp__5461__auto___3502 == null)){
+var temp__5724__auto___3559 = (this$["componentQueue"]);
+if((temp__5724__auto___3559 == null)){
 } else {
-var cs_3503 = temp__5461__auto___3502;
+var cs_3560 = temp__5724__auto___3559;
 (this$["componentQueue"] = null);
 
-reagent.impl.batching.run_queue(cs_3503);
+reagent.impl.batching.run_queue(cs_3560);
 }
 
 return this$.flush_after_render();

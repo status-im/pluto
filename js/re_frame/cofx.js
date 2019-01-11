@@ -78,8 +78,8 @@ return re_frame.registrar.register_handler(re_frame.cofx.kind,id,handler);
  * to the event handler at call time.
  */
 re_frame.cofx.inject_cofx = (function re_frame$cofx$inject_cofx(var_args){
-var G__4733 = arguments.length;
-switch (G__4733) {
+var G__8160 = arguments.length;
+switch (G__8160) {
 case 1:
 return re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -96,9 +96,9 @@ throw (new Error(["Invalid arity: ",cljs.core.str.cljs$core$IFn$_invoke$arity$1(
 
 re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$1 = (function (id){
 return re_frame.interceptor.__GT_interceptor.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([cljs.core.cst$kw$id,cljs.core.cst$kw$coeffects,cljs.core.cst$kw$before,(function re_frame$cofx$coeffects_before(context){
-var temp__5455__auto__ = re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$2(re_frame.cofx.kind,id);
-if(cljs.core.truth_(temp__5455__auto__)){
-var handler = temp__5455__auto__;
+var temp__5718__auto__ = re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$2(re_frame.cofx.kind,id);
+if(cljs.core.truth_(temp__5718__auto__)){
+var handler = temp__5718__auto__;
 return cljs.core.update.cljs$core$IFn$_invoke$arity$3(context,cljs.core.cst$kw$coeffects,handler);
 } else {
 return re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(cljs.core.cst$kw$error,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["No cofx handler registered for",id], 0));
@@ -108,9 +108,9 @@ return re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(cljs.core.c
 
 re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$2 = (function (id,value){
 return re_frame.interceptor.__GT_interceptor.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2([cljs.core.cst$kw$id,cljs.core.cst$kw$coeffects,cljs.core.cst$kw$before,(function re_frame$cofx$coeffects_before(context){
-var temp__5455__auto__ = re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$2(re_frame.cofx.kind,id);
-if(cljs.core.truth_(temp__5455__auto__)){
-var handler = temp__5455__auto__;
+var temp__5718__auto__ = re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$2(re_frame.cofx.kind,id);
+if(cljs.core.truth_(temp__5718__auto__)){
+var handler = temp__5718__auto__;
 return cljs.core.update.cljs$core$IFn$_invoke$arity$4(context,cljs.core.cst$kw$coeffects,handler,value);
 } else {
 return re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(cljs.core.cst$kw$error,cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["No cofx handler registered for",id], 0));

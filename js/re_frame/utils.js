@@ -9,18 +9,18 @@ goog.require('re_frame.loggers');
  *   will not be present in the new structure.
  *   The key thing is that 'm' remains identical? to istelf if the path was never present
  */
-re_frame.utils.dissoc_in = (function re_frame$utils$dissoc_in(m,p__4562){
-var vec__4563 = p__4562;
-var seq__4564 = cljs.core.seq(vec__4563);
-var first__4565 = cljs.core.first(seq__4564);
-var seq__4564__$1 = cljs.core.next(seq__4564);
-var k = first__4565;
-var ks = seq__4564__$1;
-var keys = vec__4563;
+re_frame.utils.dissoc_in = (function re_frame$utils$dissoc_in(m,p__7208){
+var vec__7209 = p__7208;
+var seq__7210 = cljs.core.seq(vec__7209);
+var first__7211 = cljs.core.first(seq__7210);
+var seq__7210__$1 = cljs.core.next(seq__7210);
+var k = first__7211;
+var ks = seq__7210__$1;
+var keys = vec__7209;
 if(ks){
-var temp__5455__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(m,k);
-if(cljs.core.truth_(temp__5455__auto__)){
-var nextmap = temp__5455__auto__;
+var temp__5718__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(m,k);
+if(cljs.core.truth_(temp__5718__auto__)){
+var nextmap = temp__5718__auto__;
 var newmap = (re_frame.utils.dissoc_in.cljs$core$IFn$_invoke$arity$2 ? re_frame.utils.dissoc_in.cljs$core$IFn$_invoke$arity$2(nextmap,ks) : re_frame.utils.dissoc_in.call(null,nextmap,ks));
 if(cljs.core.seq(newmap)){
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(m,k,newmap);
