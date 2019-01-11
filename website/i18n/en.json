@@ -5,18 +5,6 @@
     "previous": "Previous",
     "tagline": "A grammar for data manipulation",
     "docs": {
-      "build/Deployment": {
-        "title": "Deployment",
-        "sidebar_label": "Deployment"
-      },
-      "build/FirstExtension": {
-        "title": "My first extension",
-        "sidebar_label": "My first extension"
-      },
-      "build/Packaging": {
-        "title": "Packaging",
-        "sidebar_label": "Packaging"
-      },
       "concepts/Anatomy": {
         "title": "Anatomy",
         "sidebar_label": "Anatomy of an extension"
@@ -61,29 +49,20 @@
       "decisions/templates/template": {
         "title": "decisions/templates/template"
       },
-      "Development": {
-        "title": "Development"
-      },
       "Manifesto": {
         "title": "Manifesto"
       },
       "Principles": {
         "title": "Principles"
-      },
-      "Roadmap": {
-        "title": "Roadmap"
       }
     },
     "links": {
       "Docs": "Docs",
-      "Examples": "Examples",
       "Try": "Try"
     },
     "categories": {
       "Getting Started": "Getting Started",
-      "Concepts": "Concepts",
-      "Build": "Build",
-      "Contributing": "Contributing"
+      "Concepts": "Concepts"
     }
   },
   "pages-strings": {
