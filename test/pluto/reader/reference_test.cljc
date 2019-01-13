@@ -18,7 +18,9 @@
   (is (= 'views/id (reference/reference->symbol ['views/id {}]))))
 
 (deftest valid-reference?
+  (is (false? (reference/valid-reference? nil)))
   (is (false? (reference/valid-reference? "")))
+  (is (false? (reference/valid-reference? :keyword)))
   (is (true?  (reference/valid-reference? ['test])))
   (is (true?  (reference/valid-reference? ['views/id {}])))
   (is (false? (reference/valid-reference? ['views/id {} {}])))
