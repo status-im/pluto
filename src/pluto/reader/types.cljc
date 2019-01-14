@@ -120,29 +120,32 @@
 
 ;; TODO part of this is duplicated from blocks/let
 
-(defn replace-atom [env o]
+(defn replace-atom
+  ""
+  [env o]
   (cond (contains? env o) (get env o)
         (symbol? o) nil
-        (string? o) (:data (utils/interpolate env o))
+        (string? o) (:data (utils/interpolate env o)) ;; TODO propagate errors
         (fn? o) #(o % env)
         :else (walk/postwalk-replace env o)))
 
-(defn symbol-map->keyword-map [m]
-  (reduce-kv #(assoc %1 (keyword (name %2)) %3) {} m))
-
-(defn keyword-map->symbol-map [m]
-  (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} m))
+(defn- resolve-env
+  "Resolve pairs from `env` in `m`.
+   Uses #replace-atom to perform the resolution."
+  [env m]
+  (reduce-kv #(assoc %1 %2 (replace-atom env %3)) {} m))
 
 (defn event-after-env [ctx ref inline static bindings]
   (with-meta
     (fn [dynamic env]
-      ;; env is the dispatched argument. Used has default but is overriden by the local arguments
+      ;; env is the dispatched argument. Used has default but is overridden by the local arguments
       ;; Perform destructuring based on dynamic and static arguments
       ;; Then resolve recursive properties in the aggregated env
       ;; Final map is contains inline arguments resolved
-      (let [env' (reduce-kv #(assoc %1 %2 (if (contains? env %3) (get env %3) %3)) {}
-                            (merge env (:data (destructuring/destructure bindings (merge dynamic static)))))]
-        [ref (:env ctx) (reduce-kv #(assoc %1 %2 (replace-atom env' %3)) {} inline)]))
+      (let [{:keys [data errors]} (destructuring/destructure bindings (merge dynamic static))]
+        ;; TODO handle errors
+        (let [env' (resolve-env env (merge env data))]
+          [ref (:env ctx) (resolve-env env' inline)])))
     {:event true}))
 
 (defn- event-reference-with-arguments [ctx ext ref event arguments args bindings]

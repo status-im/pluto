@@ -10,23 +10,24 @@
 (deftest let-block
   (testing "parse"
     (is (= {:data [blocks/let-block '{:bindings [s "Hello"]} 's]}
-           (blocks/parse {} {} '(let [s "Hello"] s))))
+           (blocks/parse {} {} nil '(let [s "Hello"] s))))
     (is (empty?
-          (:errors (blocks/parse {:capacities {:queries {'aa {:value :a}}}} {} '(let [{a :a} [aa]] a)))))
+          (:errors (blocks/parse {:capacities {:queries {'aa {:value :a}}}} {} nil '(let [{a :a} [aa]] a)))))
 
     (is (= {:data [blocks/let-block
                    '{:bindings [{a :a} {:a {:b 1}} {b :b} a]}
                    'b]}
-           (blocks/parse {} {} '(let [{a :a} {:a {:b 1}} {b :b} a] b))))
+           (blocks/parse {} {} nil '(let [{a :a} {:a {:b 1}} {b :b} a] b))))
     (is (empty?
          (:errors (blocks/parse {:capacities
                                  {:queries {'aa {:value :a :arguments {:x :string}}}}}
                                 {}
+                                nil
                                 '(let [x 1 {a :a} [aa {:x x}]] a)))))
     
     (is (= {:data [blocks/let-block '{:bindings [s "Hello"]}
                    ['test {} 's]]}
-           (blocks/parse {} {} (list 'let ['s "Hello"] ['test {} 's]))))
+           (blocks/parse {} {} nil (list 'let ['s "Hello"] ['test {} 's]))))
     (is (= (blocks/validate-bindings '[s "Hello" 1])
            [(errors/error ::errors/invalid-bindings-format ['s "Hello" 1])]))
 
@@ -34,11 +35,11 @@
 
   
   (is (= {:errors [(errors/error ::errors/invalid-bindings-format ['s "Hello" 1])]}
-         (blocks/parse {} {} (list 'let ['s "Hello" 1] ['test {} 's]))))
+         (blocks/parse {} {} nil (list 'let ['s "Hello" 1] ['test {} 's]))))
   
   (is (= {:data [blocks/let-block '{:bindings [{a :a} {:a 1}]}
                  '[test {} a]]}
-         (blocks/parse {} {} '(let [{a :a} {:a 1}] [test {} a]))))
+         (blocks/parse {} {} nil '(let [{a :a} {:a 1}] [test {} a]))))
 
 )
 
@@ -51,15 +52,15 @@
   (-> errors first :pluto.reader.errors/type))
 
 (deftest parse-if-when-errors
-  (is (= (first-error-type (blocks/parse {} {} '(if [])))
+  (is (= (first-error-type (blocks/parse {} {} nil '(if [])))
          :pluto.reader.errors/invalid-if-block))
-  (is (= (first-error-type (blocks/parse {} {} '(if asdf [])))
+  (is (= (first-error-type (blocks/parse {} {} nil '(if asdf [])))
          :pluto.reader.errors/invalid-if-block))
-  (is (= (first-error-type (blocks/parse {} {} '(if asdf)))
+  (is (= (first-error-type (blocks/parse {} {} nil '(if asdf)))
          :pluto.reader.errors/invalid-if-block))  
-  (is (= (first-error-type (blocks/parse {} {} '(when [])))
+  (is (= (first-error-type (blocks/parse {} {} nil '(when [])))
          :pluto.reader.errors/invalid-when-block))
-  (is (= (first-error-type (blocks/parse {} {} '(when asdf)))
+  (is (= (first-error-type (blocks/parse {} {} nil '(when asdf)))
          :pluto.reader.errors/invalid-when-block)))
 
 (declare let-test-capacities)
@@ -339,7 +340,7 @@
            {:bindings '(a [:pluto.reader.block-test/identity-query nil {:x a}])
             :wrapper-component view-component}
            'asdf]}
-         (blocks/parse {:capacities let-test-capacities} {}
+         (blocks/parse {:capacities let-test-capacities} {} nil
                        '[for [a [identity-query {:x a}]] asdf]))
       ))
 

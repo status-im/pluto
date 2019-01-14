@@ -30,11 +30,12 @@
       (get-in ctx [:capacities (get type->capacity type) s :value])))
 
 (defn valid-reference? [ref]
-  (when (vector? ref)
-    (let [[name arguments] ref]
-      (and (symbol? name)
-           (>= 2 (count ref))
-           (or (nil? arguments) (map? arguments) (symbol? arguments))))))
+  (boolean
+    (when (vector? ref)
+      (let [[name arguments] ref]
+        (and (symbol? name)
+             (>= 2 (count ref))
+             (or (nil? arguments) (map? arguments) (symbol? arguments)))))))
 
 (defn resolve
   "Resolve a reference defined by a hook

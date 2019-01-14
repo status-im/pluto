@@ -27,7 +27,7 @@
 
 (declare parse)
 
-(defn- parse-hiccup-children [ctx ext parent children]
+(defn parse-hiccup-children [ctx ext parent children]
   (reduce #(let [{:keys [data errors]} (parse ctx ext %2)]
              (errors/merge-errors (update %1 :data conj data)
                                   errors))

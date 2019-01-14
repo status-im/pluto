@@ -10,6 +10,7 @@
   (is (=  {:data (list [:text {} ""])}
           (views/parse-hiccup-children {:capacities {:components {'text {:value :text}}}}
                                        {}
+                                       nil
                                        (list ['text {} ""])))))
 
 (defn- first-error-type [m]

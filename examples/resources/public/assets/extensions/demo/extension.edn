@@ -7,12 +7,12 @@
  {:view [main]}
 
  events/my-alert
- (let [{you :arg value :value} properties]
+ (let [{you :arg [value :as all] :value} properties]
    [alert {:value "Eh! ${you} ${value}"}])
 
  events/cb
  (let [{value :arg cond? :cond? v :value} properties]
-   [identity {:cb [my-alert {:arg value :value "%% ${v}"}]}])
+   [identity {:cb [my-alert {:arg value :value ["%% ${v}"]}]}])
 
  views/local-view
  {:component-did-mount [alert {:value "Mount!!"}]
