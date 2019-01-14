@@ -52,8 +52,8 @@
                              'arithmetic
                              {:permissions [:read]
                               :value       :extensions/arithmetic
-                              :arguments   {:values    #{:plus :minus :times :divide}
-                                            :operation :keyword
+                              :arguments   {:values    :vector
+                                            :operation {:one-of #{:plus :minus :times :divide}}
                                             :on-result :event}}
                              'schedule/start
                              {:permissions [:read]
