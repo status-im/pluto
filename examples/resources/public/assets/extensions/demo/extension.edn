@@ -19,14 +19,15 @@
   :view
   (let [{name :name color :color level :level} properties]
     (case level
-      :polite [text {:style {:color color}} "Hey!! ${name}"];; issue with var replacement
-      "Hello  ${name}"))}
+      :polite [text {:style {:color color}} "Hello!! ${name}"]
+      :neutral [text {:style {:color color}} "Hey!! ${name}"]
+      "?? ${name}"))}
 
  views/local-view2
  (let [{name :name color :color level :level} properties]
    (case level
      :polite [text {:style {:color color}} "Hey!!  ${name}"]
-     "Hello ${name} "))
+     "Hello ${name}"))
 
  views/main
  (let [{name :name users :users}   properties

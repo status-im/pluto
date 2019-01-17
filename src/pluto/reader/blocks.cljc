@@ -76,8 +76,8 @@
     (when (sequential? for-values)
       (into (if true [:<> {}] (list))
             (for [val for-values]
-              (let-block {:prev-env prev-env :bindings [k val]}
-                children))))))
+              [let-block {:prev-env prev-env :bindings [k val]}
+                children])))))
 
 (defn static-value? [v]
   (or (utils/primitive? v) (map? v)))
@@ -176,4 +176,22 @@
       {:errors errors}
       {:data (apply conj [if-block {:test test}] (list then else))})))
 
-(defmethod parse :default [ctx _ block] {:errors [{:type :unknown-block-type :ctx ctx :block block}]})
+(defn case-block [{:keys [expression tests]} & results]
+  (or (some #(when (= expression (key %)) (val %)) (zipmap tests results))
+    (when (not= (count tests) (count results))
+      (last results))))
+
+(defmethod parse 'case [_ _ _ [_ expression & clauses]]
+  (let [pairs (partition 2 clauses)
+        errors (cond-> nil
+                 ;(not (keyword? expression)) TODO re-enable once property types are propagated
+                 ;(conj (errors/error ::errors/invalid-case-expression expression))
+                 (not (every? keyword? (map first pairs)))
+                 (conj (errors/error ::errors/invalid-case-tests (map first pairs))))]
+    (if (not-empty errors)
+      {:errors errors}
+      {:data (into [case-block {:expression expression :tests (map first pairs)}]
+               (concat (mapv second pairs)
+                 (when (odd? (count clauses)) [(last clauses)])))})))
+
+(defmethod parse :default [ctx _ _ block] {:errors [{:type :unknown-block-type :ctx ctx :block block}]})

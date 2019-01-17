@@ -37,7 +37,9 @@
                    ::unsupported-test-type
                    ::invalid-local-event
                    ::unresolved-properties
-                   ::invalid-placeholders})
+                   ::invalid-placeholders
+                   ::invalid-case-expression
+                   ::invalid-case-tests})
 
 (spec/def ::value any?)
 
