@@ -17,15 +17,22 @@
  views/local-view
  {:component-did-mount [alert {:value "Mount!!"}]
   :view
-  (let [{name :name color :color} properties]
-    [text {:style {:color color}}
-     name])}
+  (let [{name :name color :color level :level} properties]
+    (case level
+      :polite [text {:style {:color color}} "Hey!! ${name}"];; issue with var replacement
+      "Hello  ${name}"))}
+
+ views/local-view2
+ (let [{name :name color :color level :level} properties]
+   (case level
+     :polite [text {:style {:color color}} "Hey!!  ${name}"]
+     "Hello ${name} "))
 
  views/main
  (let [{name :name users :users}   properties
        {cond? :cond?} [random-boolean]]
    [view
-    [local-view {:name "Hey!! ${name}" :color :red}]
+    [local-view {:name "Hey!! ${name}" :color :red :level :polite}]
     [button {:on-click [cb {:arg name :cond? cond? :value "AA"}]}
      "Hello ${name}"]
     (if cond?

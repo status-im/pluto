@@ -1,6 +1,5 @@
 (ns pluto.reader.views
-  (:require [clojure.walk           :as walk]
-            [clojure.spec.alpha     :as spec]
+  (:require [clojure.spec.alpha     :as spec]
             #?(:cljs [reagent.core  :as reagent])
             [re-frame.core          :as re-frame]
             [pluto.reader.blocks    :as blocks]
@@ -28,7 +27,7 @@
 (declare parse)
 
 (defn parse-hiccup-children [ctx ext parent children]
-  (reduce #(let [{:keys [data errors]} (parse ctx ext %2)]
+  (reduce #(let [{:keys [data errors]} (parse ctx ext parent %2)]
              (errors/merge-errors (update %1 :data conj data)
                                   errors))
           {:data []} children))
@@ -138,69 +137,78 @@
         (when data
           (re-frame/dispatch (data {:a (f o)})))))))
 
-(defn keyword-map->symbol-map [m]
+#?(:cljs
+    (defn default-logger [err info]
+      (.log js/console err info)))
 
-  (reduce-kv #(assoc %1 (symbol (name %2)) %3) {} m))
+(defn error-boundary [component]
+  #?(:cljs
+      (reagent/create-class
+        {:display-name        "error-boundary-wrapper"
+         :component-did-catch default-logger
+         :reagent-render      (fn error-boundary [_] component)})))
 
-(defn- create-reagent-spec [ctx ext {:keys [get-initial-state component-will-receive-props should-component-update
-                                            component-will-mount component-did-mount component-will-update
-                                            component-did-update component-will-unmount view]}]
-  (let [{:keys [data errors] :as m} (parse ctx ext view)]
-    (if errors
-      m
-      #?(:cljs
-          {:data
-           (merge {:display-name   (str (first data))
-                   :reagent-render #(walk/postwalk-replace (keyword-map->symbol-map %) data)}
-             (when get-initial-state {:get-initial-state-mount (event->fn ctx ext get-initial-state #(js->clj %))})
-             (when component-will-receive-props {:component-will-receive-props (event->fn ctx ext component-will-receive-props #(assoc (js->clj %1) :new %2))})
-             (when should-component-update {:should-component-update (event->fn ctx ext should-component-update #(assoc (js->clj %1) :old %2 :new %3))})
-             (when component-will-mount {:component-will-mount (event->fn ctx ext component-will-mount #(js->clj %))})
-             (when component-did-mount {:component-did-mount (event->fn ctx ext component-did-mount #(js->clj %))})
-             (when component-will-update {:component-will-update (event->fn ctx ext component-will-update #(assoc (js->clj %1) :new %2))})
-             (when component-did-update {:component-did-update (event->fn ctx ext component-did-update #(assoc (js->clj %1) :old %2))})
-             (when component-will-unmount {:component-will-unmount (event->fn ctx ext component-will-unmount #(js->clj %))}))}))))
+(defn- inject-properties
+  "Inject `properties` into the top level `let` block."
+  ;; TODO remove this dependency on specifics of let block
+  [h properties]
+  (if (vector? h)
+    (let [[tag & properties-children] h
+          [props children]            (resolve-properties-children properties-children)
+          ;; Only need to add this to the first let block but no harm really
+          props (if (and properties (= tag blocks/let-block))
+                  (assoc-in props [:prev-env :pluto.reader/properties] properties)
+                  props)]
+      (apply conj (if props [tag props] [tag])
+        (map #(inject-properties % properties) children)))
+    h))
 
+#?(:cljs
+    (defn- create-reagent-spec [ctx ext {:keys [get-initial-state component-will-receive-props should-component-update
+                                                component-will-mount component-did-mount component-will-update
+                                                component-did-update component-will-unmount]} data]
+      (merge {:display-name        (str (first data))
+              :reagent-render      (fn [o]
+                                     [error-boundary
+                                      (inject-properties data o)])}
+        (when get-initial-state {:get-initial-state-mount (event->fn ctx ext get-initial-state #(js->clj %))})
+        (when component-will-receive-props {:component-will-receive-props (event->fn ctx ext component-will-receive-props #(assoc (js->clj %1) :new %2))})
+        (when should-component-update {:should-component-update (event->fn ctx ext should-component-update #(assoc (js->clj %1) :old %2 :new %3))})
+        (when component-will-mount {:component-will-mount (event->fn ctx ext component-will-mount #(js->clj %))})
+        (when component-did-mount {:component-did-mount (event->fn ctx ext component-did-mount #(js->clj %))})
+        (when component-will-update {:component-will-update (event->fn ctx ext component-will-update #(assoc (js->clj %1) :new %2))})
+        (when component-did-update {:component-did-update (event->fn ctx ext component-did-update #(assoc (js->clj %1) :old %2))})
+        (when component-will-unmount {:component-will-unmount (event->fn ctx ext component-will-unmount #(js->clj %))}))))
+
+;; TODO normalize to always have a props map
 (defn parse
   ([ctx ext o]
-   (if (map? o)
-     (let [{:keys [data errors] :as m} (create-reagent-spec ctx ext o)]
-       (if errors
-         m
-         #?(:cljs {:data (reagent/create-class data)})))
-     (parse ctx ext nil o)))
+   (let [{:keys [data errors] :as m} (parse ctx ext nil (if (map? o) (:view o) o))]
+     (if errors
+       m
+       (if (map? o)
+         #?(:cljs {:data (reagent/create-class (create-reagent-spec ctx ext o data))})
+         {:data
+          (fn [o]
+            [error-boundary
+             (inject-properties data o)])}))))
   ([ctx ext parent o]
    (if (list? o)
      (let [{:keys [data errors]} (blocks/parse ctx ext parent o)]
-       (if data
+       (if errors
+         {:errors errors}
          (let [d     (parse ctx ext o data)
                props (reduce unresolved-properties #{} d)]
            (errors/merge-errors
              d
              (concat errors (when (seq props)
-                              {:errors [(errors/error ::errors/unresolved-properties props)]}))))
-         {:errors errors}))
+                              {:errors [(errors/error ::errors/unresolved-properties props)]}))))))
      (parse-hiccup-element ctx ext o))))
-
-(defn- hiccup-with-properties [h properties]
-  (if (vector? h)
-    (let [[tag & properties-children] h
-          [props children]            (resolve-properties-children properties-children)
-          ;; really only need to add this to the first let block but no harm really
-          props (if (and properties (= tag blocks/let-block))
-                  (assoc-in props [:prev-env :pluto.reader/properties] properties)
-                  props)]
-      (apply conj (if props [tag props] [tag])
-             (map #(hiccup-with-properties % properties) children)))
-    h))
 
 (defmethod types/resolve :view [ctx ext type value]
   (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
     (if data
       (if (fn? data)
         {:data data}
-        (let [{:keys [data errors]} (parse ctx ext data)]
-          ;; TODO Might fail at runtime if destructuring is incorrect
-          (errors/merge-errors (when data {:data (fn [o] (hiccup-with-properties data o))})
-                               (concat errors (:errors ext)))))
+        (parse ctx ext data))
       {:errors errors})))
