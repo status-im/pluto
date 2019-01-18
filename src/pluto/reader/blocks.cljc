@@ -1,6 +1,7 @@
 (ns pluto.reader.blocks
   (:require [clojure.walk               :as walk]
             [re-frame.core              :as re-frame]
+            [reagent.core               :as reagent]
             [pluto.reader.destructuring :as destructuring]
             [pluto.reader.errors        :as errors]
             [pluto.reader.types         :as types]
@@ -74,10 +75,12 @@
   (let [[k v] bindings
         for-values (resolve-rhs prev-env v)]
     (when (sequential? for-values)
-      (into (if true [:<> {}] (list))
-            (for [val for-values]
-              [let-block {:prev-env prev-env :bindings [k val]}
-                children])))))
+      (apply array
+             (map reagent/as-element
+               (for [val for-values]
+                 ^{:key val}
+                 [let-block {:prev-env prev-env :bindings [k val]}
+                   children]))))))
 
 (defn static-value? [v]
   (or (utils/primitive? v) (map? v)))

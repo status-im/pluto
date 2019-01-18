@@ -44,5 +44,5 @@
     [view "Nested for block"]
     (for [{nm :nm} users]
       [view
-        (for [{nm2 :nm} users]
-          [text nm " and " nm2])])])}
+       (for [{nm2 :nm} users]
+         [text nm " and " nm2])])])}
