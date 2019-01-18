@@ -1,4 +1,4 @@
-(defproject status-im/pluto "iteration-4-7"
+(defproject status-im/pluto "iteration-4-8-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.10.439"]
                  [org.clojure/tools.reader "1.2.1"]
