@@ -49,14 +49,11 @@ return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(ctx,new cljs.core.Persiste
 }
 });
 pluto.reader.reference.valid_reference_QMARK_ = (function pluto$reader$reference$valid_reference_QMARK_(ref){
-if(cljs.core.vector_QMARK_(ref)){
-var vec__1173 = ref;
-var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1173,(0),null);
-var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1173,(1),null);
+return cljs.core.boolean$(((cljs.core.vector_QMARK_(ref))?(function (){var vec__1222 = ref;
+var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1222,(0),null);
+var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1222,(1),null);
 return (((name instanceof cljs.core.Symbol)) && (((2) >= cljs.core.count(ref))) && ((((arguments$ == null)) || (cljs.core.map_QMARK_(arguments$)) || ((arguments$ instanceof cljs.core.Symbol)))));
-} else {
-return null;
-}
+})():null));
 });
 /**
  * Resolve a reference defined by a hook
@@ -66,7 +63,7 @@ return null;
  * ```
  */
 pluto.reader.reference.resolve = (function pluto$reader$reference$resolve(ctx,ext,type,value){
-if(cljs.core.truth_(pluto.reader.reference.valid_reference_QMARK_(value))){
+if(pluto.reader.reference.valid_reference_QMARK_(value)){
 var s = pluto.reader.reference.reference__GT_symbol(value);
 var temp__5718__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(pluto.reader.reference.type__GT_ns,type);
 if(cljs.core.truth_(temp__5718__auto__)){
