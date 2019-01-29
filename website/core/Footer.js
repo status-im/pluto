@@ -34,15 +34,6 @@ class Footer extends React.Component {
             )}
           </a>
           <div>
-            <h5>Docs</h5>
-            <a href="docs/Tutorial">
-              Getting Started
-            </a>
-            <a href="docs/API">
-              API Reference
-            </a>
-          </div>
-          <div>
             <h5>Community</h5>
             <a href="https://chat.status.im">Project Chat</a>
             <a
