@@ -13,9 +13,6 @@ return cljs.core.ex_cause(ex);
 pluto.utils.ex_message = (function pluto$utils$ex_message(ex){
 return cljs.core.ex_message(ex);
 });
-pluto.utils.atom_QMARK_ = (function pluto$utils$atom_QMARK_(o){
-return (o instanceof cljs.core.Atom);
-});
 pluto.utils.primitive_QMARK_ = (function pluto$utils$primitive_QMARK_(o){
 return ((cljs.core.boolean_QMARK_(o)) || (cljs.core.int_QMARK_(o)) || (cljs.core.float_QMARK_(o)) || (typeof o === 'string'));
 });
@@ -25,10 +22,10 @@ pluto.utils.placeholder_pattern = /\$\{([^\{]*)\}/;
  * (placeholders  "")
  */
 pluto.utils.placeholders = (function pluto$utils$placeholders(s){
-return cljs.core.map.cljs$core$IFn$_invoke$arity$2(cljs.core.comp.cljs$core$IFn$_invoke$arity$3((function (p1__1197_SHARP_){
-return cljs.core.PersistentHashMap.fromArrays([cljs.core.cst$kw$name,cljs.core.cst$kw$pattern],[cljs.core.symbol.cljs$core$IFn$_invoke$arity$1(cljs.core.first(p1__1197_SHARP_)),cljs.core.second(p1__1197_SHARP_)]);
-}),(function (p1__1198_SHARP_){
-return clojure.string.split.cljs$core$IFn$_invoke$arity$2(p1__1198_SHARP_,/:/);
+return cljs.core.map.cljs$core$IFn$_invoke$arity$2(cljs.core.comp.cljs$core$IFn$_invoke$arity$3((function (p1__727_SHARP_){
+return cljs.core.PersistentHashMap.fromArrays([cljs.core.cst$kw$name,cljs.core.cst$kw$pattern],[cljs.core.symbol.cljs$core$IFn$_invoke$arity$1(cljs.core.first(p1__727_SHARP_)),cljs.core.second(p1__727_SHARP_)]);
+}),(function (p1__728_SHARP_){
+return clojure.string.split.cljs$core$IFn$_invoke$arity$2(p1__728_SHARP_,/:/);
 }),cljs.core.second),cljs.core.re_seq(pluto.utils.placeholder_pattern,s));
 });
 /**
@@ -55,8 +52,8 @@ pluto.utils.format_pattern = (function (){var method_table__4524__auto__ = cljs.
 var prefer_table__4525__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
 var method_cache__4526__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
 var cached_hierarchy__4527__auto__ = cljs.core.atom.cljs$core$IFn$_invoke$arity$1(cljs.core.PersistentArrayMap.EMPTY);
-var hierarchy__4528__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$3(cljs.core.PersistentArrayMap.EMPTY,cljs.core.cst$kw$hierarchy,(function (){var fexpr__1199 = cljs.core.get_global_hierarchy;
-return (fexpr__1199.cljs$core$IFn$_invoke$arity$0 ? fexpr__1199.cljs$core$IFn$_invoke$arity$0() : fexpr__1199.call(null));
+var hierarchy__4528__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$3(cljs.core.PersistentArrayMap.EMPTY,cljs.core.cst$kw$hierarchy,(function (){var fexpr__729 = cljs.core.get_global_hierarchy;
+return (fexpr__729.cljs$core$IFn$_invoke$arity$0 ? fexpr__729.cljs$core$IFn$_invoke$arity$0() : fexpr__729.call(null));
 })());
 return (new cljs.core.MultiFn(cljs.core.symbol.cljs$core$IFn$_invoke$arity$2("pluto.utils","format-pattern"),((function (method_table__4524__auto__,prefer_table__4525__auto__,method_cache__4526__auto__,cached_hierarchy__4527__auto__,hierarchy__4528__auto__){
 return (function (pattern){
@@ -93,10 +90,10 @@ if(cljs.core.seq(extra)){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_invalid_DASH_placeholders,extra)], null)], null);
 } else {
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$data,((cljs.core.seq(v))?cljs.core.apply.cljs$core$IFn$_invoke$arity$3(goog.string.format,clojure.string.replace(s,pluto.utils.placeholder_pattern,((function (v,names,extra){
-return (function (p__1200){
-var vec__1201 = p__1200;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1201,(0),null);
-var pattern = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__1201,(1),null);
+return (function (p__730){
+var vec__731 = p__730;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__731,(0),null);
+var pattern = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__731,(1),null);
 return (pluto.utils.format_pattern.cljs$core$IFn$_invoke$arity$1 ? pluto.utils.format_pattern.cljs$core$IFn$_invoke$arity$1(pattern) : pluto.utils.format_pattern.call(null,pattern));
 });})(v,names,extra))
 ),cljs.core.map.cljs$core$IFn$_invoke$arity$2(values,names)):s)], null);
