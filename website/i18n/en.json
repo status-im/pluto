@@ -57,13 +57,9 @@
       }
     },
     "links": {
-      "Docs": "Docs",
       "Try": "Try"
     },
-    "categories": {
-      "Getting Started": "Getting Started",
-      "Concepts": "Concepts"
-    }
+    "categories": {}
   },
   "pages-strings": {
     "Help Translate|recruit community translators for your project": "Help Translate",

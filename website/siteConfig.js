@@ -19,7 +19,6 @@ const siteConfig = {
   organizationName: 'status-im',
 
   headerLinks: [
-    {doc: 'Manifesto', label: 'Docs'},
     {page: 'try', label: 'Try'}
   ],
 

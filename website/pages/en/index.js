@@ -18,10 +18,6 @@ function imgUrl(img) {
   return siteConfig.baseUrl + 'img/' + img;
 }
 
-function docUrl(doc, language) {
-  return siteConfig.baseUrl + 'docs/' + (language ? language + '/' : '') + doc;
-}
-
 function pageUrl(page, language) {
   return siteConfig.baseUrl + (language ? language + '/' : '') + page;
 }
@@ -78,9 +74,6 @@ class HomeSplash extends React.Component {
       <SplashContainer>
         <div className="inner">
           <ProjectTitle />
-          <PromoSection>
-            <Button href={docUrl('Manifesto', language)}>Getting started</Button>
-          </PromoSection>
         </div>
       </SplashContainer>
     );

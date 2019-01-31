@@ -1,6 +1,0 @@
-{
-  "docs": {
-    "Getting Started": ["Manifesto", "Principles"],
-    "Concepts": ["concepts/Anatomy", "concepts/Hook", "concepts/View", "concepts/Query", "concepts/Event", "concepts/Registry"]
-  }
-}
