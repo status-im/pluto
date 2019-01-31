@@ -4,58 +4,7 @@
     "next": "Next",
     "previous": "Previous",
     "tagline": "A grammar for data manipulation",
-    "docs": {
-      "concepts/Anatomy": {
-        "title": "Anatomy",
-        "sidebar_label": "Anatomy of an extension"
-      },
-      "concepts/Block": {
-        "title": "Block",
-        "sidebar_label": "Block"
-      },
-      "concepts/Event": {
-        "title": "Event",
-        "sidebar_label": "Event"
-      },
-      "concepts/Hook": {
-        "title": "Hook",
-        "sidebar_label": "Hook"
-      },
-      "concepts/Query": {
-        "title": "Query",
-        "sidebar_label": "Query"
-      },
-      "concepts/Reference": {
-        "title": "Reference",
-        "sidebar_label": "Reference"
-      },
-      "concepts/Registry": {
-        "title": "Registry",
-        "sidebar_label": "Registry"
-      },
-      "concepts/View": {
-        "title": "View",
-        "sidebar_label": "View"
-      },
-      "decisions/0001-record-decisions": {
-        "title": "decisions/0001-record-decisions"
-      },
-      "decisions/0002-reader-errors": {
-        "title": "decisions/0002-reader-errors"
-      },
-      "decisions/README": {
-        "title": "decisions/README"
-      },
-      "decisions/templates/template": {
-        "title": "decisions/templates/template"
-      },
-      "Manifesto": {
-        "title": "Manifesto"
-      },
-      "Principles": {
-        "title": "Principles"
-      }
-    },
+    "docs": {},
     "links": {
       "Try": "Try"
     },
