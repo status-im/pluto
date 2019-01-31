@@ -35,7 +35,8 @@
 
 (defn dispatch-events [events]
   (doseq [event events]
-    (re-frame/dispatch event)))
+    (when (vector? event)
+      (re-frame/dispatch event))))
 
 (defn resolve-query [[id :as data]]
   (when (registrar/get-handler :sub id)

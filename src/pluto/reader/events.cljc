@@ -36,15 +36,22 @@
       (f events)
       (println "Empty event dispatched"))))
 
-(defn- create-event [ctx env {:keys [data inline]}]
-  [data (:env ctx) (resolve-env env inline)])
+(defn- resolve-event
+  "Returns the final event vector"
+  [ctx ext env [event args :as reference]]
+  (let [{data :data}   (reference/resolve ctx ext :event reference)
+        {inline :data} (resolve-arguments ctx ext event (or args {}))]
+    [data (:env ctx) (resolve-env env inline)]))
 
-(defn- create-ref [ctx ext [event args :as reference]]
-  (let [{data :data errors1 :errors} (reference/resolve ctx ext :event reference)
-        {inline :data errors :errors} (resolve-arguments ctx ext event (or args {}))]
-    {:data   data
-     :inline inline
-     :errors (concat errors errors1)}))
+(defn- create-event [ctx ext env ref]
+  (cond
+    (vector? ref)
+    (resolve-event ctx ext env ref)
+    :else
+    (let [[_ test if else] ref]
+      (if (get env test)
+        (resolve-event ctx ext env if)
+        (resolve-event ctx ext env else)))))
 
 (defn- resolve-query
   "Resolve a query using ctx"
@@ -64,27 +71,38 @@
 (defn- event-dispatcher
   "Returns a function of 2 arguments "
   [ctx ext refs arguments {:keys [queries properties]}]
-  (let [ref (map #(create-ref ctx ext %) refs)]
-    (errors/merge-errors
-      {:data
-       (with-meta
-         (fn [dynamic env]
-           ;; TODO env contains data that shouldn't be there
-           ;; env is the dispatched argument. Used as default but is overridden by the local arguments
-           ;; Perform destructuring based on dynamic and static arguments
-           ;; Then resolve recursive properties in the aggregated env
-           ;; Final map contains inline arguments resolved
-           (let [{:keys [data errors]} (destructuring/destructure properties (merge dynamic arguments))]
-             ;; TODO handle errors
-             (let [env' (resolve-env env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
-               (dispatch-events ctx (map #(create-event ctx env' %) ref)))))
-         {:event true})}
-      nil)))
+  (errors/merge-errors
+    {:data
+     (with-meta
+       (fn [dynamic env]
+         ;; TODO env contains data that shouldn't be there
+         ;; env is the dispatched argument. Used as default but is overridden by the local arguments
+         ;; Perform destructuring based on dynamic and static arguments
+         ;; Then resolve recursive properties in the aggregated env
+         ;; Final map contains inline arguments resolved
+         (let [{:keys [data errors]} (destructuring/destructure properties (merge dynamic arguments))]
+           ;; TODO handle errors
+           (let [env' (resolve-env env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
+             (dispatch-events ctx (map #(create-event ctx ext env' %) refs)))))
+       {:event true})}
+    nil))
 
 (defn- references
   "Returns a list of local event references"
   [data]
   (drop 2 data))
+
+(defn if-block? [o]
+  (and (list? o)
+       (let [[s test if else] o]
+         (and (= 'if s)
+              (symbol? test)
+              (reference/reference? if)
+              (and else (reference/reference? else))))))
+
+(defn- event? [o]
+  (or (reference/reference? o)
+      (if-block? o)))
 
 (defn local-event?
   "A local event must define a let block and have a single destructuring binding accessing 'properties."
@@ -96,7 +114,7 @@
            (even? (count bindings))
            (map? (first bindings))
            (= 'properties (second bindings))
-           (every? reference/reference? (references data))))))
+           (every? event? (references data))))))
 
 (defn- merge-pair [m [k v]]
   (cond

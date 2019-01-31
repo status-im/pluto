@@ -13,7 +13,9 @@
  events/cb
  (let [{value :arg v :value} properties
        {cond2? :cond?} [random-boolean]]
-   [alert {:value "Eh bis! ${cond2?}"}]
+   (if cond?
+     [alert {:value "Eh bis! ${cond2?}"}]
+     [alert {:value "Eh ter! ${cond2?}"}])
    [identity {:cb [my-alert {:arg value :value ["%% ${v}"]}]}])
 
  views/local-view
