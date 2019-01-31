@@ -1,11 +1,12 @@
 (ns pluto.reader.blocks
-  (:require [clojure.walk               :as walk]
-            [re-frame.core              :as re-frame]
-            [reagent.core               :as reagent]
+  (:require [clojure.walk :as walk]
+            [re-frame.core :as re-frame]
+            [reagent.core :as reagent]
             [pluto.reader.destructuring :as destructuring]
-            [pluto.reader.errors        :as errors]
-            [pluto.reader.types         :as types]
-            [pluto.utils                :as utils]))
+            [pluto.reader.errors :as errors]
+            [pluto.reader.types :as types]
+            [pluto.utils :as utils]
+            [pluto.reader.reference :as reference]))
 
 (defmulti parse
   "Parse a block element. Return hiccup data."
@@ -82,7 +83,7 @@
   (or (utils/primitive? v) (map? v)))
 
 (defn valid-bindings? [k v]
-  (and (or (symbol? k) (map? k))
+  (and (or (symbol? k) (map? k) (vector? k))
        (or (symbol? v) (static-value? v) (query? v))))
 
 (defn- valid-bindings-form? [bindings]

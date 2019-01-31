@@ -9,6 +9,7 @@
             [reagent.core          :as reagent]
             [reagent.dom           :as dom]
             [re-frame.core         :as re-frame]
+            [re-frame.registrar    :as registrar]
             [re-frame.loggers      :as re-frame.loggers]))
 
 (def warn (js/console.warn.bind js/console))
@@ -36,11 +37,15 @@
   (doseq [event events]
     (re-frame/dispatch event)))
 
+(defn resolve-query [[id :as data]]
+  (when (registrar/get-handler :sub id)
+    (re-frame/subscribe data)))
+
 (defn parse [m]
   (pluto/parse {:env        {:id       "Extension ID"
                              :logger   nil
                              :event-fn dispatch-events
-                             :query-fn nil}
+                             :query-fn resolve-query}
                 :capacities {:components components/all
                              :queries    {'random-boolean
                                           {:data :random-boolean}

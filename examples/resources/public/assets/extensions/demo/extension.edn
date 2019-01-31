@@ -11,8 +11,9 @@
    [alert {:value "Eh! ${you} ${value}"}])
 
  events/cb
- (let [{value :arg cond? :cond? v :value} properties]
-   [alert {:value "Eh bis! ${you} ${value}"}]
+ (let [{value :arg v :value} properties
+       {cond2? :cond?} [random-boolean]]
+   [alert {:value "Eh bis! ${cond2?}"}]
    [identity {:cb [my-alert {:arg value :value ["%% ${v}"]}]}])
 
  views/local-view
@@ -22,7 +23,7 @@
     (case level
       :polite [text {:style {:color color}} "Hello!! ${name}"]
       :neutral [text {:style {:color color}} "Hey!! ${name}"]
-      "?? ${name}"))}
+      [text "?? ${name}"]))}
 
  views/local-view2
  (let [{name :name color :color level :level} properties]
@@ -35,7 +36,7 @@
        {cond? :cond?} [random-boolean]]
    [view
     [local-view {:name "Hey!! ${name}" :color :red :level :polite}]
-    [button {:on-click [cb {:arg name :cond? cond? :value "AA"}]}
+    [button {:on-click [cb {:arg name :value "AA"}]}
      "Click!"]
     ;[button {:on-click [alert {}]}
     ; "Click2 !"]

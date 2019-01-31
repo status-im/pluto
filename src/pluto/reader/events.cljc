@@ -31,7 +31,7 @@
 (defn- dispatch-events
   "Dispatches an event using ctx"
   [ctx events]
-  (let [f (get-in ctx [:env :event-fn])]
+  (when-let [f (get-in ctx [:env :event-fn])]
     (if (seq events)
       (f events)
       (println "Empty event dispatched"))))
@@ -46,27 +46,40 @@
      :inline inline
      :errors (concat errors errors1)}))
 
-(defn- event-dispatcher [ctx ext refs arguments bindings]
+(defn- resolve-query
+  "Resolve a query using ctx"
+  [ctx ext query]
+  (let [{data :data} (types/resolve ctx ext :query query)]
+    (when-let [f (get-in ctx [:env :query-fn])]
+      (when-let [signal (f data)]
+        @signal))))
+
+(defn merge-resolved-query [ctx ext m {:keys [value bindings]}]
+  (cond
+    (map? bindings)
+    (merge m (:data (destructuring/destructure bindings (merge m (resolve-query ctx ext value)))))
+    (symbol? bindings)
+    (assoc m bindings (resolve-query ctx ext value))))
+
+(defn- event-dispatcher
+  "Returns a function of 2 arguments "
+  [ctx ext refs arguments {:keys [queries properties]}]
   (let [ref (map #(create-ref ctx ext %) refs)]
     (errors/merge-errors
       {:data
        (with-meta
          (fn [dynamic env]
+           ;; TODO env contains data that shouldn't be there
            ;; env is the dispatched argument. Used as default but is overridden by the local arguments
            ;; Perform destructuring based on dynamic and static arguments
            ;; Then resolve recursive properties in the aggregated env
            ;; Final map contains inline arguments resolved
-           (let [{:keys [data errors]} (destructuring/destructure bindings (merge dynamic arguments))]
+           (let [{:keys [data errors]} (destructuring/destructure properties (merge dynamic arguments))]
              ;; TODO handle errors
-             (let [env' (resolve-env env (merge env data))]
+             (let [env' (resolve-env env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
                (dispatch-events ctx (map #(create-event ctx env' %) ref)))))
          {:event true})}
       nil)))
-
-(defn- bindings
-  "Returns the left-hand part of a properties bindings"
-  [data]
-  (first (second data)))
 
 (defn- references
   "Returns a list of local event references"
@@ -80,20 +93,30 @@
     (let [[form bindings] data]
       (and (< 2 (count data))
            (= 'let form)
-           (= 2 (count bindings))
+           (even? (count bindings))
            (map? (first bindings))
            (= 'properties (second bindings))
            (every? reference/reference? (references data))))))
 
+(defn- merge-pair [m [k v]]
+  (cond
+    (= v 'properties) (assoc m :properties k)
+    :else (update m :queries concat [{:value v :bindings k}])))
+
+(defn- parse-let-bindings [bindings]
+  (let [pairs (partition 2 bindings)]
+    (reduce merge-pair
+            {}
+            pairs)))
+
 (defn parse
   "Parses local references defining let blocks"
-  [ctx ext local arguments]
+  [ctx ext [_ let-bindings :as local] arguments]
   (if (local-event? local)
-    (event-dispatcher ctx ext (references local) arguments (bindings local))
+    (event-dispatcher ctx ext (references local) arguments (parse-let-bindings let-bindings))
     {:errors [(errors/error ::errors/invalid-local-event local)]}))
 
 (defmethod types/resolve :event [ctx ext _ [_ arguments :as value]]
-  ;; TODO if kw, comes from reference, then resolve as a fn
   (let [{:keys [data errors] :as m} (reference/resolve ctx ext :event value)]
     ;; resolve returns either data or errors
     (if data
