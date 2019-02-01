@@ -1,16 +1,19 @@
 (ns pluto.examples
-  (:require [pluto.web.components  :as components]
+  (:require [pluto.web.components :as components]
             pluto.web.events
             pluto.web.queries
-            [pluto.core            :as pluto]
-            [pluto.storages        :as storages]
+            [pluto.core :as pluto]
+            [pluto.trace :as trace]
+            [pluto.storages :as storages]
             [pluto.web.editor.markdown :as mk]
             pluto.reader.views
-            [reagent.core          :as reagent]
-            [reagent.dom           :as dom]
-            [re-frame.core         :as re-frame]
-            [re-frame.registrar    :as registrar]
-            [re-frame.loggers      :as re-frame.loggers]))
+            [reagent.core :as reagent]
+            [reagent.dom :as dom]
+            [re-frame.core :as re-frame]
+            [re-frame.registrar :as registrar]
+            [re-frame.loggers :as re-frame.loggers]
+            [pluto.trace :as trace]
+            [pluto.trace :as trace]))
 
 (def warn (js/console.warn.bind js/console))
 (re-frame.loggers/set-loggers!
@@ -33,20 +36,22 @@
          [:li
           [:span [:b (str type)] (pr-str (dissoc m :type))]]))]))
 
-(defn dispatch-events [events]
-  (doseq [event events]
-    (when (vector? event)
-      (re-frame/dispatch event))))
+;; TODO somehow hook re-frame loggers into :logger
+;; https://github.com/Day8/re-frame/blob/master/docs/FAQs/Logging.md
 
-(defn resolve-query [[id :as data]]
-  (when (registrar/get-handler :sub id)
-    (re-frame/subscribe data)))
+(defn dispatch-events [ctx events]
+  (doseq [event events]
+    (if (vector? event)
+      (re-frame/dispatch event)
+      (trace/trace ctx (trace/create-trace :error :event/dispatch event)))))
+
+(defn resolve-query [ctx [id :as data]]
+  (if (registrar/get-handler :sub id)
+    (re-frame/subscribe data)
+    (trace/trace ctx (trace/create-trace :error :query/resolve data))))
 
 (defn parse [m]
-  (pluto/parse {:env        {:id       "Extension ID"
-                             :logger   nil
-                             :event-fn dispatch-events
-                             :query-fn resolve-query}
+  (pluto/parse {:env        {:id "Extension ID"}
                 :capacities {:components components/all
                              :queries    {'random-boolean
                                           {:data :random-boolean}
@@ -62,7 +67,10 @@
                                           'alert
                                           {:permissions [:read]
                                            :data        :alert
-                                           :arguments   {:value :string}}}}}
+                                           :arguments   {:value :string}}}}
+                :event-fn dispatch-events
+                :query-fn resolve-query
+                :tracer   #(.log js/console %)}
                m))
 
 (defn render-extension [m el el-errors]

@@ -1,13 +1,13 @@
 (ns pluto.core
   "Main pluto namespace entry point."
   (:refer-clojure :exclude [read])
-  (:require [clojure.string           :as string]
-            [clojure.tools.reader.edn :as edn]
-            [pluto.reader.errors      :as errors]
-            [pluto.reader.events      :as events]
-            [pluto.reader.types       :as types]
-            [pluto.reader.views       :as views]
-            [pluto.utils              :as utils]))
+  (:require [clojure.string      :as string]
+            [clojure.edn         :as edn]
+            [pluto.reader.errors :as errors]
+            [pluto.reader.events :as events]
+            [pluto.reader.types  :as types]
+            [pluto.reader.views  :as views]
+            [pluto.utils         :as utils]))
 
 (defn- reader-error [ex]
   (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
@@ -28,10 +28,6 @@
     {:data (edn/read-string {} s)}
     (catch #?(:clj Exception :cljs :default) ex
       {:errors [(reader-error ex)]})))
-
-(defmulti parse-value
-  "Parse an extension value from its type"
-  (fn [ctx ext k v] (namespace k)))
 
 (defmulti parse-value
   "Parse an extension value from its type"
@@ -83,24 +79,22 @@
   (let [indexes (zipmap order (range))]
     (compare [(get indexes (namespace k1)) k1] [(get indexes (namespace k2)) k2])))
 
-;; TODO somehow hook re-frame loggers into :logger
-;; https://github.com/Day8/re-frame/blob/master/docs/FAQs/Logging.md
-
 (defn parse
   "Parse an extension definition map as encapsulated in :data key of the map returned by `read`.
    `ctx` is a map defining:
    * `capacities` a map of valid supported capacities (hooks, queries, events)
    * `env`        a map of extension environment, will be provided as second parameter into event and query handlers
+   * `event-fn`   a function used to fire events
+   * `query-fn`   a function receiving a query and returning an `atom`
+   * `tracer`     [optional] a function that will be passed details about runtime extension execution (event fired, query values updated, ..): {:id 0 :category :error :type :event/dispatch :data {}}
 
-   `env` is a map defining:
-   * `logger`     [optional] a function that will be passed details about runtime extension execution (event fired, query values updated, ..): {:type :event :name 'my-event :properties {}}
 
    Returns the input map modified so that values have been parsed into:
    * `:data`        the result of parsing
    * `:permissions` a vector of required permissions
    * `:errors`      a vector of errors maps triggered during the parsing
 
-   If `errors` is not empty `data` will not be available.
+   If `errors` is not empty, `data` will not be available.
 
    e.g.
 

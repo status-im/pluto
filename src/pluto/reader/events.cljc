@@ -4,22 +4,29 @@
             [pluto.reader.errors        :as errors]
             [pluto.reader.reference     :as reference]
             [pluto.reader.types         :as types]
+            [pluto.trace                :as trace]
             [pluto.utils                :as utils]))
 
 ;; TODO part of this is duplicated from blocks/let
 
-(defn replace-atom [env o]
+(defn- interpolate [ctx m v]
+  (let [{:keys [data errors]} (utils/interpolate m v)]
+    (if errors
+      (trace/trace ctx (trace/create-trace :error :query/interpolation errors))
+      data)))
+
+(defn replace-atom [ctx env o]
   (cond (contains? env o) (get env o)
         (symbol? o) nil
-        (string? o) (:data (utils/interpolate env o))
-        (fn? o) #(o % env)
+        (string? o) (interpolate ctx env o)
+        (fn? o) #(o %1 (merge {:a %2} {:env env}))
         :else (walk/postwalk-replace env o)))
 
 (defn- resolve-env
   "Resolve pairs from `env` in `m`.
    Uses #replace-atom to perform the resolution."
-  [env m]
-  (reduce-kv #(assoc %1 %2 (replace-atom env %3)) {} m))
+  [ctx env m]
+  (reduce-kv #(assoc %1 %2 (replace-atom ctx env %3)) {} m))
 
 (defn- resolve-arguments
   "Resolve an event arguments based on event definition"
@@ -30,18 +37,23 @@
 
 (defn- dispatch-events
   "Dispatches an event using ctx"
-  [ctx events]
-  (when-let [f (get-in ctx [:env :event-fn])]
-    (if (seq events)
-      (f events)
-      (println "Empty event dispatched"))))
+  [{:keys [event-fn] :as ctx} events raw?]
+  (if (seq events)
+    (do
+      (trace/trace ctx (trace/create-trace :log :event/dispatch events))
+      (cond
+        raw?
+        events
+        event-fn
+        (event-fn ctx events)))
+    (trace/trace ctx (trace/create-trace :error :event/dispatch {}))))
 
 (defn- resolve-event
   "Returns the final event vector"
   [ctx ext env [event args :as reference]]
   (let [{data :data}   (reference/resolve ctx ext :event reference)
         {inline :data} (resolve-arguments ctx ext event (or args {}))]
-    [data (:env ctx) (resolve-env env inline)]))
+    [data (:env ctx) (resolve-env ctx env inline)]))
 
 (defn- create-event [ctx ext env ref]
   (cond
@@ -55,13 +67,15 @@
 
 (defn- resolve-query
   "Resolve a query using ctx"
-  [ctx ext query]
+  [{:keys [query-fn] :as ctx} ext query]
   (let [{data :data} (types/resolve ctx ext :query query)]
-    (when-let [f (get-in ctx [:env :query-fn])]
-      (when-let [signal (f data)]
-        @signal))))
+    (when query-fn
+      (when-let [signal (query-fn ctx data)]
+        (let [o @signal]
+          (trace/trace ctx (trace/create-trace :log :query/resolve o))
+          o)))))
 
-(defn merge-resolved-query [ctx ext m {:keys [value bindings]}]
+(defn- merge-resolved-query [ctx ext m {:keys [value bindings]}]
   (cond
     (map? bindings)
     (merge m (:data (destructuring/destructure bindings (merge m (resolve-query ctx ext value)))))
@@ -74,16 +88,17 @@
   (errors/merge-errors
     {:data
      (with-meta
-       (fn [dynamic env]
+       (fn [dynamic {:keys [env raw?] :as all}]
          ;; TODO env contains data that shouldn't be there
          ;; env is the dispatched argument. Used as default but is overridden by the local arguments
          ;; Perform destructuring based on dynamic and static arguments
          ;; Then resolve recursive properties in the aggregated env
          ;; Final map contains inline arguments resolved
          (let [{:keys [data errors]} (destructuring/destructure properties (merge dynamic arguments))]
-           ;; TODO handle errors
-           (let [env' (resolve-env env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
-             (dispatch-events ctx (map #(create-event ctx ext env' %) refs)))))
+           (when (seq errors)
+             (trace/trace ctx (trace/create-trace :error :event/destructuring errors)))
+           (let [env' (resolve-env ctx env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
+             (dispatch-events ctx (map #(create-event ctx ext env' %) refs) raw?))))
        {:event true})}
     nil))
 

@@ -1,30 +1,40 @@
 (ns pluto.reader.blocks
-  (:require [clojure.walk :as walk]
-            [re-frame.core :as re-frame]
-            [reagent.core :as reagent]
+  (:require [clojure.walk               :as walk]
+            [re-frame.core              :as re-frame]
+            #?(:cljs [reagent.core      :as reagent])
             [pluto.reader.destructuring :as destructuring]
-            [pluto.reader.errors :as errors]
-            [pluto.reader.types :as types]
-            [pluto.utils :as utils]
-            [pluto.reader.reference :as reference]))
+            [pluto.reader.errors        :as errors]
+            [pluto.reader.types         :as types]
+            [pluto.trace                :as trace]
+            [pluto.utils                :as utils]))
 
 (defmulti parse
   "Parse a block element. Return hiccup data."
   (fn [ctx ext parent [type]] type))
 
-(defn substitute-query-values [m v]
-  (walk/prewalk #(or (get m %) (when (string? %) (:data (utils/interpolate m %))) %) v))
+(defn- interpolate [ctx m v]
+  (let [{:keys [data errors]} (utils/interpolate m v)]
+    (if errors
+      (trace/trace ctx (trace/create-trace :error :query/interpolation errors))
+      data)))
+
+(defn substitute-query-values [ctx m v]
+  (walk/prewalk #(or (get m %) (when (string? %) (interpolate ctx m %)) %) v))
 
 (defn- query? [binding-value]
   (and (vector? binding-value)
        (let [s (first binding-value)]
          (or (symbol? s) (keyword? s)))))
 
-(defn resolve-rhs [env v]
+(defn resolve-rhs [ctx env v]
   (cond
     (= v 'properties) (get env :pluto.reader/properties)
     (symbol? v) (get env v)
-    (query? v) (some-> (re-frame/subscribe (substitute-query-values env v)) deref)
+    (query? v)
+    (when-let [signal (re-frame/subscribe (substitute-query-values ctx env v))]
+      (let [o @signal]
+        (trace/trace ctx (trace/create-trace :trace :query/resolve o))
+        o))
     :else v))
 
 (defn destructure-into [env k v]
@@ -32,18 +42,18 @@
     (into env (:data (destructuring/destructure k v)))
     (assoc env k v)))
 
-(defn resolve-binding [env k v]
-  (let [v' (resolve-rhs env v)]
+(defn resolve-binding [ctx env k v]
+  (let [v' (resolve-rhs ctx env v)]
     (destructure-into env k v')))
 
-(defn resolve-bindings-into [env bindings]
-  (reduce #(apply resolve-binding %1 %2) (or env {}) (partition 2 bindings)))
+(defn resolve-bindings-into [ctx env bindings]
+  (reduce #(apply resolve-binding ctx %1 %2) (or env {}) (partition 2 bindings)))
 
-(defn replace-atom [values o]
+(defn replace-atom [ctx values o]
   (cond (contains? values o) (get values o)
         (symbol? o) nil
-        (string? o) (:data (utils/interpolate values o))
-        (and (fn? o) (:event (meta o))) #(o % values) ;; Intercept events and inject the env. TODO remove this hack
+        (string? o) (interpolate ctx values o)
+        (and (fn? o) (:event (meta o))) #(o %1 (merge %2 {:env values})) ;; Intercept events and inject the env. TODO remove this hack
         :else (walk/postwalk-replace values o)))
 
 (defn walkup-upto-leaf [f lp? lf tree]
@@ -59,24 +69,24 @@
 
 (declare let-block for-block)
 
-(defn let-block [{:keys [prev-env bindings]} children]
-  (let [new-env (resolve-bindings-into prev-env bindings)]
-    (walkup-upto-leaf #(replace-atom new-env %)
+(defn let-block [{:keys [ctx prev-env bindings]} children]
+  (let [new-env (resolve-bindings-into ctx prev-env bindings)]
+    (walkup-upto-leaf #(replace-atom ctx new-env %)
                       #(and (vector? %) (#{for-block let-block} (first %)))
                       (fn [[x props children]]
                         [x (assoc props :prev-env new-env) children])
                       children)))
 
-(defn for-block [{:keys [prev-env bindings]} children]
+(defn for-block [{:keys [ctx prev-env bindings]} children]
   (let [[k v] bindings
-        for-values (resolve-rhs prev-env v)]
+        for-values (resolve-rhs ctx prev-env v)]
     (when (sequential? for-values)
       #?(:cljs
           (apply array
                  (map reagent/as-element
                    (for [val for-values]
                      ^{:key val}
-                     [let-block {:prev-env prev-env :bindings [k val]}
+                     [let-block {:ctx ctx :prev-env prev-env :bindings [k val]}
                        children])))))))
 
 (defn static-value? [v]
@@ -127,7 +137,7 @@
         (let [{:keys [errors data]} (resolve-and-validate-queries ctx ext bindings)]
           (if (not-empty errors)
             {:errors errors}
-            {:data [let-block {:bindings data} (last body)]}))))))
+            {:data [let-block {:ctx ctx :bindings data} (last body)]}))))))
 
 (defmethod parse 'for [ctx ext parent [_ binding & body]]
   (cond
@@ -140,7 +150,7 @@
     (let [{:keys [errors data]} (resolve-and-validate-queries ctx ext binding)]
       (if (not-empty errors)
         {:errors errors}
-        {:data [for-block {:bindings data}
+        {:data [for-block {:ctx ctx :bindings data}
                 (last body)]}))))
 
 (defn when-block [{:keys [test]} body]

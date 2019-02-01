@@ -1,11 +1,12 @@
 (ns pluto.reader.views
-  (:require [clojure.spec.alpha     :as spec]
-            #?(:cljs [reagent.core  :as reagent])
-            [pluto.reader.blocks    :as blocks]
-            [pluto.reader.errors    :as errors]
+  (:require [clojure.spec.alpha :as spec]
+            #?(:cljs [reagent.core :as reagent])
+            [pluto.reader.blocks :as blocks]
+            [pluto.reader.errors :as errors]
             [pluto.reader.reference :as reference]
-            [pluto.reader.types     :as types]
-            [pluto.utils            :as utils]))
+            [pluto.reader.types :as types]
+            [pluto.utils :as utils]
+            [pluto.trace :as trace]))
 
 (spec/def ::form
   (spec/or
@@ -130,21 +131,21 @@
     :else acc))
 
 (defn event->fn [ctx ext event f]
-  (fn [o]
+  (fn [& o]
     (when event
       (let [{:keys [data errors]} (types/resolve ctx ext :event event)]
         (when data
-          (data {:a (f o)}))))))
+          (data (apply f o)))))))
 
 #?(:cljs
-    (defn default-logger [err info]
-      (.log js/console err info)))
+    (defn default-logger [ctx error info]
+      (trace/trace ctx (trace/create-trace :error :view {:error error :info info}))))
 
-(defn error-boundary [component]
+(defn error-boundary [ctx component]
   #?(:cljs
       (reagent/create-class
         {:display-name        "error-boundary-wrapper"
-         :component-did-catch default-logger
+         :component-did-catch #(default-logger ctx %1 %2)
          :reagent-render      (fn error-boundary [_] component)})))
 
 (defn- inject-properties
@@ -168,16 +169,16 @@
                                                 component-did-update component-will-unmount]} data]
       (merge {:display-name        (str (first data))
               :reagent-render      (fn [o]
-                                     [error-boundary
+                                     [error-boundary ctx
                                       (inject-properties data o)])}
         (when get-initial-state {:get-initial-state-mount (event->fn ctx ext get-initial-state #(js->clj %))})
         (when component-will-receive-props {:component-will-receive-props (event->fn ctx ext component-will-receive-props #(assoc (js->clj %1) :new %2))})
         (when should-component-update {:should-component-update (event->fn ctx ext should-component-update #(assoc (js->clj %1) :old %2 :new %3))})
         (when component-will-mount {:component-will-mount (event->fn ctx ext component-will-mount #(js->clj %))})
-        (when component-did-mount {:component-did-mount (event->fn ctx ext component-did-mount #(js->clj %))})
+        (when component-did-mount {:component-did-mount (event->fn ctx ext component-did-mount #(do {}))})
         (when component-will-update {:component-will-update (event->fn ctx ext component-will-update #(assoc (js->clj %1) :new %2))})
         (when component-did-update {:component-did-update (event->fn ctx ext component-did-update #(assoc (js->clj %1) :old %2))})
-        (when component-will-unmount {:component-will-unmount (event->fn ctx ext component-will-unmount #(js->clj %))}))))
+        (when component-will-unmount {:component-will-unmount (event->fn ctx ext component-will-unmount #(do {}))}))))
 
 ;; TODO normalize to always have a props map
 (defn parse
@@ -189,7 +190,7 @@
          #?(:cljs {:data (reagent/create-class (create-reagent-spec ctx ext o data))})
          {:data
           (fn [o]
-            [error-boundary
+            [error-boundary ctx
              (inject-properties data o)])}))))
   ([ctx ext parent o]
    (if (list? o)
