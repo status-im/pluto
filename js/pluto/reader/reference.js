@@ -1,4 +1,4 @@
-// Compiled by ClojureScript 1.10.439 {:static-fns true, :optimize-constants true}
+// Compiled by ClojureScript 1.10.516 {:static-fns true, :optimize-constants true}
 goog.provide('pluto.reader.reference');
 goog.require('cljs.core');
 goog.require('cljs.core.constants');
@@ -8,9 +8,9 @@ goog.require('pluto.reader.errors');
  */
 pluto.reader.reference.reference_QMARK_ = (function pluto$reader$reference$reference_QMARK_(ref){
 if(cljs.core.vector_QMARK_(ref)){
-var vec__736 = ref;
-var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__736,(0),null);
-var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__736,(1),null);
+var vec__5338 = ref;
+var name = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__5338,(0),null);
+var arguments$ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__5338,(1),null);
 return (((name instanceof cljs.core.Symbol)) && (((2) >= cljs.core.count(ref))) && ((((arguments$ == null)) || (cljs.core.map_QMARK_(arguments$)) || ((arguments$ instanceof cljs.core.Symbol)))));
 } else {
 return null;
@@ -36,9 +36,9 @@ pluto.reader.reference.type__GT_capacity = new cljs.core.PersistentArrayMap(null
  * Resolve a symbol first via the extension definition then via the host ctx.
  */
 pluto.reader.reference.resolve_symbol = (function pluto$reader$reference$resolve_symbol(ctx,ext,type,ns,s){
-var or__4047__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(ext,cljs.core.symbol.cljs$core$IFn$_invoke$arity$2(ns,cljs.core.name(s)));
-if(cljs.core.truth_(or__4047__auto__)){
-return or__4047__auto__;
+var or__4131__auto__ = cljs.core.get.cljs$core$IFn$_invoke$arity$2(ext,cljs.core.symbol.cljs$core$IFn$_invoke$arity$2(ns,cljs.core.name(s)));
+if(cljs.core.truth_(or__4131__auto__)){
+return or__4131__auto__;
 } else {
 return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(ctx,new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$capacities,cljs.core.get.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$view,cljs.core.cst$kw$components,cljs.core.cst$kw$query,cljs.core.cst$kw$queries,cljs.core.cst$kw$event,cljs.core.cst$kw$events], null),type),s,cljs.core.cst$kw$data], null));
 }
