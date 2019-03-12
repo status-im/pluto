@@ -1,13 +1,13 @@
 (ns pluto.core
   "Main pluto namespace entry point."
   (:refer-clojure :exclude [read])
-  (:require [clojure.string      :as string]
-            [clojure.edn         :as edn]
-            [pluto.reader.errors :as errors]
-            [pluto.reader.events :as events]
-            [pluto.reader.types  :as types]
-            [pluto.reader.views  :as views]
-            [pluto.utils         :as utils]))
+  (:require [clojure.string           :as string]
+            [clojure.tools.reader.edn :as edn]
+            [pluto.reader.errors      :as errors]
+            [pluto.reader.events      :as events]
+            [pluto.reader.types       :as types]
+            [pluto.reader.views       :as views]
+            [pluto.utils              :as utils]))
 
 (defn- reader-error [ex]
   (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
