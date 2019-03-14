@@ -48,7 +48,7 @@
 (defmethod parse-value "events" [{:keys [capacities] :as ctx} ext k o]
   (parse-value-with capacities :events k #(events/parse ctx ext o "")))
 
-(defn- hook-type
+(defn hook-type
   "Type of a hook
    e.g. (= \"chat.command\" (hook-type 'chat.command.hello-world))"
   [s]
@@ -108,6 +108,8 @@
    {:data        {'view/a (fn [o] [text \"hello\"])}
     :permissions {'view/a #{}}"
   [ctx ext]
-  (reduce-kv #(accumulate ctx ext %1 %2 %3) {} ;; TODO move ext to %1
-             ;; Make sure elements are parsed in a controlled order
-             (into (sorted-map-by order-comparator) (dissoc ext 'meta))))
+  (merge-with merge
+              {:data {:meta (get ext 'meta)}}
+              (reduce-kv #(accumulate ctx ext %1 %2 %3) {} ;; TODO move ext to %1
+                         ;; Make sure elements are parsed in a controlled order
+                         (into (sorted-map-by order-comparator) (dissoc ext 'meta)))))
