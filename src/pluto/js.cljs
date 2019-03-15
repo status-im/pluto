@@ -325,5 +325,8 @@
                                                     :on-send-sync? :event
                                                     :on-receive?   :event}}}}})
 
+(defn ^:export read [s]
+  (pluto/read s))
+
 (defn ^:export parse [m]
   (pluto/parse ctx (:data m)))
