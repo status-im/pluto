@@ -3,6 +3,9 @@
   :description   "A simple demo of extension"
   :documentation "Nothing. Just see a text with dynamic random color."}
 
+ lifecycle
+ {:on-activation [alert {:value "Activation !!"}]}
+
  hooks/main.demo
  {:view [main]}
 
@@ -37,7 +40,7 @@
  (let [{name :name users :users}   properties
        {cond? :cond?} [random-boolean]]
    [view
-    [local-view {:name "Hey!! ${name}" :color :red :level :polite}]
+    ;[local-view {:name "Hey!! ${name}" :color :red :level :polite}]
     [button {:on-click [cb {:arg name :value "AA"}]}
      "Click!"]
     ;[button {:on-click [alert {}]}

@@ -77,6 +77,8 @@
   (let [{:keys [data errors]} (parse m)]
     (when errors
       (render (errors-list errors) el-errors))
+    (when-let [f (get-in data [:lifecycle :on-activation])]
+      (f))
     (if-let [view (get-in data [:hooks :main.demo :view])]
       (render view el)
       (render (fn [] [:div "Oups"]) el))))

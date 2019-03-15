@@ -42,10 +42,8 @@
     (do
       (trace/trace ctx (trace/create-trace :log :event/dispatch events))
       (cond
-        raw?
-        events
-        event-fn
-        (event-fn ctx events)))
+        raw? events
+        event-fn (event-fn ctx events)))
     (trace/trace ctx (trace/create-trace :error :event/dispatch {}))))
 
 (defn- resolve-event

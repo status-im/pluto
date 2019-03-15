@@ -29,9 +29,11 @@
     (catch #?(:clj Exception :cljs :default) ex
       {:errors [(reader-error ex)]})))
 
+(defn key-name [k] (or (namespace k) (name k)))
+
 (defmulti parse-value
   "Parse an extension value from its type"
-  (fn [ctx ext k v] (namespace k)))
+  (fn [ctx ext k v] (key-name k)))
 
 (defn- capacity? [m s]
   (let [keys (set (map name (keys m)))]
@@ -42,11 +44,19 @@
     [(errors/error ::errors/existing-key k)]
     (f)))
 
-(defmethod parse-value "views" [{:keys [capacities] :as ctx} ext k o]
-  (parse-value-with capacities :components k #(views/parse ctx ext o)))
+(def ^:private meta-properties
+  {:name           :string
+   :description    :string
+   :documentation? :string})
 
-(defmethod parse-value "events" [{:keys [capacities] :as ctx} ext k o]
-  (parse-value-with capacities :events k #(events/parse ctx ext o "")))
+(defmethod parse-value "meta" [ctx ext _ v]
+  (types/resolve ctx ext meta-properties v))
+
+(defmethod parse-value "events" [{:keys [capacities] :as ctx} ext k v]
+  (parse-value-with capacities :events k #(events/parse ctx ext v "")))
+
+(defmethod parse-value "views" [{:keys [capacities] :as ctx} ext k v]
+  (parse-value-with capacities :components k #(views/parse ctx ext v)))
 
 (defn hook-type
   "Type of a hook
@@ -60,6 +70,16 @@
                     #(let [{:keys [properties]} (get-in ctx [:capacities :hooks (keyword (hook-type k))])]
                        (types/resolve ctx ext properties o))))
 
+(def ^:private lifecycle-properties
+  {:ephemeral?         :boolean
+   :on-activation?     :event
+   :on-installation?   :event
+   :on-deactivation?   :event
+   :on-deinstallation? :event})
+
+(defmethod parse-value "lifecycle" [ctx ext _ v]
+  (types/resolve ctx ext lifecycle-properties v))
+
 (defmethod parse-value :default [_ _ k _]
   [(errors/error ::errors/invalid-key k)])
 
@@ -69,15 +89,19 @@
    If returned map contains :errors, :data is ignored."
   [ctx ext acc k v]
   (let [{:keys [data errors]} (parse-value ctx ext k v)]
-    (assoc-in acc [(if errors :errors :data) (keyword (namespace k)) (keyword (name k))] (or errors data))))
+    (assoc-in acc
+              (if (namespace k)
+                [(if errors :errors :data) (keyword (key-name k)) (keyword (name k))]
+                [(if errors :errors :data) (keyword (key-name k))])
+              (or errors data))))
 
-(def ^:const order ["events" "queries" "views" "hooks"])
+(def ^:const order ["meta" "events" "views" "hooks" "lifecycle"])
 
 (defn- order-comparator
   "Compares keys based on `order`"
   [k1 k2]
   (let [indexes (zipmap order (range))]
-    (compare [(get indexes (namespace k1)) k1] [(get indexes (namespace k2)) k2])))
+    (compare [(get indexes (key-name k1)) k1] [(get indexes (key-name k2)) k2])))
 
 (defn parse
   "Parse an extension definition map as encapsulated in :data key of the map returned by `read`.
@@ -98,18 +122,14 @@
 
    e.g.
 
-   {'view/a {:data ..
-             :permissions ..}
+   {:data        {:views {:a (fn [o] [text \"hello\"])}}
+    :permissions {:views {:a #{}}}
 
-    'view/b {:errors []}}
+    or
 
-   or
-
-   {:data        {'view/a (fn [o] [text \"hello\"])}
-    :permissions {'view/a #{}}"
+    {:errors     {:views {:a [{...}]}}
+    :permissions {:views {:a #{}}}"
   [ctx ext]
-  (merge-with merge
-              {:data {:meta (get ext 'meta)}}
-              (reduce-kv #(accumulate ctx ext %1 %2 %3) {} ;; TODO move ext to %1
-                         ;; Make sure elements are parsed in a controlled order
-                         (into (sorted-map-by order-comparator) (dissoc ext 'meta)))))
+  (reduce-kv #(accumulate ctx ext %1 %2 %3) {} ;; TODO move ext to %1
+             ;; Make sure elements are parsed in a controlled order
+             (into (sorted-map-by order-comparator) ext)))
