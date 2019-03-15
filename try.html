@@ -90,7 +90,7 @@
       elErrors.className = "";
     }
 
-    function appendErrors(el, errors) {
+    function appendErrors(el, errors, h) {
         const names = errors.map( (error, i) => {
           return [error.type, error.value]
         })
@@ -103,7 +103,7 @@
           s = s.concat("</li>");
         });
         s = s.concat("</ul>")
-        el.innerHTML = s;
+        el.innerHTML = h+s;
     }
 
     function displayErrors(errors) {
@@ -121,7 +121,7 @@
             if (errors.hasOwnProperty(property)) {
                for (var property2 in errors[property]) {
                 if (errors[property].hasOwnProperty(property2)) {
-                   appendErrors(elErrors, errors[property][property2])
+                   appendErrors(elErrors, errors[property][property2], "<h4>"+property+"</h4><h5>"+property2+"</h5>")
                 }
               }
             }
