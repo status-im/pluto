@@ -44,7 +44,7 @@
       return null;
     }
 
-    const defaultHash = "QmcfsYnFvKXApcFTCNttpQvQKYxiMCqVx5MvsocFyrr2KA";
+    const defaultHash = "QmSbBVf31sjoqTe5DRUSBd2ADVQejWRqduU3FgfbC32kjP";
 
     function clearHash() {
       history.replaceState({hash: null}, null, document.location.href.split('?')[0]);
@@ -90,14 +90,7 @@
       elErrors.className = "";
     }
 
-    function displayErrors(errors) {
-      const elErrors = document.getElementById("errors");
-      if (errors == null) {
-        elErrors.innerHTML = '<div>No errors</div>';
-        elErrors.classList.add("ok");
-      } else {
-        elErrors.classList.add("errors");
-
+    function appendErrors(el, errors) {
         const names = errors.map( (error, i) => {
           return [error.type, error.value]
         })
@@ -110,7 +103,30 @@
           s = s.concat("</li>");
         });
         s = s.concat("</ul>")
-        elErrors.innerHTML = s;
+        el.innerHTML = s;
+    }
+
+    function displayErrors(errors) {
+      const elErrors = document.getElementById("errors");
+      if (errors == null) {
+        elErrors.innerHTML = '<div>No errors</div>';
+        elErrors.classList.add("ok");
+      } else {
+        elErrors.classList.add("errors");
+
+        if (Array.isArray(errors)) {
+          appendErrors(el, errors);
+        } else {
+          for (var property in errors) {
+            if (errors.hasOwnProperty(property)) {
+               for (var property2 in errors[property]) {
+                if (errors[property].hasOwnProperty(property2)) {
+                   appendErrors(elErrors, errors[property][property2])
+                }
+              }
+            }
+          }
+        }
       }
     }
 
@@ -285,7 +301,7 @@
       clearErrors();
       clearQR();
       clearHash();
-      const read = pluto.reader.read(codeMirror.getValue());
+      const read = pluto.js.read(codeMirror.getValue());
       const readJS = pluto.js.from_clj(read);
       displayErrors(readJS.errors);
       if (readJS.errors == null) {
