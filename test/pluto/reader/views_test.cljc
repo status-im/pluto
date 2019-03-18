@@ -77,5 +77,8 @@
 (deftest unresolved-properties
   (is (= #{} (views/unresolved-properties #{} [:view {} ""])))
   (is (= #{'a} (views/unresolved-properties #{} [:view {} 'a])))
-  #_(is (= #{'a} (views/unresolved-properties #{} [:view {:style {:key 'a}} ""])))
+  (is (= #{'a} (views/unresolved-properties #{} [:view {} [:view 'a]])))
+  (is (= #{'a} (views/unresolved-properties #{} [:view {:style {:key 'a}} ""])))
+  (is (= #{'a} (views/unresolved-properties #{} [:view {:style [:event ['a]]}])))
+  (is (= #{'a} (views/unresolved-properties #{} [:view {:style [:event {:params {:title 'a}}]}])))
   (is (= #{'a} (views/unresolved-properties #{} [:view {} [:view {} 'a]]))))

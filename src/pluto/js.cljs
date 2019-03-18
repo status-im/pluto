@@ -29,9 +29,21 @@
                              'activity-indicator     {:data component :properties {:animating :boolean :color :string :size :keyword :hides-when-stopped :boolean}}
                              'picker                 {:data component :properties {:on-change :event :selected :string :enabled :boolean :data :vector}}
                              'nft-token-viewer       {:data component :properties {:token :string}}
-                             'transaction-status     {:data component :properties {:outgoing :string :tx-hash :string}}}
+                             'transaction-status     {:data component :properties {:outgoing :string :tx-hash :string}}
+                             'map                    {:data component
+                                                      :properties {:marker {:lng :number
+                                                                            :lat :number
+                                                                            :boundingbox {:lng1 :number
+                                                                                          :lat1 :number
+                                                                                          :lng2 :number
+                                                                                          :lat2 :number}}
+                                                                   :fly? :boolean
+                                                                   :interactive? :boolean
+                                                                   :on-change :event}}
+                             'map-link               {:data component :properties {:text :string :lng :any :lat :any}}}
                 :queries {'identity            {:data :extensions/identity :arguments {:value :map}}
                           'store/get           {:data :store/get :arguments {:key :string}}
+                          'contacts/all        {:data :extensions.contacts/all}
                           'wallet/collectibles {:data :get-collectible-token :arguments {:token :string :symbol :string}}
                           'wallet/balance      {:data :extensions.wallet/balance :arguments {:token :string}}
                           'wallet/token        {:data :extensions.wallet/token :arguments {:token :string :amount? :number :amount-in-wei? :number}}
@@ -314,7 +326,7 @@
                                                        :view      :view
                                                        :on-click? :event}}
                         :chat.command {:properties {:description?  :string
-                                                    :scope         #{:personal-chats :public-chats}
+                                                    :scope         #{:personal-chats :public-chats :group-chats}
                                                     :short-preview :view
                                                     :preview       :view
                                                     :parameters?    [{:id           :keyword
