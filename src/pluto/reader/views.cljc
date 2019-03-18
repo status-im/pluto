@@ -1,12 +1,13 @@
 (ns pluto.reader.views
-  (:require [clojure.spec.alpha :as spec]
-            #?(:cljs [reagent.core :as reagent])
-            [pluto.reader.blocks :as blocks]
-            [pluto.reader.errors :as errors]
+  (:require [clojure.set            :as set]
+            [clojure.spec.alpha     :as spec]
+            #?(:cljs [reagent.core  :as reagent])
+            [pluto.reader.blocks    :as blocks]
+            [pluto.reader.errors    :as errors]
             [pluto.reader.reference :as reference]
-            [pluto.reader.types :as types]
-            [pluto.utils :as utils]
-            [pluto.trace :as trace]))
+            [pluto.reader.types     :as types]
+            [pluto.utils            :as utils]
+            [pluto.trace            :as trace]))
 
 (spec/def ::form
   (spec/or
@@ -125,9 +126,8 @@
 (defn unresolved-properties [acc o]
   (cond
     (symbol? o) (conj acc o)
-    (vector? o)
-    (let [[_ _ & children] o]
-      (reduce #(apply conj %1 (unresolved-properties acc %2)) acc children))
+    (map? o)    (reduce #(apply conj %1 (unresolved-properties acc %2)) acc (vals o))
+    (vector? o) (reduce #(apply conj %1 (unresolved-properties acc %2)) acc o)
     :else acc))
 
 (defn event->fn [ctx ext event f]
@@ -152,6 +152,7 @@
   "Inject `properties` into the top level `let` block."
   ;; TODO remove this dependency on specifics of let block
   [h properties]
+  (println "Inject" properties)
   (if (vector? h)
     (let [[tag & properties-children] h
           [props children]            (resolve-properties-children properties-children)
@@ -198,11 +199,13 @@
        (if errors
          {:errors errors}
          (let [d     (parse ctx ext o data)
-               props (reduce unresolved-properties #{} d)]
-           (errors/merge-errors
-             d
-             (concat errors (when (seq props)
-                              {:errors [(errors/error ::errors/unresolved-properties props)]}))))))
+               ;; TODO Properly introduce `bindings` at top parsing level, not in blocks
+               props (set/difference (reduce unresolved-properties #{} d)
+                                     (first (get-in data [1 :bindings])))]
+             (errors/merge-errors
+               d
+               (when (seq props)
+                 [(errors/error ::errors/unresolved-properties props)])))))
      (parse-hiccup-element ctx ext o))))
 
 (defmethod types/resolve :view [ctx ext type value]
