@@ -15,10 +15,10 @@ return new cljs.core.PersistentArrayMap(null, 4, [cljs.core.cst$kw$id,pluto.trac
 /**
  * Trace provided object using the ctx `tracer`
  */
-pluto.trace.trace = (function pluto$trace$trace(p__5324,m){
-var map__5325 = p__5324;
-var map__5325__$1 = (((((!((map__5325 == null))))?(((((map__5325.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__5325.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__5325):map__5325);
-var tracer = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__5325__$1,cljs.core.cst$kw$tracer);
+pluto.trace.trace = (function pluto$trace$trace(p__980,m){
+var map__981 = p__980;
+var map__981__$1 = (((((!((map__981 == null))))?(((((map__981.cljs$lang$protocol_mask$partition0$ & (64))) || ((cljs.core.PROTOCOL_SENTINEL === map__981.cljs$core$ISeq$))))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__981):map__981);
+var tracer = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__981__$1,cljs.core.cst$kw$tracer);
 if(cljs.core.fn_QMARK_(tracer)){
 return (tracer.cljs$core$IFn$_invoke$arity$1 ? tracer.cljs$core$IFn$_invoke$arity$1(m) : tracer.call(null,m));
 } else {

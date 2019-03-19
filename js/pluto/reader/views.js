@@ -290,8 +290,6 @@ return component;
  * Inject `properties` into the top level `let` block.
  */
 pluto.reader.views.inject_properties = (function pluto$reader$views$inject_properties(h,properties){
-cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.prim_seq.cljs$core$IFn$_invoke$arity$2(["Inject",properties], 0));
-
 if(cljs.core.vector_QMARK_(h)){
 var vec__1480 = h;
 var seq__1481 = cljs.core.seq(vec__1480);
@@ -367,6 +365,14 @@ return cljs.core.PersistentArrayMap.EMPTY;
 });})(map__1498,map__1498__$1,get_initial_state,component_will_receive_props,should_component_update,component_will_mount,component_did_mount,component_will_update,component_did_update,component_will_unmount))
 )], null):null)], 0));
 });
+pluto.reader.views.bindings = (function pluto$reader$views$bindings(data){
+var o = cljs.core.first(cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(data,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(1),cljs.core.cst$kw$bindings], null)));
+if(cljs.core.map_QMARK_(o)){
+return cljs.core.set(cljs.core.keys(o));
+} else {
+return null;
+}
+});
 pluto.reader.views.parse = (function pluto$reader$views$parse(var_args){
 var G__1501 = arguments.length;
 switch (G__1501) {
@@ -415,7 +421,7 @@ if(cljs.core.truth_(errors)){
 return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$errors,errors], null);
 } else {
 var d = pluto.reader.views.parse.cljs$core$IFn$_invoke$arity$4(ctx,ext,o,data);
-var props = clojure.set.difference.cljs$core$IFn$_invoke$arity$2(cljs.core.reduce.cljs$core$IFn$_invoke$arity$3(pluto.reader.views.unresolved_properties,cljs.core.PersistentHashSet.EMPTY,d),cljs.core.first(cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(data,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(1),cljs.core.cst$kw$bindings], null))));
+var props = clojure.set.difference.cljs$core$IFn$_invoke$arity$2(cljs.core.reduce.cljs$core$IFn$_invoke$arity$3(pluto.reader.views.unresolved_properties,cljs.core.PersistentHashSet.EMPTY,d),pluto.reader.views.bindings(data));
 return pluto.reader.errors.merge_errors(d,((cljs.core.seq(props))?new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [pluto.reader.errors.error.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pluto$reader$errors_SLASH_unresolved_DASH_properties,props)], null):null));
 }
 } else {
