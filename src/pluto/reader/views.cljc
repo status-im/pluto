@@ -152,7 +152,6 @@
   "Inject `properties` into the top level `let` block."
   ;; TODO remove this dependency on specifics of let block
   [h properties]
-  (println "Inject" properties)
   (if (vector? h)
     (let [[tag & properties-children] h
           [props children]            (resolve-properties-children properties-children)
@@ -181,6 +180,12 @@
         (when component-did-update {:component-did-update (event->fn ctx ext component-did-update #(assoc (js->clj %1) :old %2))})
         (when component-will-unmount {:component-will-unmount (event->fn ctx ext component-will-unmount #(do {}))}))))
 
+(defn bindings [data]
+  (let [o (first (get-in data [1 :bindings]))]
+    ;; TODO Follow symbols
+    (when (map? o)
+      (set (keys o))))) ;; TODO extract all bindings props, not only first level
+
 ;; TODO normalize to always have a props map
 (defn parse
   ([ctx ext o]
@@ -201,11 +206,11 @@
          (let [d     (parse ctx ext o data)
                ;; TODO Properly introduce `bindings` at top parsing level, not in blocks
                props (set/difference (reduce unresolved-properties #{} d)
-                                     (first (get-in data [1 :bindings])))]
-             (errors/merge-errors
-               d
-               (when (seq props)
-                 [(errors/error ::errors/unresolved-properties props)])))))
+                                     (bindings data))]
+           (errors/merge-errors
+             d
+             (when (seq props)
+               [(errors/error ::errors/unresolved-properties props)])))))
      (parse-hiccup-element ctx ext o))))
 
 (defmethod types/resolve :view [ctx ext type value]

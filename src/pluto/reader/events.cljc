@@ -147,6 +147,8 @@
     (event-dispatcher ctx ext (references local) arguments (parse-let-bindings let-bindings))
     {:errors [(errors/error ::errors/invalid-local-event local)]}))
 
+;; TODO check unresolved symbols
+
 (defmethod types/resolve :event [ctx ext _ [_ arguments :as value]]
   (let [{:keys [data errors] :as m} (reference/resolve ctx ext :event value)]
     ;; resolve returns either data or errors
