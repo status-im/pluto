@@ -7,7 +7,7 @@
             [pluto.reader.reference :as reference]
             [pluto.reader.types     :as types]
             [pluto.utils            :as utils]
-            [pluto.trace            :as trace]))
+            [pluto.event            :as event]))
 
 (spec/def ::form
   (spec/or
@@ -139,7 +139,7 @@
 
 #?(:cljs
     (defn default-logger [ctx error info]
-      (trace/trace ctx (trace/create-trace :error :view {:error error :info info}))))
+      (event/fire! ctx :error :view {:error error :info info})))
 
 (defn error-boundary [ctx component]
   #?(:cljs

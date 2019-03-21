@@ -5,7 +5,7 @@
             [pluto.reader.destructuring :as destructuring]
             [pluto.reader.errors        :as errors]
             [pluto.reader.types         :as types]
-            [pluto.trace                :as trace]
+            [pluto.event                :as event]
             [pluto.utils                :as utils]))
 
 (defmulti parse
@@ -15,7 +15,7 @@
 (defn- interpolate [ctx m v]
   (let [{:keys [data errors]} (utils/interpolate m v)]
     (if errors
-      (trace/trace ctx (trace/create-trace :error :query/interpolation errors))
+      (event/fire! ctx :error :query/interpolation errors)
       data)))
 
 (defn substitute-query-values [ctx m v]
@@ -33,7 +33,7 @@
     (query? v)
     (when-let [signal (re-frame/subscribe (substitute-query-values ctx env v))]
       (let [o @signal]
-        (trace/trace ctx (trace/create-trace :trace :query/resolve o))
+        (event/fire! ctx :trace :query/resolve o)
         o))
     :else v))
 

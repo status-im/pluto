@@ -110,7 +110,7 @@
    * `env`        a map of extension environment, will be provided as second parameter into event and query handlers
    * `event-fn`   a function used to fire events
    * `query-fn`   a function receiving a query and returning an `atom`
-   * `tracer`     [optional] a function that will be passed details about runtime extension execution (event fired, query values updated, ..): {:id 0 :category :error :type :event/dispatch :data {}}
+   * `event-fn`     [optional] a function that will be passed details about runtime extension execution (event fired, query values updated, ..): {:id 0 :category :error :type :event/dispatch :data {}}
 
 
    Returns the input map modified so that values have been parsed into:

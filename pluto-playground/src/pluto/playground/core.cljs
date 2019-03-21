@@ -71,7 +71,7 @@
    :event-fn dispatch-events
    :query-fn resolve-query
    :view-fn  wrap-view
-   :tracer   #(re-frame/dispatch [:extension/append-trace %])})
+   :event-fn  #(re-frame/dispatch [:extension/append-trace %])})
 
 (def payload
   {:name "Test Extension"

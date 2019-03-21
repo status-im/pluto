@@ -4,7 +4,7 @@
             [pluto.reader.errors        :as errors]
             [pluto.reader.reference     :as reference]
             [pluto.reader.types         :as types]
-            [pluto.trace                :as trace]
+            [pluto.event                :as event]
             [pluto.utils                :as utils]))
 
 ;; TODO part of this is duplicated from blocks/let
@@ -12,7 +12,7 @@
 (defn- interpolate [ctx m v]
   (let [{:keys [data errors]} (utils/interpolate m v)]
     (if errors
-      (trace/trace ctx (trace/create-trace :error :query/interpolation errors))
+      (event/fire! ctx :error :query/interpolation errors)
       data)))
 
 (defn replace-atom [ctx env o]
@@ -40,11 +40,11 @@
   [{:keys [event-fn] :as ctx} events raw?]
   (if (seq events)
     (do
-      (trace/trace ctx (trace/create-trace :log :event/dispatch events))
+      (event/fire! ctx :log :event/dispatch events)
       (cond
         raw? events
         event-fn (event-fn ctx events)))
-    (trace/trace ctx (trace/create-trace :error :event/dispatch {}))))
+    (event/fire! ctx :error :event/dispatch {})))
 
 (defn- resolve-event
   "Returns the final event vector"
@@ -70,7 +70,7 @@
     (when query-fn
       (when-let [signal (query-fn ctx data)]
         (let [o @signal]
-          (trace/trace ctx (trace/create-trace :log :query/resolve o))
+          (event/fire! ctx :log :query/resolve o)
           o)))))
 
 (defn- merge-resolved-query [ctx ext m {:keys [value bindings]}]
@@ -94,7 +94,7 @@
          ;; Final map contains inline arguments resolved
          (let [{:keys [data errors]} (destructuring/destructure properties (merge dynamic arguments))]
            (when (seq errors)
-             (trace/trace ctx (trace/create-trace :error :event/destructuring errors)))
+             (event/fire! ctx :error :event/destructuring errors))
            (let [env' (resolve-env ctx env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
              (dispatch-events ctx (map #(create-event ctx ext env' %) refs) raw?))))
        {:event true})}
