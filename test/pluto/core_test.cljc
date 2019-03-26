@@ -2,16 +2,16 @@
   (:refer-clojure :exclude [read])
   (:require [clojure.test        :refer [is deftest]]
             [pluto.core          :as pluto]
-            [pluto.reader.blocks :as blocks]
-            [pluto.reader.errors :as errors]))
+            [pluto.error         :as error]
+            [pluto.reader.blocks :as blocks]))
 
 (deftest read
   (is (= {:data nil} (pluto/read "")))
-  (is (= {:errors [{::errors/message "No reader function for tag =."
-                    ::errors/type ::errors/reader-error ::errors/value :reader-error}]}
+  (is (= {:errors [{::error/message "No reader function for tag =."
+                    ::error/type ::error/reader-error ::error/value :reader-error}]}
          (pluto/read "#=(eval (def x 3))")))
-  (is (= {:errors [{::errors/type ::errors/reader-error ::errors/value :eof ::errors/message "Unexpected EOF while reading item 0 of vector."}]} (pluto/read "[")))
-  (is (= {:errors [{::errors/type ::errors/reader-error ::errors/value :reader-error ::errors/message "No reader function for tag unknown."}]}
+  (is (= {:errors [{::error/type ::error/reader-error ::error/value :eof ::error/message "Unexpected EOF while reading item 0 of vector."}]} (pluto/read "[")))
+  (is (= {:errors [{::error/type ::error/reader-error ::error/value :reader-error ::error/message "No reader function for tag unknown."}]}
          (pluto/read "#unknown []")))
   (is (= {:data {:extension/main 'view/main
                  :views/main     ['view {}
@@ -58,12 +58,12 @@
   (is (= {:data {'meta default-meta
                  :hooks {:main {:a {:parsed   nil
                                     :hook-ref (:main default-hooks)}}}}
-          :errors (list {::errors/type ::errors/unsupported-test-type ::errors/value "string"})}
+          :errors (list {::error/type ::error/unsupported-test-type ::error/value "string"})}
          (pluto/parse default-capacities (extension {'views/main  (list 'when "string" ['text {} ""])
                                                       'hooks/main.a {:view ['views/main]}})))))
 
 (deftest parse
-  (is (= (list {::errors/type ::errors/unknown-component ::errors/value 'text})
+  (is (= (list {::error/type ::error/unknown-component ::error/value 'text})
          (:errors (pluto/parse {:capacities {:hooks default-hooks}}
                                (extension {'views/main  ['text {} "Hello"]
                                            'hooks/main.a {:view ['views/main]}})))))

@@ -5,7 +5,7 @@
 
    e.g. [view] or [ethereum/log {:address \"\"}]"
   (:refer-clojure :exclude [resolve])
-  (:require [pluto.reader.errors :as errors]))
+  (:require [pluto.error :as error]))
 
 (defn reference?
   "Return true if argument is a reference"
@@ -46,6 +46,6 @@
     (if-let [ns (get type->ns type)]
       (if-let [o (resolve-symbol ctx ext type ns s)]
         {:data o}
-        {:errors [(errors/error ::errors/unknown-reference {:value s :type type})]})
-      {:errors [(errors/error ::errors/unknown-reference-type {:value type})]})
-    {:errors [(errors/error ::errors/invalid-reference {:type type :value ref})]}))
+        {:errors [(error/syntax ::error/unknown {:type :reference} {:data s :type type})]})
+      {:errors [(error/syntax ::error/invalid {:type :reference} {:reason :type :data type})]})
+    {:errors [(error/syntax ::error/invalid {:type :reference} {:type type :data ref})]}))

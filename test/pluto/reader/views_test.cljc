@@ -1,8 +1,7 @@
 (ns pluto.reader.views-test
   (:refer-clojure :exclude [resolve])
   (:require [clojure.test :refer [is deftest testing]]
-            [pluto.reader.blocks :as blocks]
-            [pluto.reader.errors :as errors]
+            [pluto.error         :as error]
             [pluto.reader.types  :as types]
             [pluto.reader.views  :as views]))
 
@@ -14,25 +13,25 @@
                                        (list ['text {} ""])))))
 
 (defn- first-error-type [m]
-  (::errors/type (first (:errors m))))
+  (::error/type (first (:errors m))))
 
 (deftest parse
   #_
-  (is (= ::errors/invalid-view (first-error-type (views/parse {} {}))))
+  (is (= ::error/invalid-view (first-error-type (views/parse {} {}))))
   #_
-  (is (= ::errors/invalid-view
+  (is (= ::error/invalid-view
          (first-error-type (views/parse {:capacities {:components {'text {:value :text}}}} ['text "Hello"]))))
   #_
-  (is (= ::errors/invalid-view
+  (is (= ::error/invalid-view
          (first-error-type (views/parse {:capacities {:components {'text {:value :text}}}} ['text {} []]))))
   #_
   (is (= {:data   ['text {} "Hello"]
-          :errors (list {::errors/type ::errors/unknown-component ::errors/value 'text})}
+          :errors (list {::error/type ::error/unknown-component ::error/value 'text})}
          (views/parse {} ['text {} "Hello"])))
   (is (= {:data [:text {} "Hello"]}
          (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))
   #_
-  (is (= {:errors [(errors/error ::errors/unresolved-properties #{'a})]}
+  (is (= {:errors [(errors/error ::error/unresolved-properties #{'a})]}
          (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} 'a])))
   (is (empty?
         (:errors (views/parse {:capacities {:queries {'random-boolean {:value :value}}
@@ -53,8 +52,8 @@
 
 (deftest resolve
   (is (= [:text "Hello"] ((:data (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/main])) {})))
-  (is (= {:errors [{::errors/type  ::errors/unknown-reference,
-                    ::errors/value {:value 'views/unknown :type :view}}]}
+  (is (= {:errors [{::error/type  ::error/unknown-reference
+                    ::error/value {:value 'views/unknown :type :view}}]}
          (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/unknown]))))
 
 (deftest invalid-view-element-spec-errors
@@ -64,15 +63,15 @@
                      {}
                      view))]
     (is (= (first-error-type (p '[text :sadf]))
-           :pluto.reader.errors/invalid-view))
+           ::error/invalid-view))
     (is (= (first-error-type (p '[text {} {}]))
-           :pluto.reader.errors/invalid-view))
+           ::error/invalid-view))
     
     (is (not (:errors (p '[text [text]]))))
     (is (not (:errors (p '[text {} 1 2 3 4 asdf]))))
 
     (is (= (first-error-type (p '[text {asdf "asdf"}]))
-           :pluto.reader.errors/invalid-property-map))))
+           ::error/invalid-property-map))))
 
 (deftest unresolved-properties
   (is (= #{} (views/unresolved-properties #{} [:view {} ""])))

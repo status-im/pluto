@@ -8,8 +8,8 @@
             pluto.playground.subs
             pluto.reader.events
             pluto.reader.views
+            [pluto.log                              :as log]
             [pluto.storages                         :as storages]
-            [pluto.trace                            :as trace]
             [pluto.web.components                   :as components]
             pluto.web.events
             pluto.web.queries
@@ -23,4 +23,3 @@
    :views {}})
 
 (defn events [source])
-  

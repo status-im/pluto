@@ -8,8 +8,8 @@
             pluto.playground.subs
             pluto.reader.events
             pluto.reader.views
+            [pluto.log                              :as log]
             [pluto.storages                         :as storages]
-            [pluto.trace                            :as trace]
             [pluto.web.components                   :as components]
             pluto.web.events
             pluto.web.queries
@@ -29,12 +29,12 @@
   (doseq [event events]
     (if (vector? event)
       (re-frame/dispatch event)
-      (trace/trace ctx (trace/create-trace :error :event/dispatch event)))))
+      (log/fire! ctx ::log/error :event/dispatch event))))
 
 (defn- resolve-query [ctx [id :as data]]
   (if (registrar/get-handler :sub id)
     (re-frame/subscribe data)
-    (trace/trace ctx (trace/create-trace :error :query/resolve data))))
+    (log/fire! ctx ::log/error :query/resolve data)))
 
 (defn cartouche [{:keys [path]} data]
   (let [p @(re-frame/subscribe [:extension/selected])]
@@ -71,7 +71,7 @@
    :event-fn dispatch-events
    :query-fn resolve-query
    :view-fn  wrap-view
-   :event-fn  #(re-frame/dispatch [:extension/append-trace %])})
+   :log-fn   #(re-frame/dispatch [:extension/append-log %])})
 
 (def payload
   {:name "Test Extension"

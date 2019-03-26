@@ -40,13 +40,13 @@
   :extension/update-source
   update-extension-source)
 
-(defn- append-trace
+(defn- append-log
   [{:keys [db]} [_ data]]
   {:db (update db :traces conj data)})
 
 (re-frame.core/reg-event-fx
-  :extension/append-trace
-  append-trace)
+  :extension/append-log
+  append-log)
 
 (defn- set-selected
   [{:keys [db]} [_ path]]

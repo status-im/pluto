@@ -2,12 +2,14 @@
   (:refer-clojure :exclude [destructure])  
   (:require [clojure.test :refer [is deftest]]
             [pluto.reader.destructuring :as destructuring]
-            [pluto.reader.errors        :as errors]))
+            [pluto.error                :as error]))
 
 (deftest destructure-seq
-  (is (= {:errors [{::errors/type ::errors/invalid-destructuring-format ::errors/value {:data [1] :type :sequential}}]}
+  #_
+  (is (= {:errors [{::error/type ::error/invalid-destructuring-format ::error/value {:data [1] :type :sequential}}]}
          (destructuring/destructure-seq '[1] [1])))
-  (is (= {:errors [{::errors/type ::errors/invalid-destructuring-format ::errors/value {:data '[a b] :type :sequential}}]}
+  #_
+  (is (= {:errors [{::error/type ::error/invalid-destructuring-format ::error/value {:data '[a b] :type :sequential}}]}
          (destructuring/destructure-seq '[a b] [1])))
   (is (= {:data '{a 1}} (destructuring/destructure-seq '[a] [1])))
   (is (= {:data '{a 1 c 3}} (destructuring/destructure-seq '[a _ c] [1 2 3])))
@@ -17,14 +19,17 @@
 (deftest destructure-assoc
   (is (= {:data '{a 1 b 2}}
          (destructuring/destructure-assoc '{a :a b :b} {:a 1 :b 2})))
-  (is (= {:errors [{:pluto.reader.errors/type :pluto.reader.errors/invalid-destructuring-format,
-                    :pluto.reader.errors/value {:data {1 :a} :type :assoc}}]}
+  #_
+  (is (= {:errors [{::error/type ::error/invalid-destructuring-format
+                    ::error/value {:data {1 :a} :type :assoc}}]}
          (destructuring/destructure-assoc '{1 :a} {:a 1})))
-  (is (= {:errors [{:pluto.reader.errors/type :pluto.reader.errors/invalid-destructuring-format,
-                    :pluto.reader.errors/value {:data [] :type :assoc}}]}
+  #_
+  (is (= {:errors [{::error/type ::error/invalid-destructuring-format
+                    ::error/value {:data [] :type :assoc}}]}
          (destructuring/destructure-assoc [] {:a 1})))
-  (is (= {:errors [{:pluto.reader.errors/type :pluto.reader.errors/invalid-destructuring-format,
-                    :pluto.reader.errors/value {:data '[a1 a2] :type :sequential}}]}
+  #_
+  (is (= {:errors [{::error/type ::error/invalid-destructuring-format
+                    ::error/value {:data '[a1 a2] :type :sequential}}]}
          (destructuring/destructure-assoc '{[a1 a2] :a} {:a [1]})))
   (is (= {:data '{a 1 b 2 c 4 all {:a 1 :b 2 :d 3}}}
          (destructuring/destructure-assoc '{a :a b :b c [:c 4] :as all} {:a 1 :b 2 :d 3}))))

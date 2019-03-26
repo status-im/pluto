@@ -1,9 +1,9 @@
 (ns pluto.utils
   (:refer-clojure :exclude [ex-cause ex-message])
   #?(:clj  (:import java.util.Locale))
-  (:require [clojure.set         :as set]
-            [clojure.string      :as string]
-            [pluto.reader.errors :as errors]
+  (:require [clojure.set          :as set]
+            [clojure.string       :as string]
+            [pluto.error          :as error]
             #?(:cljs [goog.string :as gstring])
             #?(:cljs [goog.string.format])))
 
@@ -68,7 +68,7 @@
         names (map :name v)
         extra (set/difference (set names) (set (keys values)))]
     (if (seq extra)
-      {:errors [(errors/error ::errors/invalid-placeholders extra)]}
+      {:errors [(error/syntax ::error/invalid {:type :placeholders} {:data extra})]}
       {:data
        (if (seq v)
          (apply #?(:clj format-en :cljs gstring/format)

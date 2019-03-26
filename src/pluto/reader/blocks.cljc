@@ -2,11 +2,15 @@
   (:require [clojure.walk               :as walk]
             [re-frame.core              :as re-frame]
             #?(:cljs [reagent.core      :as reagent])
+            [pluto.error                :as error]
+            [pluto.log                  :as log]
             [pluto.reader.destructuring :as destructuring]
-            [pluto.reader.errors        :as errors]
             [pluto.reader.types         :as types]
-            [pluto.event                :as event]
             [pluto.utils                :as utils]))
+
+(defn- invalid-block
+  [type m]
+  (error/syntax ::error/invalid {:type :block} (assoc m :type type)))
 
 (defmulti parse
   "Parse a block element. Return hiccup data."
@@ -15,7 +19,7 @@
 (defn- interpolate [ctx m v]
   (let [{:keys [data errors]} (utils/interpolate m v)]
     (if errors
-      (event/fire! ctx :error :query/interpolation errors)
+      (log/fire! ctx ::log/error :query/interpolation errors)
       data)))
 
 (defn substitute-query-values [ctx m v]
@@ -33,7 +37,7 @@
     (query? v)
     (when-let [signal (re-frame/subscribe (substitute-query-values ctx env v))]
       (let [o @signal]
-        (event/fire! ctx :trace :query/resolve o)
+        (log/fire! ctx ::log/trace :query/resolve o)
         o))
     :else v))
 
@@ -118,19 +122,19 @@
        (concat
         (->> binding-pairs
              (filter #(not (apply valid-bindings? %)))
-             (mapv #(errors/error ::errors/invalid-bindings %)))
+             (mapv #(invalid-block 'let {:data % :reason :bindings})))
         (->> binding-pairs
              (map first)
              (filter (some-fn sequential? map?))
              (mapcat destructuring/validate-destructure-bindings)))))
-    [(errors/error ::errors/invalid-bindings-format bindings)]))
+    [(invalid-block 'let {:data bindings :reason :bindings-format})]))
 
 (defn- valid-let-block? [body]
   (= 1 (count body)))
 
-(defmethod parse 'let [ctx ext parent [_ bindings & body]]
+(defmethod parse 'let [ctx ext _ [_ bindings & body]]
   (if-not (valid-let-block? body)
-    {:errors [(errors/error ::errors/invalid-let-body {:value body})]}
+    {:errors [(invalid-block 'let {:data body :reason :body})]}
     (let [binding-errors (validate-bindings bindings)]
       (if (not-empty binding-errors)
         {:errors binding-errors}
@@ -139,13 +143,13 @@
             {:errors errors}
             {:data [let-block {:ctx ctx :bindings data} (last body)]}))))))
 
-(defmethod parse 'for [ctx ext parent [_ binding & body]]
+(defmethod parse 'for [ctx ext _ [_ binding & body]]
   (cond
     (not= 1 (count body))
-    {:errors [(errors/error ::errors/invalid-for-body body)]}
+    {:errors [(invalid-block 'for {:data body :reason :body})]}
     (or (not= 2 (count binding))
         (not ((some-fn symbol? map?) (first binding))))
-    {:errors [(errors/error ::errors/invalid-for-binding binding)]}
+    {:errors [(invalid-block 'for {:data binding :reason :bindings})]}
     :else
     (let [{:keys [errors data]} (resolve-and-validate-queries ctx ext binding)]
       (if (not-empty errors)
@@ -159,9 +163,9 @@
 (defmethod parse 'when [_ _ _ [_ test & body :as parts]]
   (let [errors (cond-> nil
                  (not (symbol? test))
-                 (conj (errors/error ::errors/unsupported-test-type test))
+                 (conj (invalid-block 'when {:data test :reason :invalid-test-type}))
                  (empty? body)
-                 (conj (errors/error ::errors/invalid-when-block parts {:empty-body-clause body})))]
+                 (conj (invalid-block 'when {:data parts :reason :empty-body-clause})))]
     (if (not-empty errors)
       {:errors errors}
       {:data (apply conj [when-block {:test test}] body)})))
@@ -175,13 +179,11 @@
   (let [parts-count (count (rest parts))
         errors (cond-> nil
                  (not (symbol? test))
-                 (conj (errors/error ::errors/unsupported-test-type test))
+                 (conj (invalid-block 'if {:reason :test :data test}))
                  (< 3 parts-count)
-                 (conj (errors/error ::errors/invalid-if-block parts {:type :too-many-clauses
-                                                                      :clause-count parts-count}))
+                 (conj (invalid-block 'if {:reason :too-many-clauses :data parts}))
                  (> 3 parts-count)
-                 (conj (errors/error ::errors/invalid-if-block parts {:type :three-clauses-required
-                                                                      :clause-count parts-count})))]
+                 (conj (invalid-block 'if {:reason :three-clauses-required :data parts})))]
     (if (not-empty errors)
       {:errors errors}
       {:data (apply conj [if-block {:test test}] (list then else))})))
@@ -194,14 +196,12 @@
 (defmethod parse 'case [_ _ _ [_ expression & clauses]]
   (let [pairs (partition 2 clauses)
         errors (cond-> nil
-                 ;(not (keyword? expression)) TODO re-enable once property types are propagated
-                 ;(conj (errors/error ::errors/invalid-case-expression expression))
                  (not (every? keyword? (map first pairs)))
-                 (conj (errors/error ::errors/invalid-case-tests (map first pairs))))]
+                 (conj (invalid-block 'case {:reason :tests :data (map first pairs)})))]
     (if (not-empty errors)
       {:errors errors}
       {:data (into [case-block {:expression expression :tests (map first pairs)}]
                (concat (mapv second pairs)
                  (when (odd? (count clauses)) [(last clauses)])))})))
 
-(defmethod parse :default [ctx _ _ block] {:errors [{:type :unknown-block-type :ctx ctx :block block}]})
+(defmethod parse :default [_ _ _ block] {:errors [(error/syntax ::error/unknown {:type :block} {:data block})]})

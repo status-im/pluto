@@ -1,4 +1,4 @@
 .PHONY = dev
 
 dev:
-	clojure -A:examples
+	clojure -A:dev

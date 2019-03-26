@@ -4,7 +4,7 @@
   (:refer-clojure :exclude [resolve])
   (:require [clojure.set            :as set]
             [clojure.string         :as string]
-            [pluto.reader.errors    :as errors]
+            [pluto.error            :as error]
             [pluto.reader.reference :as reference]))
 
 (def reference-types #{:view :event :query})
@@ -29,7 +29,7 @@
   {:data value})
 
 (defn invalid-type-value [type value]
-  (errors/error ::errors/invalid-type-value {:type type :value value}))
+  (error/syntax ::error/invalid {:type :type} {:type type :data value}))
 
 (defmethod resolve :any [_ _ _ value]
   {:data value})
@@ -71,8 +71,8 @@
 
 (defmethod resolve :sequence [ctx ext type value]
   (if (and (vector? type) (= 1 (count type)) (map? (first type)))
-    (apply errors/merge-results-with #(conj (vec %1) %2) (map #(resolve ctx ext (first type) %) value))
-    {:errors [(errors/error ::errors/invalid-sequential-type {:type type :value value})]}))
+    (apply error/merge-results-with #(conj (vec %1) %2) (map #(resolve ctx ext (first type) %) value))
+    {:errors [(error/syntax ::error/invalid {:type :type} {:type type :data value :reason :sequential-type})]}))
 
 (defmethod resolve :one-of [_ _ {:keys [one-of]} value]
   (if-let [o (one-of value)]
@@ -97,18 +97,18 @@
 (defn- resolve-property [ctx ext m {:keys [name optional? value]} type]
   (if (not= sentinel value)
     (let [{:keys [data errors]} (resolve ctx ext type value)]
-      (errors/merge-errors
+      (error/merge-result
         (if data (assoc-in m [:data name] data) m)
-        errors))
+        {:errors errors}))
     (if optional?
       (update m :data #(if (empty? %) {} %))
-      (assoc m :errors [(errors/error ::errors/missing-property name)]))))
+      (assoc m :errors [(error/syntax ::error/invalid {:type :type} {:reason :missing-property :data name})]))))
 
 (defmethod resolve :assoc [ctx ext type value]
   (if (map? type)
     (reduce-kv #(resolve-property ctx ext %1 (property %2 value) %3)
                {} type)
-    {:errors [(errors/error ::errors/invalid-assoc-type {:type type :value value})]}))
+    {:errors [(error/syntax ::error/invalid {:type :type} {:type type :data value :reason :assoc-type})]}))
 
 ;; TODO replace with generic reference resolution?
 ;; reference resolution: first lookup ctx, then local primitives if supported
@@ -117,7 +117,7 @@
   (let [{:keys [data errors]} (reference/resolve ctx ext type value)]
     (merge (when data {:data (if arguments [data env arguments] [data env])})
            (when errors
-             {:errors (apply conj [(errors/error ::errors/unknown-query name)] errors)}))))
+             {:errors (apply conj [(error/syntax ::error/invalid {:type :type} {:reason :unknown-query :data name})] errors)}))))
 
 (defmethod resolve :default [_ _ type value]
-  {:errors [(errors/error ::errors/invalid-type (merge {:type type} (when value {:value value})))]})
+  {:errors [(error/syntax ::error/invalid {:type :type} (merge {:type type} (when value {:data value})))]})

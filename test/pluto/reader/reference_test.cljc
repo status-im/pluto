@@ -1,7 +1,7 @@
 (ns pluto.reader.reference-test
   (:refer-clojure :exclude [resolve])
   (:require [clojure.test :refer [is deftest]]
-            [pluto.reader.errors    :as errors]
+            [pluto.error            :as error]
             [pluto.reader.reference :as reference]))
 
 (deftest valid-reference?
@@ -23,14 +23,14 @@
   (is (= 'views/id (reference/reference->symbol ['views/id {}]))))
 
 (deftest resolve
-  (is (= {:errors [{::errors/type  ::errors/unknown-reference
-                    ::errors/value {:value 'id :type :view}}]}
+  (is (= {:errors [{::error/type  ::error/unknown-reference
+                    ::error/value {:value 'id :type :view}}]}
          (reference/resolve {} {} :view ['id])))
-  (is (= {:errors [{::errors/type  ::errors/invalid-reference
-                    ::errors/value {:value "" :type :view}}]}
+  (is (= {:errors [{::error/type  ::error/invalid-reference
+                    ::error/value {:value "" :type :view}}]}
          (reference/resolve {} {'views/id "view"} :view "")))
-  (is (= {:errors [{::errors/type  ::errors/unknown-reference-type
-                    ::errors/value {:value :unknown}}]}
+  (is (= {:errors [{::error/type  ::error/unknown-reference-type
+                    ::error/value {:value :unknown}}]}
          (reference/resolve {} {'views/id "view"} :unknown ['id])))
   (is (= {:data "view"}
          (reference/resolve {} {'views/id "view"} :view ['id])))

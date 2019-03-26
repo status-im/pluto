@@ -3,15 +3,16 @@
   (:refer-clojure :exclude [read])
   (:require [clojure.string           :as string]
             [clojure.tools.reader.edn :as edn]
-            [pluto.reader.errors      :as errors]
+            [pluto.error              :as error]
             [pluto.reader.events      :as events]
             [pluto.reader.types       :as types]
             [pluto.reader.views       :as views]
             [pluto.utils              :as utils]))
 
 (defn- reader-error [ex]
-  (errors/error ::errors/reader-error (:ex-kind (ex-data ex))
-                (merge {::errors/message (utils/ex-message ex)}
+  (error/create ::error/format ::error/invalid nil
+                (merge {:kind    (:ex-kind (ex-data ex))
+                        :message (utils/ex-message ex)}
                        (when-let [c (utils/ex-cause ex)]
                          {:cause c}))))
 
@@ -27,7 +28,7 @@
   (try
     {:data (edn/read-string {} s)}
     (catch #?(:clj Exception :cljs :default) ex
-      {:errors [(reader-error ex)]})))
+      {:errors {'global {'all [(reader-error ex)]}}})))
 
 (defn key-name [k] (or (namespace k) (name k)))
 
@@ -41,7 +42,7 @@
 
 (defn parse-value-with [capacities t k f]
   (if (capacity? (get capacities t) k)
-    [(errors/error ::errors/existing-key k)]
+    [(error/syntax ::error/syntax {:type ::error/overridden} {:data k})]
     (f)))
 
 (def ^:private meta-properties
@@ -81,7 +82,7 @@
   (types/resolve ctx ext lifecycle-properties v))
 
 (defmethod parse-value :default [_ _ k _]
-  [(errors/error ::errors/invalid-key k)])
+  [(error/syntax ::error/invalid {:data k})])
 
 (defn- accumulate
   "Accumulates the result of parsed primitives.
@@ -110,7 +111,7 @@
    * `env`        a map of extension environment, will be provided as second parameter into event and query handlers
    * `event-fn`   a function used to fire events
    * `query-fn`   a function receiving a query and returning an `atom`
-   * `event-fn`     [optional] a function that will be passed details about runtime extension execution (event fired, query values updated, ..): {:id 0 :category :error :type :event/dispatch :data {}}
+   * `log-fn`     [optional] a function that will be passed details about runtime extension execution (event fired, query values updated, ..): {:id 0 :category :error :type ::log/dispatch :data {}}
 
 
    Returns the input map modified so that values have been parsed into:
@@ -122,13 +123,13 @@
 
    e.g.
 
-   {:data        {:views {:a (fn [o] [text \"hello\"])}}
-    :permissions {:views {:a #{}}}
+   {:data        {'views/a (fn [o] [text \"hello\"])}
+    :permissions {'events/f #{}}}
 
     or
 
-    {:errors     {:views {:a [{...}]}}
-    :permissions {:views {:a #{}}}"
+    {:errors      {'views/a [{:category ::error/invalid ..}]}
+     :permissions {'events/f #{}}}"
   [ctx ext]
   (reduce-kv #(accumulate ctx ext %1 %2 %3) {} ;; TODO move ext to %1
              ;; Make sure elements are parsed in a controlled order

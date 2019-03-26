@@ -1,7 +1,7 @@
 .PHONY = tests
 
 compile:
-	lein cljsbuild once
+	clojure -m cljs.main -O advanced -d target -o target/pluto.js -c pluto.js
 
 install:
 	lein install

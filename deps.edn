@@ -12,6 +12,8 @@
                                     cljsjs/parinfer-codemirror      {:mvn/version "1.4.1-2"}
                                     cljsjs/material-ui              {:mvn/version "3.9.1-0"}}
                       :main-opts   ["-m" "figwheel.main" "-b" "examples/dev" "-r"]}
+           :compile {:extra-paths ["test"]
+                     :main-opts   ["-e"  "(require,'[eftest.runner,:refer,[find-tests,run-tests]]),(run-tests,(find-tests,\"test\"))"]}
            :test-clj {:extra-paths ["test"]
                       :extra-deps  {eftest {:mvn/version "0.5.4"}}
                       :main-opts   ["-e"  "(require,'[eftest.runner,:refer,[find-tests,run-tests]]),(run-tests,(find-tests,\"test\"))"]}

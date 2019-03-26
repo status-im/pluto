@@ -1,10 +1,10 @@
 (ns pluto.reader.events
   (:require [clojure.walk               :as walk]
+            [pluto.error                :as error]
+            [pluto.log                  :as log]
             [pluto.reader.destructuring :as destructuring]
-            [pluto.reader.errors        :as errors]
             [pluto.reader.reference     :as reference]
             [pluto.reader.types         :as types]
-            [pluto.event                :as event]
             [pluto.utils                :as utils]))
 
 ;; TODO part of this is duplicated from blocks/let
@@ -12,7 +12,7 @@
 (defn- interpolate [ctx m v]
   (let [{:keys [data errors]} (utils/interpolate m v)]
     (if errors
-      (event/fire! ctx :error :query/interpolation errors)
+      (log/fire! ctx ::log/error :query/interpolation errors)
       data)))
 
 (defn replace-atom [ctx env o]
@@ -33,18 +33,18 @@
   [ctx ext event arguments]
   (if-let [type (get-in ctx [:capacities :events event :arguments])]
     (types/resolve ctx ext type arguments)
-    {:errors [(errors/error ::errors/missing-reference-arguments {:type :event :value event})]}))
+    {:errors [(error/syntax ::error/invalid {:type :reference} {:type :event :data event})]}))
 
 (defn- dispatch-events
   "Dispatches an event using ctx"
   [{:keys [event-fn] :as ctx} events raw?]
   (if (seq events)
     (do
-      (event/fire! ctx :log :event/dispatch events)
+      (log/fire! ctx ::log/trace :event/dispatch events)
       (cond
         raw? events
         event-fn (event-fn ctx events)))
-    (event/fire! ctx :error :event/dispatch {})))
+    (log/fire! ctx ::log/error :event/dispatch {})))
 
 (defn- resolve-event
   "Returns the final event vector"
@@ -70,7 +70,7 @@
     (when query-fn
       (when-let [signal (query-fn ctx data)]
         (let [o @signal]
-          (event/fire! ctx :log :query/resolve o)
+          (log/fire! ctx ::log/trace :query/resolve o)
           o)))))
 
 (defn- merge-resolved-query [ctx ext m {:keys [value bindings]}]
@@ -83,22 +83,20 @@
 (defn- event-dispatcher
   "Returns a function of 2 arguments "
   [ctx ext refs arguments {:keys [queries properties]}]
-  (errors/merge-errors
-    {:data
-     (with-meta
-       (fn [dynamic {:keys [env raw?] :as all}]
-         ;; TODO env contains data that shouldn't be there
-         ;; env is the dispatched argument. Used as default but is overridden by the local arguments
-         ;; Perform destructuring based on dynamic and static arguments
-         ;; Then resolve recursive properties in the aggregated env
-         ;; Final map contains inline arguments resolved
-         (let [{:keys [data errors]} (destructuring/destructure properties (merge dynamic arguments))]
-           (when (seq errors)
-             (event/fire! ctx :error :event/destructuring errors))
-           (let [env' (resolve-env ctx env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
-             (dispatch-events ctx (map #(create-event ctx ext env' %) refs) raw?))))
-       {:event true})}
-    nil))
+  {:data
+   (with-meta
+     (fn [dynamic {:keys [env raw?]}]
+       ;; TODO env contains data that shouldn't be there
+       ;; env is the dispatched argument. Used as default but is overridden by the local arguments
+       ;; Perform destructuring based on dynamic and static arguments
+       ;; Then resolve recursive properties in the aggregated env
+       ;; Final map contains inline arguments resolved
+       (let [{:keys [data errors]} (destructuring/destructure properties (merge dynamic arguments))]
+         (when (seq errors)
+           (log/fire! ctx ::log/error :event/destructuring errors))
+         (let [env' (resolve-env ctx env (merge env (reduce #(merge-resolved-query ctx ext %1 %2) data queries)))]
+           (dispatch-events ctx (map #(create-event ctx ext env' %) refs) raw?))))
+     {:event true})})
 
 (defn- references
   "Returns a list of local event references"
@@ -145,7 +143,7 @@
   [ctx ext [_ let-bindings :as local] arguments]
   (if (local-event? local)
     (event-dispatcher ctx ext (references local) arguments (parse-let-bindings let-bindings))
-    {:errors [(errors/error ::errors/invalid-local-event local)]}))
+    {:errors [(error/syntax ::error/invalid {:type :local-event} {:data local})]}))
 
 ;; TODO check unresolved symbols
 
@@ -158,5 +156,5 @@
                  (event-dispatcher ctx ext (list value) arguments nil)
                  (parse ctx ext data arguments)))
              (when errors
-               {:errors (apply conj [(errors/error ::errors/unknown-event symbol)] errors)}))
+               {:errors (apply conj [(error/syntax ::error/unknown {:type :event} {:data symbol})] errors)}))
       m)))
