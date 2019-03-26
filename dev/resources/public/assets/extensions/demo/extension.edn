@@ -1,0 +1,64 @@
+{meta
+ {:name          "Simple Demo"
+  :description   "A simple demo of extension"
+  :documentation "Nothing. Just see a text with dynamic random color."}
+
+ lifecycle
+ {:on-activation [alert {:value "Activation !!"}]}
+
+ hooks/main.demo
+ {:view [main]}
+
+ events/my-alert
+ (let [{you :arg [value :as all] :value} properties]
+   [alert {:value "Eh! ${you} ${value}"}])
+
+ events/cb
+ (let [{value :arg v :value} properties
+       {cond2? :cond?} [random-boolean]]
+   (if cond?
+     [alert {:value "Eh bis! ${cond2?}"}]
+     [alert {:value "Eh ter! ${cond2?}"}])
+   [identity {:cb [my-alert {:arg value :value ["%% ${v}"]}]}])
+
+ views/local-view
+ {:component-did-mount [alert {:value "Mount!!"}]
+  :view
+  (let [{name :name color :color level :level} properties]
+    (case level
+      :polite [text {:style {:color color}} "Hello!! ${name}"]
+      :neutral [text {:style {:color color}} "Hey!! ${name}"]
+      [text "?? ${name}"]))}
+
+ views/local-view2
+ (let [{name :name color :color level :level} properties]
+   (case level
+     :polite [text {:style {:color color}} "Hey!!  ${name}"]
+     "Hello ${name}"))
+
+ views/main
+ (let [{name :name users :users}   properties
+       {cond? :cond?} [random-boolean]]
+   [view
+    [text "1"]
+    [text "2"]
+    ;[local-view {:name "Hey!! ${name}" :color :red :level :polite}]
+    [button {:on-click [cb {:arg name :value "AA"}]}
+     "Click!"]
+    ;[button {:on-click [alert {}]}
+    ; "Click2 !"]
+
+    [button {:on-click [my-alert {:arg cond? :value ["%% ${name}"]}]}
+     "Click2 !"]
+    [button {:on-click [alert {:value "AA"}]}
+     "Click3 !"]
+    (if cond?
+      [text {:style {:color "green"}}
+       name]
+      [text {:style {:color "red"}}
+       name])
+    [view "Nested for block"]
+    (for [{nm :nm} users]
+      [view
+       (for [{nm2 :nm} users]
+         [text nm " and " nm2])])])}

@@ -1,0 +1,4 @@
+^{:watch-dirs ["src" "dev/src"]
+  :log-level :info}
+{:main pluto.dev}
+

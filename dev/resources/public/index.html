@@ -1,0 +1,43 @@
+<html>
+<head>
+    <style>
+        main {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%
+        }
+        #selection {
+          padding: 10px;
+        }
+        #extension {
+           border: 40px solid #ddd;
+           border-width: 55px 7px;
+           border-radius: 40px;
+           margin: 50px auto;
+           width: 30vh;
+           height: 50vh;
+           overflow: hidden;
+        }
+        #extension iframe {
+          border: 0;
+          height: 100%;
+          width: 100%
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div id="extension">
+        <iframe id="frame" srcdoc="<body><main></main></body>"></iframe>
+    </div>
+    <div id="errors"></div>
+</main>
+</body>
+</html>
+
+<script src="cljs-out/dev/core-main.js"></script>
+<script>
+  pluto.dev.bootstrap("url@assets/extensions/demo", document.getElementById("frame").contentWindow.document.body.firstChild, document.getElementById("errors"));
+</script>
