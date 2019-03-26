@@ -29,7 +29,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - dependencies-
 
-      - run: make tests
+      - run: clojure -A:test-clj
 
       - save_cache:
           paths:
