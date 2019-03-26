@@ -15,8 +15,8 @@
            :compile {:extra-paths ["test"]
                      :main-opts   ["-e"  "(require,'[eftest.runner,:refer,[find-tests,run-tests]]),(run-tests,(find-tests,\"test\"))"]}
            :test-clj {:extra-paths ["test"]
-                      :extra-deps  {eftest {:mvn/version "0.5.4"}}
+                      :extra-deps  {eftest {:mvn/version "0.5.7"}}
                       :main-opts   ["-e"  "(require,'[eftest.runner,:refer,[find-tests,run-tests]]),(run-tests,(find-tests,\"test\"))"]}
            :test-cljs {:extra-paths ["test"]
-                       :extra-deps  {olical/cljs-test-runner {:mvn/version "3.4.0"}}
+                       :extra-deps  {olical/cljs-test-runner {:mvn/version "3.5.0"}}
                        :main-opts   ["-m" "cljs-test-runner.main" "-o" "target/cljs-test-runner-out"]}}}
