@@ -35,9 +35,3 @@ jobs:
           paths:
             - ~/.m2
           key: dependencies-{{ checksum "deps.edn" }}
-
-workflows:
-  version: 2
-  build_and_deploy:
-    jobs:
-      - build:
