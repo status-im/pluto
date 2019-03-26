@@ -4,21 +4,6 @@
 #
 version: 2
 jobs:
-  deploy-website:
-    docker:
-      # specify the version you desire here
-    - image: circleci/node:8.11.1
-
-    steps:
-    - checkout
-    - run:
-        name: Deploying to GitHub Pages
-        command: |
-          git config --global user.email "jeluard@users.noreply.github.com"
-          git config --global user.name "Julien Eluard"
-          echo "machine github.com login jeluard password $GITHUB_TOKEN" > ~/.netrc
-          cd website && yarn install && GIT_USER=jeluard yarn run publish-gh-pages
-
   build:
     docker:
       # specify the version you desire here
@@ -44,7 +29,7 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - dependencies-
 
-      - run: clojure -Atest-cljs
+      - run: make tests
 
       - save_cache:
           paths:
@@ -56,6 +41,3 @@ workflows:
   build_and_deploy:
     jobs:
       - build:
-      - deploy-website:
-          requires:
-          - build
