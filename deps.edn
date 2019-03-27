@@ -9,8 +9,6 @@
                                com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
                                binaryage/devtools              {:mvn/version "0.9.10"}}
                  :main-opts   ["-m" "figwheel.main" "-b" "dev/core" "-r"]}
-           :compile {:extra-paths ["test"]
-                     :main-opts   ["-e"  "(require,'[eftest.runner,:refer,[find-tests,run-tests]]),(run-tests,(find-tests,\"test\"))"]}
            :test-clj {:extra-paths ["test"]
                       :extra-deps  {eftest {:mvn/version "0.5.7"}}
                       :main-opts   ["-e"  "(require,'[eftest.runner,:refer,[find-tests,run-tests]]),(run-tests,(find-tests,\"test\"))"]}
