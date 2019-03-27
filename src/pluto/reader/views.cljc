@@ -216,7 +216,7 @@
                          (bindings data))]
             (error/merge-result
               d
-              {:errors (concat errors (when (seq props) [(error/syntax ::error/invalid {:type :view} {:reason :unresolved-properties :data props})]))}))))
+              {:errors [] #_(concat errors (when (seq props) [(error/syntax ::error/invalid {:type :view} {:reason :unresolved-properties :data props})]))}))))
       (parse-hiccup-element ctx ext parent-ctx o)))))
 
 (defmethod types/resolve :view [ctx ext type value]
