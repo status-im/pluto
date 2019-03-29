@@ -42,7 +42,7 @@
 
 (defn parse-value-with [capacities t k f]
   (if (capacity? (get capacities t) k)
-    [(error/syntax ::error/syntax {:type ::error/overridden} {:data k})]
+    [(error/syntax ::error/invalid {:type ::error/overridden} {:data k})]
     (f)))
 
 (def ^:private meta-properties
