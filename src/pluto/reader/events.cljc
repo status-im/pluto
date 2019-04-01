@@ -70,7 +70,7 @@
     (when query-fn
       (when-let [signal (query-fn ctx data)]
         (let [o @signal]
-          (log/fire! ctx ::log/trace :query/resolve o)
+          (log/fire! ctx ::log/trace :query/resolve {:value o :query query})
           o)))))
 
 (defn- merge-resolved-query [ctx ext m {:keys [value bindings]}]

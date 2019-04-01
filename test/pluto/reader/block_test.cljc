@@ -2,8 +2,7 @@
   (:require [clojure.test :refer [is deftest testing]]
             [pluto.core          :as reader]
             [pluto.error         :as error]
-            [pluto.reader.blocks :as blocks]
-            [re-frame.core       :as re-frame])
+            [pluto.reader.blocks :as blocks])
   #?(:cljs (:require-macros
             [pluto.reader.block-test :refer [with-fetch-data]])))
 
@@ -110,22 +109,27 @@
 (defn text-component   [& args] [:text args])
 (defn button-component [& args] [:button args])
 
+#_
 (re-frame/reg-sub ::identity-query
                   (fn [db [_ _ {:keys [x]}]] x))
 
+#_
 (re-frame/reg-sub ::bool-query
                   (fn [db [_ _ {:keys [x]}]] (= x "true")))
 
+#_
 (re-frame/reg-sub ::array-query
                   (fn [db [_ _ {:keys [x y]}]] (cond-> []
                                                  x (conj x)
                                                  y (conj y))))
 
+#_
 (re-frame/reg-sub ::identity-map
                   (fn [db [_ _ {:keys [x]}]] {:asdf x}))
 
 (def fetch-data (atom {}))
 
+#_
 (re-frame/reg-sub ::fetch-data
                   (fn [db [_ _ {:keys [id]}]] (get @fetch-data id)))
 

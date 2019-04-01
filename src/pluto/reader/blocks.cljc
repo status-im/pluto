@@ -1,6 +1,5 @@
 (ns pluto.reader.blocks
   (:require [clojure.walk               :as walk]
-            [re-frame.core              :as re-frame]
             #?(:cljs [reagent.core      :as reagent])
             [pluto.error                :as error]
             [pluto.log                  :as log]
@@ -30,15 +29,16 @@
        (let [s (first binding-value)]
          (or (symbol? s) (keyword? s)))))
 
-(defn resolve-rhs [ctx env v]
+(defn resolve-rhs [{:keys [query-fn] :as ctx} env v]
   (cond
     (= v 'properties) (get env :pluto.reader/properties)
     (symbol? v) (get env v)
     (query? v)
-    (when-let [signal (re-frame/subscribe (substitute-query-values ctx env v))]
-      (let [o @signal]
-        (log/fire! ctx ::log/trace :query/resolve o)
-        o))
+    (when query-fn
+      (when-let [signal (query-fn ctx (substitute-query-values ctx env v))]
+        (let [o @signal]
+          (log/fire! ctx ::log/trace :query/resolve {:key v :value o})
+          o)))
     :else v))
 
 (defn destructure-into [env k v]
