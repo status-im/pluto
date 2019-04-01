@@ -76,5 +76,7 @@
    * :errors, a vector of errors encountered during the destructuring"
   [bindings s]
   (cond
-    (sequential? s) (destructure-seq bindings s)
-    (map? s) (destructure-assoc bindings s)))
+    (sequential? bindings)
+    (destructure-seq bindings s)
+    (map? bindings)
+    (destructure-assoc bindings s)))

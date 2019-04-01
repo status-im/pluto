@@ -17,6 +17,8 @@
   (is (= {:data '{all [1 2 3]}} (destructuring/destructure-seq '[_ _ _ :as all] [1 2 3]))))
 
 (deftest destructure-assoc
+  (is (= {:data '{a nil b nil}}
+         (destructuring/destructure-assoc '{a :a b :b} nil)))
   (is (= {:data '{a 1 b 2}}
          (destructuring/destructure-assoc '{a :a b :b} {:a 1 :b 2})))
   #_
@@ -35,6 +37,7 @@
          (destructuring/destructure-assoc '{a :a b :b c [:c 4] :as all} {:a 1 :b 2 :d 3}))))
 
 (deftest destructure
+  (is (= {:data '{a nil}} (destructuring/destructure '{a :a} nil)))
   (is (= {:data '{a 1}} (destructuring/destructure '[a] [1])))
   (is (= {:data '{a 1 b 2}} (destructuring/destructure '[a {b :b}] [1 {:b 2}])))
   (is (= {:data '{a 1 b 2 c 3}} (destructuring/destructure '[a [b [c]]] [1 [2 [3]]])))
