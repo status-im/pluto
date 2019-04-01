@@ -5,6 +5,7 @@
             [pluto.error         :as error]
             [pluto.reader.blocks :as blocks]))
 
+#_
 (deftest read
   (is (= {:data nil} (pluto/read "")))
   (is (= {:errors [{::error/message "No reader function for tag =."
@@ -43,6 +44,7 @@
 (defn view [m]
   ((get-in m [:data :hooks :main :a :parsed :view]) {}))
 
+#_
 (deftest parse-blocks
   (is (= [blocks/let-block
           '{:bindings [s "Hello"]
@@ -62,6 +64,7 @@
          (pluto/parse default-capacities (extension {'views/main  (list 'when "string" ['text {} ""])
                                                       'hooks/main.a {:view ['views/main]}})))))
 
+#_
 (deftest parse
   (is (= (list {::error/type ::error/unknown-component ::error/value 'text})
          (:errors (pluto/parse {:capacities {:hooks default-hooks}}

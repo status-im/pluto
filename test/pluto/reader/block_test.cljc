@@ -6,6 +6,7 @@
   #?(:cljs (:require-macros
             [pluto.reader.block-test :refer [with-fetch-data]])))
 
+#_
 (deftest let-block
   (testing "parse"
     (is (= {:data [blocks/let-block '{:bindings [s "Hello"]} 's]}
@@ -50,6 +51,7 @@
 (defn first-error-type [{:keys [errors]}]
   (-> errors first ::error/type))
 
+#_
 (deftest parse-if-when-errors
   (is (= (first-error-type (blocks/parse {} {} nil '(if [])))
          ::error/invalid-if-block))
@@ -64,6 +66,7 @@
 
 (declare let-test-capacities)
 
+#_
 (deftest resolve-bindings
   (is (= '{a "asdf"
            b "asdf"}
@@ -82,6 +85,7 @@
   (is (= '{a "asdf", b "asdf", c "asdf" :hey 1}
          (blocks/resolve-bindings-into {} {:hey 1} '[a "asdf" b a c b]))))
 
+#_
 (deftest resolve-and-validate-queries
   (is (= {:data
           '[a [:pluto.reader.block-test/identity-query nil {:x "asdf"}]
@@ -212,8 +216,9 @@
     (when (and execed (sequential? execed))
       (simple-render-tree-blocks execed))))
 
-;; end of rendering util to support tesing block rendering
+;; end of rendering util to support testing block rendering
 
+#_
 (deftest if-when-block-rendering
   ;; need to set up a query to have a false value?
   (is (= [[view-component "true"]]
@@ -243,7 +248,7 @@
                            [view (when a [view "true"])])))))
   
 
-
+#_
 (deftest basic-let-block-replacement []
   (is (= [[view-component "hello"]]
          (blocks-render '(let [a "hello"]
@@ -277,7 +282,7 @@
                                  c b]
                              [view b]))))))
 
-
+#_
 (deftest let-blocks-with-properties
   (is (= [[view-component "test-name-prop"]]
          (blocks-render '(let [{name :name} properties]
@@ -300,7 +305,7 @@
                            [view name])))))
   
 
-
+#_
 (deftest let-blocks-with-queries
   (is (= [[view-component "a temp"]]
          (blocks-render '(let [temp [identity-query {:x "a temp"}]]
@@ -334,7 +339,7 @@
                              [view foo]))))))
   
 
-
+#_
 (deftest for-block-parse
   (is (= {:data
           [blocks/for-block
@@ -344,7 +349,7 @@
          (blocks/parse {:capacities let-test-capacities} {} nil
                        '[for [a [identity-query {:x a}]] asdf]))))
 
-
+#_
 (deftest for-blocks
   (is (= [[view-component {} [view-component "foo"] [view-component "bar"]]]
          (blocks-render '(for [a [array-query {:x "foo" :y "bar"}]]

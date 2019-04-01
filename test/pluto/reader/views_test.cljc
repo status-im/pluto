@@ -5,6 +5,7 @@
             [pluto.reader.types  :as types]
             [pluto.reader.views  :as views]))
 
+#_
 (deftest parse-hiccup-children
   (is (=  {:data (list [:text {} ""])}
           (views/parse-hiccup-children {:capacities {:components {'text {:value :text}}}}
@@ -15,6 +16,7 @@
 (defn- first-error-type [m]
   (::error/type (first (:errors m))))
 
+#_
 (deftest parse
   #_
   (is (= ::error/invalid-view (first-error-type (views/parse {} {}))))
@@ -50,12 +52,14 @@
     (is (= {:data [:text {} "Hello"]}
            (views/parse {:capacities {:components {'text {:value :text}}}} {} ['text {} "Hello"])))))
 
+#_
 (deftest resolve
   (is (= [:text "Hello"] ((:data (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/main])) {})))
   (is (= {:errors [{::error/type  ::error/unknown-reference
                     ::error/value {:value 'views/unknown :type :view}}]}
          (types/resolve {:capacities {:components {'text {:value :text}}}} {'views/main ['text "Hello"]} :view ['views/unknown]))))
 
+#_
 (deftest invalid-view-element-spec-errors
   (letfn [(p [view] (views/parse
                      {:capacities {:components {'text {:properties {:asdf :string}
