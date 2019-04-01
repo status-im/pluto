@@ -41,6 +41,10 @@
     (re-frame/subscribe data)
     (log/fire! ctx ::log/error :query/resolve data)))
 
+(defn view-fn [parent-ctx data]
+  [:div {}
+   data])
+
 (def ctx
   {:env        {:id "Extension ID"}
    :capacities {:components components/all
@@ -60,7 +64,8 @@
                               :data        :alert
                               :arguments   {:value :string}}}}
    :event-fn dispatch-events
-   :query-fn resolve-query})
+   :query-fn resolve-query
+   :view-fn  view-fn})
 
 (def payload
   {:name "Test Extension"

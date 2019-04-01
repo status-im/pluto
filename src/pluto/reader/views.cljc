@@ -192,6 +192,17 @@
     (when (map? o)
       (set (keys o))))) ;; TODO extract all bindings props, not only first level
 
+
+(defn- wrap-view [parent-ctx {:keys [view-fn] :as ctx} {:keys [data errors] :as m}]
+  (if (and (not errors) view-fn)
+    (let [view (view-fn parent-ctx data)]
+      (if (vector? view)
+        {:data view}
+        (do
+          (log/fire! ctx ::log/error :view/fn view)
+          m)))
+    m))
+
 ;; TODO normalize to always have a props map
 (defn parse
   ([ctx ext o]
@@ -204,8 +215,8 @@
           (fn [o]
             [error-boundary ctx
              (inject-properties data o)])}))))
-  ([{:keys [view-fn] :as ctx} ext {:keys [path] :as parent-ctx} o]
-   ((if view-fn #(view-fn parent-ctx %) identity)
+  ([ctx ext {:keys [path] :as parent-ctx} o]
+   (wrap-view parent-ctx ctx
     (if (list? o)
       (let [{:keys [data errors]} (blocks/parse ctx ext parent-ctx o)]
         (if errors
