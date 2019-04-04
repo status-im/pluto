@@ -34,7 +34,7 @@
     (= v 'properties) (get env :pluto.reader/properties)
     (symbol? v) (get env v)
     (query? v)
-    (when query-fn
+    (when (fn? query-fn)
       (when-let [signal (query-fn ctx (substitute-query-values ctx env v))]
         (let [o @signal]
           (log/fire! ctx ::log/trace :query/resolve {:key v :value o})

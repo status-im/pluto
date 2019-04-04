@@ -35,15 +35,26 @@
     (types/resolve ctx ext type arguments)
     {:errors [(error/syntax ::error/invalid {:type :reference} {:type :event :data event})]}))
 
+(defn- dispatch-event
+  "Safely call `event-fn`"
+  [event-fn ctx events]
+  (try
+    (when-let [o (event-fn ctx events)]
+      (log/fire! ctx ::log/error :event/dispatch {:reason :return-value-ignored :data o}))
+    (catch #?(:clj Exception :cljs :default) ex
+      (log/fire! ctx ::log/error :event/dispatch {:reason :exception-thrown :data ex}))))
+
 (defn- dispatch-events
   "Dispatches an event using ctx"
   [{:keys [event-fn] :as ctx} events raw?]
   (if (seq events)
     (do
-      (log/fire! ctx ::log/trace :event/dispatch events)
+      (log/fire! ctx ::log/trace :event/dispatch {:data events})
       (cond
         raw? events
-        event-fn (event-fn ctx events)))
+        (fn? event-fn) (dispatch-event event-fn ctx events)
+        :else
+        (log/fire! ctx ::log/error :event/dispatch {:reason (if event-fn :invalid-event-fn :missing-event-fn) :data events})))
     (log/fire! ctx ::log/error :event/dispatch {})))
 
 (defn- resolve-event
