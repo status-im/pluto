@@ -9,6 +9,9 @@ dev:
 install:
 	lein install
 
+deploy:
+	lein deploy clojars
+
 tests:
 	clojure -A:test-clj
 	clojure -A:test-cljs
