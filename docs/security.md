@@ -54,12 +54,26 @@ What (*capabilities*) accessed by whom (*scope*) after which action (*trigger*).
 
 Note:
 
+- http://habitatchronicles.com/2017/05/what-are-capabilities/
+- https://agoric.com/about/
 - https://github.com/NuxiNL/cloudabi#capability-based-security
 - https://en.wikipedia.org/wiki/Capability-based_security
 - https://www.cl.cam.ac.uk/research/security/capsicum/
 - https://fuchsia.googlesource.com/fuchsia/+/master/docs/the-book/sandboxing.md
 - https://github.com/CraneStation/wasmtime/blob/master/docs/WASI-overview.md#capability-oriented
+- https://github.com/CraneStation/wasmtime/blob/master/docs/WASI-capabilities.md
 - https://webassembly.org/docs/security/
+- https://developers.google.com/caja/
+- https://github.com/fastly/lucet/blob/master/SECURITY.md
+- https://sandstorm.io/how-it-works#capabilities
+
+- https://ethereum-magicians.org/t/ethereum-object-capabilities/3035
+- http://www.erights.org/elib/distrib/captp/index.html
+- http://www.erights.org/elib/capability/ode/index.html
+- http://zesty.ca/capmyths/usenix.pdf
+- https://github.com/danfinlay/capnode/tree/eip-712
+- https://w3c-ccg.github.io/ocap-ld/
+- https://medium.com/capabul/minimum-viable-consensus-algorithms-with-object-capabilities-6059f926ab88
 
 Simple security model, no [same-origin policy](https://www.w3.org/Security/wiki/Same_Origin_Policy)
 ---
@@ -181,6 +195,15 @@ What flow can lead to data leaks
 Note:
 
 Scenario: on extension installation, access user address and send it using HTTP
+
+---
+
+# Runtime
+
+- necessary capabilities inferred
+- surfaced to end user
+- end user can *reduce* those
+- extension can be run with insufficient capabilities, some features won't work (sandboxing)
 
 ---
 
