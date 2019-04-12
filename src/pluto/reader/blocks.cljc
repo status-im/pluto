@@ -101,7 +101,8 @@
        (or (symbol? v) (static-value? v) (query? v))))
 
 (defn- valid-bindings-form? [bindings]
-  (even? (count bindings)))
+  (when (seqable? bindings)
+    (even? (count bindings))))
 
 (defn resolve-and-validate-queries [ctx ext bindings]
   (reduce (fn [accum [k v]]
