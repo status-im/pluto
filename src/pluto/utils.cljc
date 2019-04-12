@@ -73,5 +73,5 @@
        (if (seq v)
          (apply #?(:clj format-en :cljs gstring/format)
                 (string/replace s placeholder-pattern
-                                (fn [[_ pattern]] (format-pattern pattern))) (map values names))
+                                (fn [[_ pattern]] (format-pattern pattern))) (map #(or (get values %) "") names))
          s)})))
