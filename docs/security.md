@@ -1,29 +1,5 @@
----
-title: Extensions - security/privacy
-revealOptions:
-    transition: 'fade'
----
-
-# Extensions
-## security/privacy
-
----
-
-## Context
-
-- Extend status features natively, permissionless
-- Data based
-- Simple primitives: hooks, queries, events, views
-
----
-
-# A simple language
-
-- No user defined logic (for now?)
-- Non turing complete language (only loop on finite set)
-- Can be analysed
-
----
+Extensions are 3rd party chunk of data that can dynamically and permissionlessly modify Status behavior.
+How do we ensure Status security is preserved and no unauthorized data access is performed?
 
 # What can go wrong?
 
@@ -32,60 +8,68 @@ revealOptions:
 - Data leaks
 - Replicate sensitive UI (chat messages/wallet)
 
----
+## Crashes
 
-# Crashes
+Static analysis is performed to detect incorrect syntax. Then a lightweight sandbox (React [error boundaries](https://reactjs.org/docs/error-boundaries.html), exception catching) act as safe guard.
 
-- Static analysis to detect incorrect syntax
-- Lightweight sandbox (React [error boundaries](https://reactjs.org/docs/error-boundaries.html), exception catching)
+## Status hijacking
 
----
+Any screen (including the wallet) can be recreated as an extension. Only Status has access to the 3 words, preventing users to be tricked into signing forged transactions.
 
-# Privacy
+## Privacy / Security
 
-What (*capabilities*) accessed by whom (*scope*) after which action (*trigger*).
+Status contains a number of private data and can potential trigger actions with consequences (signing a transaction).
+A user must be made aware of what an extension can do during its installation. The set of what can be done can be restricted by the user.
 
----
+# Capability based security
 
-# Capability-based security
+The proposed solution to address security and privacy risks is to rely on [Capacity based security](https://en.wikipedia.org/wiki/Capability-based_security) tailored for decentralized architecture.
+This model is used by a number of modern stacks ([Fuchsia](https://fuchsia.googlesource.com/fuchsia/+/master/docs/the-book/sandboxing.md), [WASI](https://github.com/CraneStation/wasmtime/blob/master/docs/WASI-capabilities.md) or even [Agoric](https://agoric.com/about/)).
+A good introduction to this model can be found [here](http://habitatchronicles.com/2017/05/what-are-capabilities/).
 
-- An extension defines a set of capabilities and can only access those
-- Enhanced for decentralized world
+Essentially each extension would run in an isolated sandbox with only pre-granted accesses. Extension then run under those capabilities and cannot access anything not provided.
+This is in contrast to hold user/permision model.
 
-Note:
+Extensions extend this model by puting emphasis on the localisation of the data (`scope`)
 
-- http://habitatchronicles.com/2017/05/what-are-capabilities/
-- https://agoric.com/about/
-- https://github.com/NuxiNL/cloudabi#capability-based-security
-- https://en.wikipedia.org/wiki/Capability-based_security
-- https://www.cl.cam.ac.uk/research/security/capsicum/
-- https://fuchsia.googlesource.com/fuchsia/+/master/docs/the-book/sandboxing.md
-- https://github.com/CraneStation/wasmtime/blob/master/docs/WASI-overview.md#capability-oriented
-- https://github.com/CraneStation/wasmtime/blob/master/docs/WASI-capabilities.md
-- https://webassembly.org/docs/security/
-- https://developers.google.com/caja/
-- https://github.com/fastly/lucet/blob/master/SECURITY.md
-- https://sandstorm.io/how-it-works#capabilities
+## Scope
 
-- https://ethereum-magicians.org/t/ethereum-object-capabilities/3035
-- http://www.erights.org/elib/distrib/captp/index.html
-- http://www.erights.org/elib/capability/ode/index.html
-- http://zesty.ca/capmyths/usenix.pdf
-- https://github.com/danfinlay/capnode/tree/eip-712
-- https://w3c-ccg.github.io/ocap-ld/
-- https://medium.com/capabul/minimum-viable-consensus-algorithms-with-object-capabilities-6059f926ab88
+Scope encompass what can be done with an identified piece of data. A data accessed but kept in the extension sandbox doesn't pose the same threat that the same send to arbitrary remote server.
 
-Simple security model, no [same-origin policy](https://www.w3.org/Security/wiki/Same_Origin_Policy)
----
+Scope can be:
 
-# Leveraging data
+- hook
+- extension
+- local
+- remote (HTTP, IPFS)
 
-- Capabilities fully inferred per hook
-- Surfaced to user for validation
+## Trigger
 
----
+What flow can lead to data leaks. A user controlled leak (e.g. button click) has not the same meaning than an extension controlled one (e.g. triggered during extension activation).
 
-# Example #1
+## Runtime
+
+The capability required for an extension can be fully inferred dynamically by Status (due to their data nature).
+This set of capabilities is then exposed to end user. Users are free to restrict this set and grant them to the extension.
+An extension can always run with no capabilities, in a degraded sandboxed mode (e.g. some UI elements inactive, some events filtered).
+
+# UX is a challenge
+
+How to simply surface those informations and ensure end users make an informed decision?
+We want to prevent users clicking through those screens and accepting anything.
+
+## Risk level
+
+A level (e.g. a note - A, B .. E-) is extracted from capabnilities and scopes required. It aggregates all associated risks. 
+
+## Security profile
+
+Users define a set of capabilities/scopes they are confortable with. Once enabled, matching extensions can be installed w/o validation.
+
+
+
+
+# Examples
 
 ```clojure
 {views/hello
@@ -96,13 +80,7 @@ Simple security model, no [same-origin policy](https://www.w3.org/Security/wiki/
   :view    [hello]}}
 ```
 
-Note:
-
-No capabilities required
-
----
-
-# Example #2
+No specific capabilities required. No data is accessed
 
 ```clojure
 {views/hello
@@ -113,13 +91,7 @@ No capabilities required
   :view    [hello]}}
 ```
 
-Note:
-
-Some capability required, extension scope
-
----
-
-# Example #3
+Some capability required as `gallery` might leak user photo. No way to have them exported through this extension.
 
 ```clojure
 {views/hello
@@ -130,31 +102,7 @@ Some capability required, extension scope
   :view    [hello]}}
 ```
 
-Note:
-
-Scope remote
-Depends on the URL
-
----
-
-# Example #4
-
-```clojure
-{views/hello
- [image {:url "data:image/png;base64,iVBORw..."}]
- 
- hooks/wallet.settings.hello
- {:label   "Test wallet settings"
-  :view    [hello]}}
-```
-
-Note:
-
-No scope issue
-
----
-
-# Example #5
+Depending on the URL (e.g. `http` yes, `data:image/png;base64,iVBORw...` no) private data can be leaked.
 
 ```clojure
 {views/hello
@@ -167,99 +115,4 @@ No scope issue
   :on-open [http/get {...}]}}
 ```
 
-Note:
-
-Send image issue: have all participants in a chat hit some HTTP endpoint with ethereum address and IPs
-Runtime check? User select scope, if doesn't match => fails
-
----
-
-# Scope
-
-What can be done with data accessed
-
-- hook
-- extension
-- local
-- remote (HTTP, IPFS)
-
----
-
-# Trigger
-
-What flow can lead to data leaks
-
-- user controlled (e.g. on button click)
-- extension controlled (on extension installation)
-
-Note:
-
-Scenario: on extension installation, access user address and send it using HTTP
-
----
-
-# Runtime
-
-- necessary capabilities inferred
-- surfaced to end user
-- end user can *reduce* those
-- extension can be run with insufficient capabilities, some features won't work (sandboxing)
-
----
-
-# Potential attack #1
-
-An extension uses OCR to read the seed from one of stored image
-
-- no such event currently
-- not clear how it could be prevented with 3rd party events
-- constrained by scope
-
----
-
-# Potential attack #2
-
-An extension periodically makes screenshot of the whole screen
-
-- no such event currently
-- not clear how it could be prevented with 3rd party events
-- constrained by scope
-- trigger could include status state information (e.g. only activate after seed is backuped)
-
----
-
-# Potential attack #3
-
-An extension replicates the whole status UI
-
-- constrained by scope
-- 3 words can't be accessed by extensions
-
----
-
-# UX is a challenge
-
-- Security profile to only surface selected capabilities
-- JIT user validation?
-- Problematic events? (e.g. send a message on behalf of user)
-
----
-
-# Risk level
-
-- Extracted from capabilities/scopes
-- Simplify user validation process
-
----
-
-# Security profile
-
-- A set of capabilities/scopes a user is confortable with
-- Once enabled, matching extensions can be installed w/o user validation
-
----
-
-# Open Questions
-
-- Mobile level permission is all or nothing
-- How to handle primitives created by 3rd parties? (future)
+Some examples cannot be fully analyzed (e.g. depends on runtime data).
